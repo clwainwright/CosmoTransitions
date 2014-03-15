@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Overview &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="index.html" />
+    <link rel="next" title="tunneling1D.py" href="tunnelling1D.html" />
+    <link rel="prev" title="Welcome to CosmoTransitions’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tunnelling1D.html" title="tunneling1D.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to CosmoTransitions’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>The CosmoTransitions package is a set of python modules for calculating properties of effective potentials with one or more scalar fields. Most importantly, it can be used to find the instanton solutions which interpolate between different vacua in a given theory, allowing one to determine the probability for a vacuum transition.</p>
+<div class="section" id="module-overview">
+<h2>Module overview<a class="headerlink" href="#module-overview" title="Permalink to this headline">¶</a></h2>
+<p>There are four core modules in the package, with each subsequent module relying upon the ones that preceed it. However, the reverse is not true: lower-level modules do not rely on higher-level modules. For example, <a class="reference internal" href="tunnelling1D.html#module-tunneling1D" title="tunneling1D"><tt class="xref py py-mod docutils literal"><span class="pre">tunneling1D</span></tt></a> can be used independently of all the functions which calculate instantons in multiple field dimensions and the functions which determine finite-temperature effects. The core modules are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="tunnelling1D.html#module-tunneling1D" title="tunneling1D"><tt class="xref py py-mod docutils literal"><span class="pre">tunneling1D</span></tt></a>: Calculates instantons in a single field dimension using the overshoot / undershoot method.</li>
+<li><a class="reference internal" href="pathDeformation.html#module-pathDeformation" title="pathDeformation"><tt class="xref py py-mod docutils literal"><span class="pre">pathDeformation</span></tt></a>: Calculates instantons in multiple field dimensions by first guessing a tunneling path, solving for the one-dimensional instanton constrained to that path, and then iteratively deforming the path so that it satisfies the multi-dimensional instanton equations of motion. The algorithm used here was the core insight around which CosmoTransitions took shape.</li>
+<li><a class="reference internal" href="transitionFinder.html#module-transitionFinder" title="transitionFinder"><tt class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></tt></a>: Calculates the phase structure of a potential at finite temperature (that is, the position of the minima as a function of temperature), and finds the bubble nucleation temperature(s) to transition between phases.</li>
+<li><a class="reference internal" href="generic_potential.html#module-generic_potential" title="generic_potential"><tt class="xref py py-mod docutils literal"><span class="pre">generic_potential</span></tt></a>: Contains an abstract class <a class="reference internal" href="generic_potential.html#generic_potential.generic_potential" title="generic_potential.generic_potential"><tt class="xref py py-class docutils literal"><span class="pre">generic_potential.generic_potential</span></tt></a> which can be easily subclassed to model potentials in physically interesting theories. Also contains convenience functions for interacting with <a class="reference internal" href="transitionFinder.html#module-transitionFinder" title="transitionFinder"><tt class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></tt></a> and for plotting the potential and its phases.</li>
+</ul>
+</div></blockquote>
+<p>In addition, there a few auxiliary modules which do not rely upon any of the core modules:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="helper_functions.html#module-helper_functions" title="helper_functions"><tt class="xref py py-mod docutils literal"><span class="pre">helper_functions</span></tt></a>: A collection of (mostly) stand-alone functions which are used by the core modules. This module is new.</li>
+<li><a class="reference internal" href="finiteT.html#module-finiteT" title="finiteT"><tt class="xref py py-mod docutils literal"><span class="pre">finiteT</span></tt></a>: Contains functions for calculates the finite-temperature contributions exactly and in different approximation regimes. Used by <a class="reference internal" href="generic_potential.html#module-generic_potential" title="generic_potential"><tt class="xref py py-mod docutils literal"><span class="pre">generic_potential</span></tt></a>.</li>
+<li><a class="reference internal" href="multi_field_plotting.html#module-multi_field_plotting" title="multi_field_plotting"><tt class="xref py py-mod docutils literal"><span class="pre">multi_field_plotting</span></tt></a>: Contains a class to ease visualization of potentials with three or more fields. This module is new.</li>
+</ul>
+</div></blockquote>
+<p>All modules make extensive use of <a class="reference external" href="http://www.numpy.org">numpy</a> and <a class="reference external" href="http://www.scipy.org">scipy</a>, and the plotting functions use <a class="reference external" href="http://matplotlib.org">matplotlib</a>. It is recommended that users also install <a class="reference external" href="http://ipython.org/">IPython</a> for easier interactive use (IPython also contains an excellent html-based python notebook, which is very handy for organizing computational and scientific work). These packages can be installed separately (using e.g. <a class="reference external" href="http://pythonhosted.org/setuptools/easy_install.html">easy_install</a>), or as part of a bundle (see the <a class="reference external" href="https://store.continuum.io/cshop/anaconda/">Anaconda</a> distribution or the <a class="reference external" href="https://www.enthought.com/products/canopy/">Enthought Canopy</a> distribution).</p>
+</div>
+<div class="section" id="changes-from-version-1-0">
+<h2>Changes from version 1.0<a class="headerlink" href="#changes-from-version-1-0" title="Permalink to this headline">¶</a></h2>
+<p>CosmoTransitions version 2 is a major update from version 1.0.2. The basic structure and computational strategy of the program remain the same, but many of the functions have changed to be more modular and extensible, and new functions have been added. Therefore, version 2 is not strictly backwards-compatible with version 1, and scripts that were written to use version 1 may need some minor revision to work with version 2.</p>
+<p>The overall changes are:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">Much better documentation. Almost all functions now have detailed docstrings which describe their use. These can be examined interactively by running <tt class="docutils literal"><span class="pre">help(function)</span></tt> at the python prompt, or by simply looking them up on this website. This website is built using the <a class="reference external" href="http://sphinx-doc.org/">sphinx</a> documentation tool, so any future changes to the code should be automatically updated here.</p>
+</li>
+<li><p class="first">More transparent return types. Unless otherwise noted, any function with multiple named return values returns a named tuple. This should make interactive use easier and scripts clearer to read. For example, the <a class="reference internal" href="tunnelling1D.html#tunneling1D.SingleFieldInstanton.findProfile" title="tunneling1D.SingleFieldInstanton.findProfile"><tt class="xref py py-meth docutils literal"><span class="pre">findProfile()</span></tt></a> method returns a <em>Profile1D</em> named tuple, so the field values along the profile can be retrieved using <tt class="docutils literal"><span class="pre">profile</span> <span class="pre">=</span> <span class="pre">instanton.findProfile();</span> <span class="pre">field_vals</span> <span class="pre">=</span> <span class="pre">profile.Phi</span></tt>.</p>
+</li>
+<li><p class="first">More rational nested calling structure. Because of it&#8217;s onion-like structure, CosmoTransitions often calls functions which call functions which call functions which might have some parameter that the user wants to tweak. Previously this was handled by passing extra keyword arguments to the top level function (like this: <tt class="docutils literal"><span class="pre">foo(**kwargs)</span></tt>), which often meant that the top-level function needed to know about the arguments in the bottom-level function. This is now generally handled by passing in whole dictionaries to the top-level function (without the two asterisks). For example, if when calling <a class="reference internal" href="generic_potential.html#generic_potential.generic_potential.findAllTransitions" title="generic_potential.generic_potential.findAllTransitions"><tt class="xref py py-meth docutils literal"><span class="pre">findAllTransitions()</span></tt></a>, one wishes to change the accuracy in the field <em>phi</em> used to calculate the instantons, one can call</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">(</span><span class="n">tunnelFromPhase_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">... </span>                         <span class="n">fullTunneling_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">... </span>                         <span class="n">tunneling_findProfile_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">... </span>                         <span class="n">phitol</span><span class="o">=</span><span class="n">new_phitol_value</span><span class="p">))))</span>
+</pre></div>
+</div>
+<p>This is verbose, granted, but relatively unambiguous.</p>
+</li>
+<li><p class="first">More pythonic use of exceptions. Exceptions are much better than error codes for both debugging and general code readability. When the code encounters an unexpected value (for example, when the metastable minimum is lower than the supposedly stable minimum), it should now report an error immediately rather than producing a seemingly unrelated error later on.</p>
+</li>
+<li><p class="first">Syntax style changes. All tabs have been converted to spaces in keeping with the official python style guide, and lines have for the most part been shortened to 80 or fewer characters.</p>
+</li>
+</ul>
+</div></blockquote>
+<p>What follows are some of the more notable specific changes, organized by module:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="tunnelling1D.html#module-tunneling1D" title="tunneling1D"><tt class="xref py py-mod docutils literal"><span class="pre">tunneling1D</span></tt></a><ul>
+<li>The <em>bubbleProfile</em> class has been renamed <a class="reference internal" href="tunnelling1D.html#tunneling1D.SingleFieldInstanton" title="tunneling1D.SingleFieldInstanton"><tt class="xref py py-class docutils literal"><span class="pre">SingleFieldInstanton</span></tt></a>, and a new class <a class="reference internal" href="tunnelling1D.html#tunneling1D.WallWithConstFriction" title="tunneling1D.WallWithConstFriction"><tt class="xref py py-class docutils literal"><span class="pre">WallWithConstFriction</span></tt></a> has been added.</li>
+<li>The radial scale is now set in its own function, and is set by the frequency of oscillations about the barrier&#8217;s maximum.</li>
+<li>Derivatives are now calculated to fourth order in <tt class="docutils literal"><span class="pre">phi_eps</span></tt>.</li>
+<li>The initial guess for the overshoot / undershoot method now defaults to the bottom of the potential barrier, rather than half way between the minima (this can be important for thick-walled bubbles).</li>
+<li>The <a class="reference internal" href="tunnelling1D.html#tunneling1D.SingleFieldInstanton.exactSolution" title="tunneling1D.SingleFieldInstanton.exactSolution"><tt class="xref py py-meth docutils literal"><span class="pre">exactSolution()</span></tt></a> method now finds the exact solution about the point of interest (considering both <em>dV</em> and <em>d2V</em>), rather than always about the stable minimum.</li>
+</ul>
+</li>
+<li><a class="reference internal" href="pathDeformation.html#module-pathDeformation" title="pathDeformation"><tt class="xref py py-mod docutils literal"><span class="pre">pathDeformation</span></tt></a><ul>
+<li>The <em>Deformation</em> class has been renamed <a class="reference internal" href="pathDeformation.html#pathDeformation.Deformation_Spline" title="pathDeformation.Deformation_Spline"><tt class="xref py py-class docutils literal"><span class="pre">Deformation_Spline</span></tt></a>, and a new <a class="reference internal" href="pathDeformation.html#pathDeformation.Deformation_Points" title="pathDeformation.Deformation_Points"><tt class="xref py py-class docutils literal"><span class="pre">Deformation_Points</span></tt></a> class has been added. The latter does not use a spline to approximate the path, and may be faster in certain circumstances (but slower in others). It is a simpler implementation, in any case.</li>
+<li>Fixed a bug in the <a class="reference internal" href="pathDeformation.html#pathDeformation.Deformation_Points.step" title="pathDeformation.Deformation_Points.step"><tt class="xref py py-meth docutils literal"><span class="pre">step()</span></tt></a> method which caused errors for thick-walled bubbles.</li>
+<li>Added a <a class="reference internal" href="pathDeformation.html#pathDeformation.SplinePath" title="pathDeformation.SplinePath"><tt class="xref py py-class docutils literal"><span class="pre">SplinePath</span></tt></a> class which encapsulates information about the tunneling path between deformation steps. This is used to describe the potential along the path for use in <a class="reference internal" href="tunnelling1D.html#module-tunneling1D" title="tunneling1D"><tt class="xref py py-mod docutils literal"><span class="pre">tunneling1D</span></tt></a>.</li>
+<li><a class="reference internal" href="pathDeformation.html#pathDeformation.fullTunneling" title="pathDeformation.fullTunneling"><tt class="xref py py-func docutils literal"><span class="pre">fullTunneling()</span></tt></a> is now a function, not a class.</li>
+<li>The <em>criticalTunneling</em> and <em>secondOrderTransition</em> classes have been removed. The functionality of both are now in <a class="reference internal" href="transitionFinder.html#module-transitionFinder" title="transitionFinder"><tt class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></tt></a>.</li>
+</ul>
+</li>
+<li><a class="reference internal" href="transitionFinder.html#module-transitionFinder" title="transitionFinder"><tt class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></tt></a><ul>
+<li>Added a <a class="reference internal" href="transitionFinder.html#transitionFinder.Phase" title="transitionFinder.Phase"><tt class="xref py py-class docutils literal"><span class="pre">Phase</span></tt></a> class which encapsulates information about a single temperature-dependent phase.</li>
+<li>The <a class="reference internal" href="transitionFinder.html#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a> function now returns a dictionary of phases, with each phase defined by a unique key.</li>
+<li>The <em>findTransitionRegions</em> function has been removed.</li>
+<li>The class <em>fullTransitions</em> has been replaced with the function <a class="reference internal" href="transitionFinder.html#transitionFinder.findAllTransitions" title="transitionFinder.findAllTransitions"><tt class="xref py py-func docutils literal"><span class="pre">findAllTransitions()</span></tt></a>, which has a somewhat more streamlined algorithm and interface.</li>
+</ul>
+</li>
+<li><a class="reference internal" href="generic_potential.html#module-generic_potential" title="generic_potential"><tt class="xref py py-mod docutils literal"><span class="pre">generic_potential</span></tt></a><ul>
+<li>Derivatives now default to fourth-order error in <tt class="docutils literal"><span class="pre">x_eps</span></tt>, and are calculated using classes <a class="reference internal" href="helper_functions.html#helper_functions.gradientFunction" title="helper_functions.gradientFunction"><tt class="xref py py-class docutils literal"><span class="pre">gradientFunction</span></tt></a> and <a class="reference internal" href="helper_functions.html#helper_functions.hessianFunction" title="helper_functions.hessianFunction"><tt class="xref py py-class docutils literal"><span class="pre">hessianFunction</span></tt></a>.</li>
+<li>The temperature scale is now set solely by <tt class="docutils literal"><span class="pre">self.Tmax</span></tt>. This avoids errors when there is a tree-level barrier and <tt class="docutils literal"><span class="pre">self.T0</span> <span class="pre">==</span> <span class="pre">0</span></tt>.</li>
+<li><a class="reference internal" href="generic_potential.html#generic_potential.generic_potential.forbidPhaseCrit" title="generic_potential.generic_potential.forbidPhaseCrit"><tt class="xref py py-meth docutils literal"><span class="pre">forbidPhaseCrit()</span></tt></a> is now a proper class method rather than a lambda function.</li>
+<li><a class="reference internal" href="generic_potential.html#generic_potential.generic_potential.findAllTransitions" title="generic_potential.generic_potential.findAllTransitions"><tt class="xref py py-meth docutils literal"><span class="pre">findAllTransitions()</span></tt></a> has somewhat different output matching the changes in <a class="reference internal" href="transitionFinder.html#module-transitionFinder" title="transitionFinder"><tt class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></tt></a>.</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="to-do-list">
+<h2>To-do list<a class="headerlink" href="#to-do-list" title="Permalink to this headline">¶</a></h2>
+<p>I still need to do a better job of testing the whole package, particularly the <a class="reference internal" href="transitionFinder.html#module-transitionFinder" title="transitionFinder"><tt class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></tt></a> code. I haven&#8217;t tested any edge cases there yet.</p>
+<p>Additionally:</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p class="last">Implement new versions of Jf and Jb that return zero when m=0, only
+adding in the field-independent piece later if
+<tt class="docutils literal"><span class="pre">include_radiation</span> <span class="pre">==</span> <span class="pre">True</span></tt>. This should reduce floating point
+errors when taking derivatives at very high temperature, where
+the field-independent contribution is much larger than the
+field-dependent contribution.</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="generic_potential.html#index-0"><em>original entry</em></a> is located in  /Users/maxwain/CosmoTransitions_v2/cosmoTransitions/generic_potential.py:docstring of generic_potential.generic_potential.V1T, line 14.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p class="last">Add an example plot.
+Make documentation for the other plotting functions.</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="generic_potential.html#index-1"><em>original entry</em></a> is located in  /Users/maxwain/CosmoTransitions_v2/cosmoTransitions/generic_potential.py:docstring of generic_potential.generic_potential.plot2d, line 26.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p class="last">Make sure to test removeRedundantPhases().</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="transitionFinder.html#index-0"><em>original entry</em></a> is located in  /Users/maxwain/CosmoTransitions_v2/cosmoTransitions/transitionFinder.py:docstring of transitionFinder.removeRedundantPhases, line 26.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p class="last">Possibly add extra logic to account for phases which coinincide
+at one end but not the other.</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="transitionFinder.html#index-1"><em>original entry</em></a> is located in  /Users/maxwain/CosmoTransitions_v2/cosmoTransitions/transitionFinder.py:docstring of transitionFinder.removeRedundantPhases, line 27.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p class="last">Create and document a <em>CDL_Instanton</em> class for tunneling with gravity.</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="tunnelling1D.html#index-0"><em>original entry</em></a> is located in  /Users/maxwain/CosmoTransitions_v2/cosmoTransitions/tunneling1D.py:docstring of tunneling1D, line 11.)</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Overview</a><ul>
+<li><a class="reference internal" href="#module-overview">Module overview</a></li>
+<li><a class="reference internal" href="#changes-from-version-1-0">Changes from version 1.0</a></li>
+<li><a class="reference internal" href="#to-do-list">To-do list</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to CosmoTransitions&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tunnelling1D.html"
+                        title="next chapter">tunneling1D.py</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/Overview.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tunnelling1D.html" title="tunneling1D.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to CosmoTransitions’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

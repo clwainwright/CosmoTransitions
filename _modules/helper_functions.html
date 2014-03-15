@@ -1,0 +1,767 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>helper_functions &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for helper_functions</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A collection of (mostly) stand alone helper functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;2.0a1&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Miscellaneous functions</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="setDefaultArgs"><a class="viewcode-back" href="../helper_functions.html#helper_functions.setDefaultArgs">[docs]</a><span class="k">def</span> <span class="nf">setDefaultArgs</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Changes the default args in `func` to match `kwargs`.</span>
+<span class="sd">    </span>
+<span class="sd">    This can be useful when dealing with deeply nested functions for which the</span>
+<span class="sd">    default parameters cannot be set directly in the top-level function.</span>
+<span class="sd">    </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------ </span>
+<span class="sd">    ValueError </span>
+<span class="sd">        if `func` does not have default arguments that match `kwargs`.</span>
+<span class="sd">    </span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">      &gt;&gt;&gt; def foo(bar=&quot;Hello world!&quot;):</span>
+<span class="sd">      ...     print bar</span>
+<span class="sd">      &gt;&gt;&gt; setDefaultArgs(foo, bar=&quot;The world has changed!&quot;)</span>
+<span class="sd">      &gt;&gt;&gt; foo()</span>
+<span class="sd">      The world has changed!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">inspect</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">varargs</span><span class="p">,</span> <span class="n">varkwargs</span><span class="p">,</span> <span class="n">defaults</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">have_defaults</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">):]</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span> <span class="c"># so that we can write to it</span>
+    <span class="k">for</span> <span class="n">kwd</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">have_defaults</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">kwd</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Function &#39;</span><span class="si">%s</span><span class="s">()&#39; does not have default argument &quot;</span>
+                             <span class="s">&quot;named &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">kwd</span><span class="p">))</span>
+        <span class="n">defaults</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">kwd</span><span class="p">]</span>
+    <span class="n">func</span><span class="o">.</span><span class="n">__defaults__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="monotonicIndices"><a class="viewcode-back" href="../helper_functions.html#helper_functions.monotonicIndices">[docs]</a><span class="k">def</span> <span class="nf">monotonicIndices</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the indices of `x` such that `x[i]` is purely increasing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">is_reversed</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">is_reversed</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">[</span><span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_reversed</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="clampVal"><a class="viewcode-back" href="../helper_functions.html#helper_functions.clampVal">[docs]</a><span class="k">def</span> <span class="nf">clampVal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clamp the value `x` to be between `a` and `b`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x, a, b : array_like</span>
+<span class="sd">        Must have the same shape or be broadcastable.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array_like</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span> <span class="c"># +1 for b &gt; a, -1 for b &lt; a</span>
+    <span class="n">sa</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">sa</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">-</span><span class="n">sa</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">sb</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">sb</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">-</span><span class="n">sb</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">x</span>    
+    </div>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Numerical integration</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="IntegrationError"><a class="viewcode-back" href="../helper_functions.html#helper_functions.IntegrationError">[docs]</a><span class="k">class</span> <span class="nc">IntegrationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used to indicate an integration error, primarily in :func:`rkqs`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+    </div>
+<span class="n">_rkqs_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;rkqs_rval&quot;</span><span class="p">,</span> <span class="s">&quot;Delta_y Delta_t dtnxt&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="rkqs"><a class="viewcode-back" href="../helper_functions.html#helper_functions.rkqs">[docs]</a><span class="k">def</span> <span class="nf">rkqs</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span> <span class="n">dt_try</span><span class="p">,</span> <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take a single 5th order Runge-Kutta step with error monitoring.</span>
+<span class="sd">    </span>
+<span class="sd">    This function is adapted from Numerical Recipes in C.</span>
+<span class="sd">    </span>
+<span class="sd">    The step size dynamically changes such that the error in `y` is smaller </span>
+<span class="sd">    than the larger of `epsfrac` and `epsabs`. That way, if one wants to </span>
+<span class="sd">    disregard the fractional error, set `epsfrac` to zero but keep `epsabs` </span>
+<span class="sd">    non-zero.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y, dydt : array_like</span>
+<span class="sd">        The initial value and its derivative at the start of the step.</span>
+<span class="sd">        They should satisfy ``dydt = f(y,t)``. `dydt` is included here for</span>
+<span class="sd">        efficiency (in case the calling function already calculated it).</span>
+<span class="sd">    t : float</span>
+<span class="sd">        The integration variable.</span>
+<span class="sd">    f : callable</span>
+<span class="sd">        The derivative function.</span>
+<span class="sd">    dt_try : float</span>
+<span class="sd">        An initial guess for the step size.</span>
+<span class="sd">    epsfrac, epsabs : array_like</span>
+<span class="sd">        The maximual fractional and absolute errors. Should be either length 1</span>
+<span class="sd">        or the same size as `y`.</span>
+<span class="sd">    args : tuple</span>
+<span class="sd">        Optional arguments for `f`.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Delta_y : array_like</span>
+<span class="sd">        Change in `y` during this step.</span>
+<span class="sd">    Delta_t : float</span>
+<span class="sd">        Change in `t` during this step.</span>
+<span class="sd">    dtnext : float</span>
+<span class="sd">        Best guess for next step size.</span>
+<span class="sd">        </span>
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    IntegrationError</span>
+<span class="sd">        If the step size gets smaller than the floating point error.</span>
+<span class="sd">        </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Based on algorithms described in [1]_.</span>
+<span class="sd">    </span>
+<span class="sd">    .. [1] W. H. Press, et. al. &quot;Numerical Recipes in C: The Art of Scientific</span>
+<span class="sd">       Computing. Second Edition.&quot; Cambridge, 1992.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_try</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">dy</span><span class="p">,</span><span class="n">yerr</span> <span class="o">=</span> <span class="n">_rkck</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">errmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">yerr</span><span class="o">/</span><span class="n">epsabs</span><span class="p">),</span> 
+            <span class="nb">abs</span><span class="p">(</span><span class="n">yerr</span><span class="p">)</span><span class="o">/</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-300</span><span class="p">)</span><span class="o">*</span><span class="n">epsfrac</span><span class="p">)],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">errmax</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">break</span> <span class="c"># Step succeeded</span>
+        <span class="n">dttemp</span> <span class="o">=</span> <span class="mf">0.9</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">errmax</span><span class="o">**-.</span><span class="mi">25</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="n">dt</span><span class="o">==</span><span class="n">t</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s">&quot;Stepsize rounds down to zero.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">errmax</span> <span class="o">&gt;</span> <span class="mf">1.89e-4</span><span class="p">:</span>
+        <span class="n">dtnext</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">errmax</span><span class="o">**-.</span><span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dtnext</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">dt</span>
+    <span class="k">return</span> <span class="n">_rkqs_rval</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dtnext</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="rkqs2"><a class="viewcode-back" href="../helper_functions.html#helper_functions.rkqs2">[docs]</a><span class="k">def</span> <span class="nf">rkqs2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span> <span class="n">dt_try</span><span class="p">,</span> <span class="n">inv_epsabs</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Same as :func:`rkqs`, but ``inv_epsabs = 1/epsabs`` and ``epsfrac`` is</span>
+<span class="sd">    not used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_try</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">dy</span><span class="p">,</span><span class="n">yerr</span> <span class="o">=</span> <span class="n">_rkck</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">errmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">yerr</span> <span class="o">*</span> <span class="n">inv_epsabs</span> <span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">errmax</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">break</span> <span class="c"># Step succeeded</span>
+        <span class="n">dttemp</span> <span class="o">=</span> <span class="mf">0.9</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">errmax</span><span class="o">**-.</span><span class="mi">25</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="n">dt</span><span class="o">==</span><span class="n">t</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s">&quot;Stepsize rounds down to zero.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">errmax</span> <span class="o">&gt;</span> <span class="mf">1.89e-4</span><span class="p">:</span>
+        <span class="n">dtnext</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">errmax</span><span class="o">**-.</span><span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dtnext</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">dt</span>
+    <span class="k">return</span> <span class="n">_rkqs_rval</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dtnext</span><span class="p">)</span>
+</div>
+<span class="k">def</span> <span class="nf">_rkck</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take one 5th-order Cash-Karp Runge-Kutta step.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array_like</span>
+<span class="sd">        The change in `y` during this step.</span>
+<span class="sd">    array_like</span>
+<span class="sd">        An error estimate for `y`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a2</span><span class="o">=</span><span class="mf">0.2</span><span class="p">;</span><span class="n">a3</span><span class="o">=</span><span class="mf">0.3</span><span class="p">;</span><span class="n">a4</span><span class="o">=</span><span class="mf">0.6</span><span class="p">;</span><span class="n">a5</span><span class="o">=</span><span class="mf">1.0</span><span class="p">;</span><span class="n">a6</span><span class="o">=</span><span class="mf">0.875</span><span class="p">;</span><span class="n">b21</span><span class="o">=</span><span class="mf">0.2</span>
+    <span class="n">b31</span><span class="o">=</span><span class="mf">3.0</span><span class="o">/</span><span class="mf">40.0</span><span class="p">;</span><span class="n">b32</span><span class="o">=</span><span class="mf">9.0</span><span class="o">/</span><span class="mf">40.0</span><span class="p">;</span><span class="n">b41</span><span class="o">=</span><span class="mf">0.3</span><span class="p">;</span><span class="n">b42</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.9</span><span class="p">;</span><span class="n">b43</span><span class="o">=</span><span class="mf">1.2</span><span class="p">;</span>
+    <span class="n">b51</span> <span class="o">=</span> <span class="o">-</span><span class="mf">11.0</span><span class="o">/</span><span class="mf">54.0</span><span class="p">;</span> <span class="n">b52</span><span class="o">=</span><span class="mf">2.5</span><span class="p">;</span><span class="n">b53</span> <span class="o">=</span> <span class="o">-</span><span class="mf">70.0</span><span class="o">/</span><span class="mf">27.0</span><span class="p">;</span><span class="n">b54</span><span class="o">=</span><span class="mf">35.0</span><span class="o">/</span><span class="mf">27.0</span><span class="p">;</span>
+    <span class="n">b61</span><span class="o">=</span><span class="mf">1631.0</span><span class="o">/</span><span class="mf">55296.0</span><span class="p">;</span><span class="n">b62</span><span class="o">=</span><span class="mf">175.0</span><span class="o">/</span><span class="mf">512.0</span><span class="p">;</span><span class="n">b63</span><span class="o">=</span><span class="mf">575.0</span><span class="o">/</span><span class="mf">13824.0</span><span class="p">;</span>
+    <span class="n">b64</span><span class="o">=</span><span class="mf">44275.0</span><span class="o">/</span><span class="mf">110592.0</span><span class="p">;</span><span class="n">b65</span><span class="o">=</span><span class="mf">253.0</span><span class="o">/</span><span class="mf">4096.0</span><span class="p">;</span><span class="n">c1</span><span class="o">=</span><span class="mf">37.0</span><span class="o">/</span><span class="mf">378.0</span><span class="p">;</span>
+    <span class="n">c3</span><span class="o">=</span><span class="mf">250.0</span><span class="o">/</span><span class="mf">621.0</span><span class="p">;</span><span class="n">c4</span><span class="o">=</span><span class="mf">125.0</span><span class="o">/</span><span class="mf">594.0</span><span class="p">;</span><span class="n">c6</span><span class="o">=</span><span class="mf">512.0</span><span class="o">/</span><span class="mf">1771.0</span><span class="p">;</span>
+    <span class="n">dc5</span> <span class="o">=</span> <span class="o">-</span><span class="mf">277.00</span><span class="o">/</span><span class="mf">14336.0</span><span class="p">;</span>
+    <span class="n">dc1</span><span class="o">=</span><span class="n">c1</span><span class="o">-</span><span class="mf">2825.0</span><span class="o">/</span><span class="mf">27648.0</span><span class="p">;</span><span class="n">dc3</span><span class="o">=</span><span class="n">c3</span><span class="o">-</span><span class="mf">18575.0</span><span class="o">/</span><span class="mf">48384.0</span><span class="p">;</span>
+    <span class="n">dc4</span><span class="o">=</span><span class="n">c4</span><span class="o">-</span><span class="mf">13525.0</span><span class="o">/</span><span class="mf">55296.0</span><span class="p">;</span><span class="n">dc6</span><span class="o">=</span><span class="n">c6</span><span class="o">-</span><span class="mf">0.25</span>
+    <span class="n">ytemp</span> <span class="o">=</span> <span class="n">y</span><span class="o">+</span><span class="n">b21</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">dydt</span>
+    <span class="n">ak2</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">ytemp</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">a2</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">ytemp</span> <span class="o">=</span> <span class="n">y</span><span class="o">+</span><span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">b31</span><span class="o">*</span><span class="n">dydt</span><span class="o">+</span><span class="n">b32</span><span class="o">*</span><span class="n">ak2</span><span class="p">)</span>
+    <span class="n">ak3</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">ytemp</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">a3</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">ytemp</span> <span class="o">=</span> <span class="n">y</span><span class="o">+</span><span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">b41</span><span class="o">*</span><span class="n">dydt</span><span class="o">+</span><span class="n">b42</span><span class="o">*</span><span class="n">ak2</span><span class="o">+</span><span class="n">b43</span><span class="o">*</span><span class="n">ak3</span><span class="p">)</span>
+    <span class="n">ak4</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">ytemp</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">a4</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">ytemp</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">b51</span><span class="o">*</span><span class="n">dydt</span><span class="o">+</span><span class="n">b52</span><span class="o">*</span><span class="n">ak2</span><span class="o">+</span><span class="n">b53</span><span class="o">*</span><span class="n">ak3</span><span class="o">+</span><span class="n">b54</span><span class="o">*</span><span class="n">ak4</span><span class="p">)</span>
+    <span class="n">ak5</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">ytemp</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">a5</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">ytemp</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">b61</span><span class="o">*</span><span class="n">dydt</span><span class="o">+</span><span class="n">b62</span><span class="o">*</span><span class="n">ak2</span><span class="o">+</span><span class="n">b63</span><span class="o">*</span><span class="n">ak3</span><span class="o">+</span><span class="n">b64</span><span class="o">*</span><span class="n">ak4</span><span class="o">+</span><span class="n">b65</span><span class="o">*</span><span class="n">ak5</span><span class="p">)</span>
+    <span class="n">ak6</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">ytemp</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">a6</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">dyout</span> <span class="o">=</span> <span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">c1</span><span class="o">*</span><span class="n">dydt</span><span class="o">+</span><span class="n">c3</span><span class="o">*</span><span class="n">ak3</span><span class="o">+</span><span class="n">c4</span><span class="o">*</span><span class="n">ak4</span><span class="o">+</span><span class="n">c6</span><span class="o">*</span><span class="n">ak6</span><span class="p">)</span>
+    <span class="n">yerr</span> <span class="o">=</span> <span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">dc1</span><span class="o">*</span><span class="n">dydt</span><span class="o">+</span><span class="n">dc3</span><span class="o">*</span><span class="n">ak3</span><span class="o">+</span><span class="n">dc4</span><span class="o">*</span><span class="n">ak4</span><span class="o">+</span><span class="n">dc5</span><span class="o">*</span><span class="n">ak5</span><span class="o">+</span><span class="n">dc6</span><span class="o">*</span><span class="n">ak6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dyout</span><span class="p">,</span> <span class="n">yerr</span>
+    
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Numerical derivatives</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">The *derivij()* functions accept arrays as input and return arrays as output.</span>
+<span class="sd">In contrast, :class:`gradientFunction` and :class:hessianFunction` accept</span>
+<span class="sd">functions as input and return callable class instances (essentially functions)</span>
+<span class="sd">as output. The returned functions can then be used to find derivatives.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="deriv14"><a class="viewcode-back" href="../helper_functions.html#helper_functions.deriv14">[docs]</a><span class="k">def</span> <span class="nf">deriv14</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">R&quot;&quot;&quot;</span>
+<span class="sd">    Calculates :math:`dy/dx` to fourth-order in :math:`\Delta x` using </span>
+<span class="sd">    finite differences. The derivative is taken along the last dimension of `y`.</span>
+<span class="sd">    </span>
+<span class="sd">    Both `y` and `x` should be numpy arrays. The derivatives are centered</span>
+<span class="sd">    in the interior of the array, but not at the edges. The spacing in `x` </span>
+<span class="sd">    does not need to be uniform.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">j</span><span class="p">[</span><span class="n">j</span><span class="o">&gt;</span><span class="mi">4</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">5</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="n">j</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">i</span><span class="p">[</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">5</span>
+    <span class="n">i</span><span class="p">[</span><span class="n">i</span><span class="o">&gt;=</span><span class="n">n</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">5</span>
+    
+    <span class="n">d1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">d3</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">d4</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    
+    <span class="n">w4</span> <span class="o">=</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span> 
+        <span class="o">-</span><span class="n">d4</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span> <span class="o">+</span> <span class="n">d4</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d1</span> <span class="o">+</span> <span class="n">d4</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="n">d4</span><span class="o">-</span><span class="n">d1</span><span class="o">-</span><span class="n">d2</span><span class="o">-</span><span class="n">d3</span><span class="p">))))</span>
+    <span class="n">w3</span> <span class="o">=</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d4</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span> 
+        <span class="o">-</span><span class="n">d3</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d4</span> <span class="o">+</span> <span class="n">d3</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d4</span><span class="o">+</span><span class="n">d4</span><span class="o">*</span><span class="n">d1</span> <span class="o">+</span> <span class="n">d3</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">-</span><span class="n">d1</span><span class="o">-</span><span class="n">d2</span><span class="o">+</span><span class="n">d3</span><span class="p">))))</span>
+    <span class="n">w2</span> <span class="o">=</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d4</span><span class="o">*</span><span class="n">d3</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span> 
+        <span class="o">-</span><span class="n">d2</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d1</span><span class="o">*</span><span class="n">d4</span><span class="o">*</span><span class="n">d3</span> <span class="o">+</span> <span class="n">d2</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d4</span><span class="o">+</span><span class="n">d4</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d1</span> <span class="o">+</span> <span class="n">d2</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">-</span><span class="n">d1</span><span class="o">+</span><span class="n">d2</span><span class="o">-</span><span class="n">d3</span><span class="p">))))</span>
+    <span class="n">w1</span> <span class="o">=</span> <span class="p">(</span><span class="n">d4</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span> 
+        <span class="o">-</span><span class="n">d1</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span> <span class="o">+</span> <span class="n">d1</span> <span class="o">*</span> <span class="p">(</span><span class="n">d4</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d4</span> <span class="o">+</span> <span class="n">d1</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">+</span><span class="n">d1</span><span class="o">-</span><span class="n">d2</span><span class="o">-</span><span class="n">d3</span><span class="p">))))</span>
+    <span class="n">w0</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">w1</span><span class="o">+</span><span class="n">w2</span><span class="o">+</span><span class="n">w3</span><span class="o">+</span><span class="n">w4</span><span class="p">)</span>
+    
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">w0</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w1</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> \
+         <span class="o">+</span> <span class="n">w2</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w4</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
+    
+    <span class="k">return</span> <span class="n">dy</span>
+    </div>
+<div class="viewcode-block" id="deriv14_const_dx"><a class="viewcode-back" href="../helper_functions.html#helper_functions.deriv14_const_dx">[docs]</a><span class="k">def</span> <span class="nf">deriv14_const_dx</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="sd">R&quot;&quot;&quot;</span>
+<span class="sd">    Calculates :math:`dy/dx` to fourth-order in :math:`\Delta x` using </span>
+<span class="sd">    finite differences. The derivative is taken along the last dimension of `y`.</span>
+<span class="sd">    </span>
+<span class="sd">    The output of this function should be identical to :func:`deriv14` when the</span>
+<span class="sd">    spacing in `x` is constant, but this will be faster.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : array_like</span>
+<span class="sd">    dx : float, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span> <span class="c"># now the derivative is along the first dimension</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    
+    <span class="n">dy</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="mi">8</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">8</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">25</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">48</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">36</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">10</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">18</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">6</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">18</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mi">25</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">48</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">36</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">16</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">dy</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.0</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="deriv1n"><a class="viewcode-back" href="../helper_functions.html#helper_functions.deriv1n">[docs]</a><span class="k">def</span> <span class="nf">deriv1n</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates :math:`dy/dx` to nth-order in :math:`\Delta x` using </span>
+<span class="sd">    finite differences. The derivative is taken along the last dimension of `y`.</span>
+<span class="sd">    </span>
+<span class="sd">    Both `y` and `x` should be numpy arrays. The derivatives are centered in the</span>
+<span class="sd">    interior of the array, but not at the edges. The spacing in `x` does not</span>
+<span class="sd">    need to be uniform.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">j</span><span class="p">[</span><span class="n">j</span><span class="o">&gt;</span><span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span> <span class="o">-</span> <span class="n">j</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">i</span><span class="p">[</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">i</span><span class="p">[</span><span class="n">i</span><span class="o">&gt;=</span><span class="n">nx</span><span class="p">]</span> <span class="o">-=</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span>
+    
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">*</span><span class="mf">1.0</span>
+    <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">y</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">*</span><span class="mf">1.</span>
+    
+    <span class="c"># For example, when calculating w[1], we need only use</span>
+    <span class="c"># w[1]: d1 = d[0,0], d2 = d[0,1], d3 = d[0,2], ..., dn = d[0,n-1]</span>
+    <span class="c"># and for the other weights we just increment the first index:</span>
+    <span class="c"># w[2]: d2 = d[1,0], d3 = d[1,1], d4 = d[1,2], ..., dn = d[1,n-2], </span>
+    <span class="c">#       d1 = d[1,n-1]</span>
+    <span class="c"># So we should be able to calculate all of them at once like this.</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">((</span><span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+    <span class="n">s</span><span class="p">[</span><span class="n">s</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])[</span><span class="n">s</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">d</span><span class="p">[:,</span><span class="n">s</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">d</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> 
+             <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">d</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">**-</span><span class="mi">1</span>
+    <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">dy</span>
+        </div>
+<div class="viewcode-block" id="deriv23"><a class="viewcode-back" href="../helper_functions.html#helper_functions.deriv23">[docs]</a><span class="k">def</span> <span class="nf">deriv23</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates :math:`d^2y/dx^2` to third-order in :math:`\Delta x` using </span>
+<span class="sd">    finite differences. The derivative is taken along the last dimension of `y`.</span>
+<span class="sd">    </span>
+<span class="sd">    Both `y` and `x` should be numpy arrays. The derivatives are centered in the</span>
+<span class="sd">    interior of the array, but not at the edges. The spacing in `x` does not</span>
+<span class="sd">    need to be uniform. The accuracy increases to fourth-order if the spacing</span>
+<span class="sd">    is uniform.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">j</span><span class="p">[</span><span class="n">j</span><span class="o">&gt;</span><span class="mi">4</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">5</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">-</span> <span class="n">j</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">i</span><span class="p">[</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">5</span>
+    <span class="n">i</span><span class="p">[</span><span class="n">i</span><span class="o">&gt;=</span><span class="n">n</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">5</span>
+    
+    <span class="n">d1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">d3</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">d4</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        
+    <span class="n">w4</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">d4</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span> <span class="o">+</span> <span class="n">d4</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d1</span> <span class="o">+</span> <span class="n">d4</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="n">d4</span><span class="o">-</span><span class="n">d1</span><span class="o">-</span><span class="n">d2</span><span class="o">-</span><span class="n">d3</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">w3</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d4</span><span class="o">+</span><span class="n">d4</span><span class="o">*</span><span class="n">d1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">d3</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d4</span> <span class="o">+</span> <span class="n">d3</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d4</span><span class="o">+</span><span class="n">d4</span><span class="o">*</span><span class="n">d1</span> <span class="o">+</span> <span class="n">d3</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">-</span><span class="n">d1</span><span class="o">-</span><span class="n">d2</span><span class="o">+</span><span class="n">d3</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">w2</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d4</span><span class="o">+</span><span class="n">d4</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">d2</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d1</span><span class="o">*</span><span class="n">d4</span><span class="o">*</span><span class="n">d3</span> <span class="o">+</span> <span class="n">d2</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span><span class="o">*</span><span class="n">d4</span><span class="o">+</span><span class="n">d4</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d1</span> <span class="o">+</span> <span class="n">d2</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">-</span><span class="n">d1</span><span class="o">+</span><span class="n">d2</span><span class="o">-</span><span class="n">d3</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">w1</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">d4</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d4</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+        <span class="n">d1</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">*</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span> <span class="o">+</span> <span class="n">d1</span> <span class="o">*</span> <span class="p">(</span><span class="n">d4</span><span class="o">*</span><span class="n">d2</span><span class="o">+</span><span class="n">d2</span><span class="o">*</span><span class="n">d3</span><span class="o">+</span><span class="n">d3</span><span class="o">*</span><span class="n">d4</span> <span class="o">+</span> <span class="n">d1</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">d4</span><span class="o">+</span><span class="n">d1</span><span class="o">-</span><span class="n">d2</span><span class="o">-</span><span class="n">d3</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+    <span class="n">w0</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">w1</span><span class="o">+</span><span class="n">w2</span><span class="o">+</span><span class="n">w3</span><span class="o">+</span><span class="n">w4</span><span class="p">)</span>
+    
+    <span class="n">d2y</span> <span class="o">=</span> <span class="n">w0</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w1</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> \
+         <span class="o">+</span> <span class="n">w2</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w4</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">d2y</span>
+    </div>
+<div class="viewcode-block" id="deriv23_const_dx"><a class="viewcode-back" href="../helper_functions.html#helper_functions.deriv23_const_dx">[docs]</a><span class="k">def</span> <span class="nf">deriv23_const_dx</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates :math:`d^2y/dx^2` to third-order in :math:`\Delta x` using </span>
+<span class="sd">    finite differences. The derivative is taken along the last dimension of `y`.</span>
+<span class="sd">    </span>
+<span class="sd">    The output of this function should be identical to :func:`deriv23` when the</span>
+<span class="sd">    spacing in `x` is constant, but this will be faster.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : array_like</span>
+<span class="sd">    dx : float, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span> <span class="c"># now the derivative is along the first dimension</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    
+    <span class="n">dy</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">30</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">35</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">104</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">114</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">56</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">11</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">20</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">20</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">35</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">104</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">114</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">56</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">11</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">dy</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.0</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="gradientFunction"><a class="viewcode-back" href="../helper_functions.html#helper_functions.gradientFunction">[docs]</a><span class="k">class</span> <span class="nc">gradientFunction</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a function which returns the gradient of some scalar function.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : callable</span>
+<span class="sd">        The first argument `x` should either be a single point with length</span>
+<span class="sd">        `Ndim` or an array (or matrix, etc.) of points with shape </span>
+<span class="sd">        ``(..., Ndim)``, where ``...`` is some arbitrary shape. The return</span>
+<span class="sd">        shape should be the same as the input shape, but with the last axis</span>
+<span class="sd">        stripped off (i.e., it should be a scalar function). Additional</span>
+<span class="sd">        required or optional arguments are allowed.</span>
+<span class="sd">    eps : float or array_like</span>
+<span class="sd">        The small change in `x` used to calculate the finite differences.</span>
+<span class="sd">        Can either be a scalar or have length `Ndim`.</span>
+<span class="sd">    Ndim : int</span>
+<span class="sd">        Number of dimensions for each point.</span>
+<span class="sd">    order : 2 or 4</span>
+<span class="sd">        Calculate the derivatives to either 2nd or 4th order in `eps`.</span>
+<span class="sd">        </span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; def f(X):</span>
+<span class="sd">    ...     x,y = np.asarray(X).T</span>
+<span class="sd">    ...     return (x*x + x*y +3.*y*y*y).T</span>
+<span class="sd">    &gt;&gt;&gt; df = gradientFunction(f, eps=.01, Ndim=2, order=4)</span>
+<span class="sd">    &gt;&gt;&gt; x = np.array([[0,0],[0,1],[1,0],[1,1]])</span>
+<span class="sd">    &gt;&gt;&gt; print df(x)</span>
+<span class="sd">        array([[ 0.,  0.], [ 1.,  9.], [ 2.,  1.], [ 3., 10.]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">order</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">))</span>
+        <span class="n">dx</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">Ndim</span><span class="p">)</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span>
+        <span class="n">dxT</span> <span class="o">=</span> <span class="n">dx</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">order</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">))</span>
+        <span class="n">coef</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">eps</span>
+        <span class="n">coefT</span> <span class="o">=</span> <span class="n">coef</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">dxT</span> <span class="o">*=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">coefT</span> <span class="o">*=</span> <span class="p">[</span><span class="o">-.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">dxT</span> <span class="o">*=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">coefT</span> <span class="o">*=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">coefT</span> <span class="o">/=</span> <span class="mf">12.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">dx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coef</span> <span class="o">=</span> <span class="n">coef</span>
+    
+<div class="viewcode-block" id="gradientFunction.__call__"><a class="viewcode-back" href="../helper_functions.html#helper_functions.gradientFunction.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the gradient. Output shape is the same as the input shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+    </div></div>
+<div class="viewcode-block" id="hessianFunction"><a class="viewcode-back" href="../helper_functions.html#helper_functions.hessianFunction">[docs]</a><span class="k">class</span> <span class="nc">hessianFunction</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a function which returns the Hessian (second derivative) matrix of</span>
+<span class="sd">    some scalar function.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : callable</span>
+<span class="sd">        The first argument `x` should either be a single point with length</span>
+<span class="sd">        `Ndim` or an array (or matrix, etc.) of points with shape </span>
+<span class="sd">        ``(..., Ndim)``, where ``...`` is some arbitrary shape. The return</span>
+<span class="sd">        shape should be the same as the input shape, but with the last axis</span>
+<span class="sd">        stripped off (i.e., it should be a scalar function). Additional</span>
+<span class="sd">        required or optional arguments are allowed.</span>
+<span class="sd">    eps : float or array_like</span>
+<span class="sd">        The small change in `x` used to calculate the finite differences.</span>
+<span class="sd">        Can either be a scalar or have length `Ndim`.</span>
+<span class="sd">    Ndim : int</span>
+<span class="sd">        Number of dimensions for each point.</span>
+<span class="sd">    order : 2 or 4</span>
+<span class="sd">        Calculate the derivatives to either 2nd or 4th order in `eps`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">Ndim</span><span class="p">)</span> <span class="o">*</span> <span class="n">eps</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">Ndim</span><span class="p">):</span>
+            <span class="n">dx</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="n">coef</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                <span class="n">dx_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">order</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">))</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="n">dx_</span><span class="p">[:,:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">dx_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">dx_</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">dx_</span><span class="p">[:,:,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">coef_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">])</span>
+                    <span class="n">coef_</span> <span class="o">=</span> <span class="n">coef_</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">coef_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+                    <span class="n">coef_</span> <span class="o">/=</span> <span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">eps</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">order</span> <span class="o">==</span> <span class="mi">4</span><span class="p">):</span>
+                    <span class="n">dx_</span><span class="p">[:,:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">dx_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">dx_</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">dx_</span><span class="p">[:,:,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">coef_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">])</span>
+                    <span class="n">coef_</span> <span class="o">=</span> <span class="n">coef_</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">coef_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+                    <span class="n">coef_</span> <span class="o">/=</span> <span class="mf">144.</span><span class="o">*</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">eps</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">dx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dx_</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">order</span><span class="o">*</span><span class="n">order</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">))</span>
+                <span class="n">coef</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coef_</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">order</span><span class="o">*</span><span class="n">order</span><span class="p">))</span>
+            <span class="n">dx_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">order</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">dx_</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">coef_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">1.</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">dx_</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">coef_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mi">12</span><span class="p">)</span>
+            <span class="n">dx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dx_</span><span class="p">)</span>
+            <span class="n">coef</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coef_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coef</span> <span class="o">=</span> <span class="n">coef</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">=</span> <span class="n">dx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">=</span> <span class="n">Ndim</span>
+    
+<div class="viewcode-block" id="hessianFunction.__call__"><a class="viewcode-back" href="../helper_functions.html#helper_functions.hessianFunction.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the gradient. Output shape is ``input.shape + (Ndim,)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Ndim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef</span>
+        <span class="n">dx</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dx</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="n">Ndim</span><span class="p">,))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">Ndim</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">dx</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+                            <span class="o">*</span> <span class="n">coef</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_</span>
+            <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">dx</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+                                <span class="o">*</span> <span class="n">coef</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>        
+        <span class="k">return</span> <span class="n">y</span>
+</div></div>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Two-point interpolation</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        
+<div class="viewcode-block" id="makeInterpFuncs"><a class="viewcode-back" href="../helper_functions.html#helper_functions.makeInterpFuncs">[docs]</a><span class="k">def</span> <span class="nf">makeInterpFuncs</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">dy0</span><span class="p">,</span> <span class="n">d2y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">dy1</span><span class="p">,</span> <span class="n">d2y1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create interpolating functions between two points with a quintic polynomial.</span>
+<span class="sd">    </span>
+<span class="sd">    If we&#39;re given the first and second derivatives of a function</span>
+<span class="sd">    at x=0 and x=1, we can make a 5th-order interpolation between</span>
+<span class="sd">    the two.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a0</span><span class="p">,</span><span class="n">a1</span><span class="p">,</span><span class="n">a2</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span><span class="n">dz</span><span class="p">,</span><span class="n">d2z</span> <span class="o">=</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dy0</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">d2y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">dy1</span><span class="p">,</span> <span class="n">d2y1</span>
+    <span class="n">b1</span><span class="p">,</span><span class="n">b2</span><span class="p">,</span><span class="n">b3</span> <span class="o">=</span> <span class="n">z</span><span class="o">-</span><span class="n">a0</span><span class="o">-</span><span class="n">a1</span><span class="o">-</span><span class="n">a2</span><span class="p">,</span> <span class="n">dz</span><span class="o">-</span><span class="n">a1</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">a2</span><span class="p">,</span> <span class="n">d2z</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">a2</span>
+    <span class="n">a5</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">b3</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">b2</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">b1</span>
+    <span class="n">a4</span> <span class="o">=</span> <span class="n">b2</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">b1</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">a5</span>
+    <span class="n">a3</span> <span class="o">=</span> <span class="n">b1</span> <span class="o">-</span> <span class="n">a4</span> <span class="o">-</span> <span class="n">a5</span>
+    <span class="n">coefs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a0</span><span class="p">,</span><span class="n">a1</span><span class="p">,</span><span class="n">a2</span><span class="p">,</span><span class="n">a3</span><span class="p">,</span><span class="n">a4</span><span class="p">,</span><span class="n">a5</span><span class="p">])</span>
+    <span class="n">pows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">coefs</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">p</span><span class="o">=</span><span class="n">pows</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">pows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">df</span>
+</div>
+<div class="viewcode-block" id="cubicInterpFunction"><a class="viewcode-back" href="../helper_functions.html#helper_functions.cubicInterpFunction">[docs]</a><span class="k">class</span> <span class="nc">cubicInterpFunction</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create an interpolating function between two points with a cubic polynomial.</span>
+
+<span class="sd">    Like :func:`makeInterpFuncs`, but only uses the first derivatives.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dy0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">dy1</span><span class="p">):</span>
+        <span class="c"># Easiest to treat this as a bezier curve</span>
+        <span class="n">y3</span> <span class="o">=</span> <span class="n">y1</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dy0</span><span class="o">/</span><span class="mf">3.0</span>
+        <span class="n">y2</span> <span class="o">=</span> <span class="n">y3</span> <span class="o">-</span> <span class="n">dy1</span><span class="o">/</span><span class="mf">3.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">=</span> <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">y3</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">t</span>
+        <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">y3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span>
+        <span class="k">return</span> <span class="n">y0</span><span class="o">*</span><span class="n">mt</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y1</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">t</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y2</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">t</span><span class="o">*</span><span class="n">t</span> <span class="o">+</span> <span class="n">y3</span><span class="o">*</span><span class="n">t</span><span class="o">**</span><span class="mi">3</span>
+</div>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Spline interpolation</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Nbspl"><a class="viewcode-back" href="../helper_functions.html#helper_functions.Nbspl">[docs]</a><span class="k">def</span> <span class="nf">Nbspl</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the B-spline basis functions for the knots t evaluated at the </span>
+<span class="sd">    points x.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    t : array_like</span>
+<span class="sd">        An array of knots which define the basis functions.</span>
+<span class="sd">    x : array_like</span>
+<span class="sd">        The different values at which to calculate the functions.</span>
+<span class="sd">    k : int, optional</span>
+<span class="sd">        The order of the spline. Must satisfy ``k &lt;= len(t)-2``.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array_like</span>
+<span class="sd">        Has shape ``(len(x), len(t)-k-1)``.</span>
+<span class="sd">        </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is fairly speedy, although it does spend a fair amount of time</span>
+<span class="sd">    calculating things that will end up being zero. On a 2.5Ghz machine, it</span>
+<span class="sd">    takes a few milliseconds to calculate when ``len(x) == 500; len(t) == 20; </span>
+<span class="sd">    k == 3``.</span>
+<span class="sd">    </span>
+<span class="sd">    For more info on basis splines, see e.g. </span>
+<span class="sd">    http://en.wikipedia.org/wiki/B-spline. </span>
+<span class="sd">    </span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    .. plot::</span>
+<span class="sd">        :include-source:</span>
+<span class="sd">      </span>
+<span class="sd">        from helper_functions import Nbspl</span>
+<span class="sd">        t = [-1,-1,-1,-1, -.5, 0, .5, 1, 1, 1, 1]</span>
+<span class="sd">        x = np.linspace(-1,1,500)</span>
+<span class="sd">        y = Nbspl(t,x, k=3)</span>
+<span class="sd">        plt.plot(x, y)</span>
+<span class="sd">        plt.xlabel(r&quot;$x$&quot;)</span>
+<span class="sd">        plt.ylabel(r&quot;$y_i(x)$&quot;)</span>
+<span class="sd">        plt.show()    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kmax</span> <span class="o">=</span> <span class="n">k</span>
+    <span class="k">if</span> <span class="n">kmax</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="c">#[np.newaxis, :]</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="p">:]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">_dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">_dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> 
+    <span class="k">return</span> <span class="n">N</span>
+    </div>
+<div class="viewcode-block" id="Nbspld1"><a class="viewcode-back" href="../helper_functions.html#helper_functions.Nbspld1">[docs]</a><span class="k">def</span> <span class="nf">Nbspld1</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Same as :func:`Nbspl`, but returns the first derivative too.&quot;&quot;&quot;</span>
+    <span class="n">kmax</span> <span class="o">=</span> <span class="n">k</span>
+    <span class="k">if</span> <span class="n">kmax</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="c">#[np.newaxis, :]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+    <span class="n">dN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="p">:]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">_dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">_dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">dN</span> <span class="o">=</span> <span class="n">dN</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">dN</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> 
+        <span class="n">dN</span> <span class="o">+=</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> 
+        <span class="n">N</span> <span class="o">=</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> 
+    <span class="k">return</span> <span class="n">N</span><span class="p">,</span> <span class="n">dN</span>
+    </div>
+<div class="viewcode-block" id="Nbspld2"><a class="viewcode-back" href="../helper_functions.html#helper_functions.Nbspld2">[docs]</a><span class="k">def</span> <span class="nf">Nbspld2</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Same as :func:`Nbspl`, but returns first and second derivatives too.&quot;&quot;&quot;</span>
+    <span class="n">kmax</span> <span class="o">=</span> <span class="n">k</span>
+    <span class="k">if</span> <span class="n">kmax</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="c">#[np.newaxis, :]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+    <span class="n">dN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">d2N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="p">:]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">_dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">_dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">d2N</span> <span class="o">=</span> <span class="n">d2N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">d2N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> \
+            <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">dN</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">dN</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">dN</span> <span class="o">=</span> <span class="n">dN</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">dN</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> \
+            <span class="o">+</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> 
+    <span class="k">return</span> <span class="n">N</span><span class="p">,</span> <span class="n">dN</span><span class="p">,</span> <span class="n">d2N</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

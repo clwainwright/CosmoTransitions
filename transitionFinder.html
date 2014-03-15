@@ -1,0 +1,557 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>transitionFinder.py &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="index.html" />
+    <link rel="next" title="generic_potential.py" href="generic_potential.html" />
+    <link rel="prev" title="pathDeformation.py" href="pathDeformation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="generic_potential.html" title="generic_potential.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pathDeformation.html" title="pathDeformation.py"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-transitionFinder">
+<span id="transitionfinder-py"></span><h1>transitionFinder.py<a class="headerlink" href="#module-transitionFinder" title="Permalink to this headline">¶</a></h1>
+<p>The transitionFinder module is used to calculate finite temperature
+cosmological phase transitions: it contains functions to find the phase
+structure as a function of temperature, and functions to find the transition
+(bubble nucleation) temperature for each phase.
+In contrast, <tt class="xref py py-mod docutils literal"><span class="pre">pathDefomration</span></tt> is useful for finding the tunneling
+solution for a fixed potential or a potential at a fixed temperature.</p>
+<p>The most directly used functions in this module will likely be
+<a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a> for finding the phase structure, and
+<a class="reference internal" href="#transitionFinder.findAllTransitions" title="transitionFinder.findAllTransitions"><tt class="xref py py-func docutils literal"><span class="pre">findAllTransitions()</span></tt></a> and <a class="reference internal" href="#transitionFinder.findCriticalTemperatures" title="transitionFinder.findCriticalTemperatures"><tt class="xref py py-func docutils literal"><span class="pre">findCriticalTemperatures()</span></tt></a> for calculating
+properties of the phase transitions.</p>
+<div class="section" id="finding-the-phase-structure">
+<h2>Finding the phase structure<a class="headerlink" href="#finding-the-phase-structure" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="transitionFinder.traceMinimum">
+<tt class="descname">traceMinimum</tt><big>(</big><em>f</em>, <em>d2f_dxdt</em>, <em>d2f_dx2</em>, <em>x0</em>, <em>t0</em>, <em>tstop</em>, <em>dtstart</em>, <em>deltaX_target</em>, <em>dtabsMax=20.0</em>, <em>dtfracMax=0.25</em>, <em>dtmin=0.001</em>, <em>deltaX_tol=1.2</em>, <em>minratio=0.01</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#traceMinimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.traceMinimum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trace the minimum <em class="xref py py-obj">xmin(t)</em> of the function <em class="xref py py-obj">f(x,t)</em>, starting at <em class="xref py py-obj">x0, t0</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>f</strong> (<em>callable</em>) &#8211; The scalar function <em class="xref py py-obj">f(x,t)</em> which needs to be minimized. The input will
+be of the same type as <em class="xref py py-obj">(x0,t0)</em>.</li>
+<li><strong>d2f_dx2</strong> (<em>d2f_dxdt,</em>) &#8211; Functions which return returns derivatives of <em class="xref py py-obj">f(x)</em>. <em class="xref py py-obj">d2f_dxdt</em> should
+return the derivative of the gradient of <em class="xref py py-obj">f(x)</em> with respect to <em class="xref py py-obj">t</em>, and
+<em class="xref py py-obj">d2f_dx2</em> should return the Hessian matrix of <em class="xref py py-obj">f(x)</em> evaluated at <em class="xref py py-obj">t</em>.
+Both should take as inputs <em class="xref py py-obj">(x,t)</em>.</li>
+<li><strong>x0</strong> (<em>array_like</em>) &#8211; The initial starting point. Must be an array even if the potential is
+one-dimensional (in which case the array should have length 1).</li>
+<li><strong>t0</strong> (<em>float</em>) &#8211; The initial starting parameter <em class="xref py py-obj">t</em>.</li>
+<li><strong>tstop</strong> (<em>float</em>) &#8211; Stop the trace when <em class="xref py py-obj">t</em> reaches <em class="xref py py-obj">tstop</em>.</li>
+<li><strong>dtstart</strong> (<em>float</em>) &#8211; Initial stepsize.</li>
+<li><strong>deltaX_target</strong> (<em>float</em>) &#8211; The target error in x at each step. Determines the
+stepsize in t by extrapolation from last error.</li>
+<li><strong>dtabsMax</strong> (<em>float, optional</em>) &#8211; </li>
+<li><strong>dtfracMax</strong> (<em>float, optional</em>) &#8211; The largest stepsize in t will be the LARGEST of
+<tt class="docutils literal"><span class="pre">abs(dtstart)*dtabsMax</span></tt> and <tt class="docutils literal"><span class="pre">t*dtfracMax</span></tt>.</li>
+<li><strong>dtmin</strong> (<em>float, optional</em>) &#8211; The smallest stepsize we&#8217;ll allow before assuming the transition ends,
+relative to <em class="xref py py-obj">dtstart</em></li>
+<li><strong>deltaX_tol</strong> (<em>float, optional</em>) &#8211; <tt class="docutils literal"><span class="pre">deltaX_tol*deltaX_target</span></tt> gives the maximum error in x
+before we want to shrink the stepsize and recalculate the minimum.</li>
+<li><strong>minratio</strong> (<em>float, optional</em>) &#8211; The smallest ratio between smallest and largest eigenvalues in the
+Hessian matrix before treating the smallest eigenvalue as zero (and
+thus signaling a saddle point and the end of the minimum).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>X, T, dXdT</strong> (<em>array_like</em>) &#8211;
+Arrays of the minimum at different values of t, and
+its derivative with respect to t.</li>
+<li><strong>overX</strong> (<em>array_like</em>) &#8211;
+The point beyond which the phase seems to disappear.</li>
+<li><strong>overT</strong> (<em>float</em>) &#8211;
+The t-value beyond which the phase seems to disappear.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p>In prior versions, <em class="xref py py-obj">d2f_dx2</em> was optional and called <em class="xref py py-obj">d2f</em>, while <em class="xref py py-obj">d2f_dxdt</em>
+was calculated from an optional parameter <em class="xref py py-obj">df</em> using finite differences. If
+Neither of these were supplied, they would be calculated directly from
+<em class="xref py py-obj">f(x,t)</em> using finite differences. This lead to a messier calling signature,
+since additional parameters were needed to find the finite differences. By
+instead requiring that the derivatives be supplied, the task of creating the
+derivative functions can be delegated to more general purpose routines
+(see e.g. <a class="reference internal" href="helper_functions.html#helper_functions.gradientFunction" title="helper_functions.gradientFunction"><tt class="xref py py-class docutils literal"><span class="pre">helper_functions.gradientFunction</span></tt></a> and
+<a class="reference internal" href="helper_functions.html#helper_functions.hessianFunction" title="helper_functions.hessianFunction"><tt class="xref py py-class docutils literal"><span class="pre">helper_functions.hessianFunction</span></tt></a>).</p>
+<p class="last">Also new in this version, <em class="xref py py-obj">dtmin</em> and <em class="xref py py-obj">dtabsMax</em> are now relative to
+<em class="xref py py-obj">dtstart</em>. The idea here is that there should be some required parameter
+that sets the scale, and then optional parameters can set the tolerances
+relative to this scale. <em class="xref py py-obj">deltaX_target</em> is now not optional for the same
+reasoning.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="transitionFinder.Phase">
+<em class="property">class </em><tt class="descname">Phase</tt><big>(</big><em>key</em>, <em>X</em>, <em>T</em>, <em>dXdT</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#Phase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.Phase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describes a temperature-dependent minimum, plus second-order transitions
+to and from that minimum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> (<em>hashable</em>) &#8211; A unique identifier for the phase (usually an int).</li>
+<li><strong>T, dXdT</strong> (<em>X,</em>) &#8211; The minima and its derivative at different temperatures.</li>
+<li><strong>tck</strong> (<em>tuple</em>) &#8211; Spline knots and coefficients, used in <tt class="xref py py-obj docutils literal"><span class="pre">interpolate.splev</span></tt>.</li>
+<li><strong>low_trans</strong> (<em>set</em>) &#8211; Phases (identified by keys) which are joined by a second-order
+transition to this phase.</li>
+<li><strong>high_trans</strong> (<em>set</em>) &#8211; Phases (identified by keys) which are joined by a second-order
+transition to this phase.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="transitionFinder.Phase.valAt">
+<tt class="descname">valAt</tt><big>(</big><em>T</em>, <em>deriv=0</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#Phase.valAt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.Phase.valAt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the minimum at the value <em class="xref py py-obj">T</em> using a spline.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>T</strong> (<em>float or array_like</em>) &#8211; </li>
+<li><strong>deriv</strong> (<em>int</em>) &#8211; If deriv &gt; 0, instead return the derivative of the minimum with
+respect to <em class="xref py py-obj">T</em>. Can return up to the third derivative for cubic
+splines (when <tt class="docutils literal"><span class="pre">len(X)</span> <span class="pre">&gt;</span> <span class="pre">3</span></tt>) or first derivative for linear
+splines.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="transitionFinder.Phase.addLinkFrom">
+<tt class="descname">addLinkFrom</tt><big>(</big><em>other_phase</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#Phase.addLinkFrom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.Phase.addLinkFrom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a link from <em class="xref py py-obj">other_phase</em> to this phase, checking to see if there
+is a second-order transition.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.traceMultiMin">
+<tt class="descname">traceMultiMin</tt><big>(</big><em>f</em>, <em>d2f_dxdt</em>, <em>d2f_dx2</em>, <em>points</em>, <em>tLow</em>, <em>tHigh</em>, <em>deltaX_target</em>, <em>dtstart=0.001</em>, <em>tjump=0.001</em>, <em>forbidCrit=None</em>, <em>single_trace_args={}</em>, <em>local_min_args={}</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#traceMultiMin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.traceMultiMin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trace multiple minima <em class="xref py py-obj">xmin(t)</em> of the function <em class="xref py py-obj">f(x,t)</em>.</p>
+<p>This function will trace the minima starting from the initial <em class="xref py py-obj">(x,t)</em> values
+given in <em class="xref py py-obj">points</em>. When a phase disappears, the function will search for
+new nearby minima, and trace them as well. In this way, if each minimum
+corresponds to a different phase, this function can find the (possibly)
+complete phase structure of the potential.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>f</strong> (<em>callable</em>) &#8211; The scalar function <em class="xref py py-obj">f(x,t)</em> which needs to be minimized. The input will
+be of the same type as each entry in the <em class="xref py py-obj">points</em> parameter.</li>
+<li><strong>d2f_dx2</strong> (<em>d2f_dxdt,</em>) &#8211; Functions which return returns derivatives of <em class="xref py py-obj">f(x)</em>. <em class="xref py py-obj">d2f_dxdt</em> should
+return the derivative of the gradient of <em class="xref py py-obj">f(x)</em> with respect to <em class="xref py py-obj">t</em>, and
+<em class="xref py py-obj">d2f_dx2</em> should return the Hessian matrix of <em class="xref py py-obj">f(x)</em> evaluated at <em class="xref py py-obj">t</em>.
+Both should take as inputs <em class="xref py py-obj">(x,t)</em>.</li>
+<li><strong>points</strong> (<em>list</em>) &#8211; A list of points [(x1,t1), (x2,t2),...] that we want to trace, where
+<em class="xref py py-obj">x1</em>, <em class="xref py py-obj">x2</em>, etc. are each a one-dimensional array.</li>
+<li><strong>tHigh</strong> (<em>tLow,</em>) &#8211; Lowest and highest temperatures between which to trace.</li>
+<li><strong>deltaX_target</strong> (<em>float</em>) &#8211; Passed to <a class="reference internal" href="#transitionFinder.traceMinimum" title="transitionFinder.traceMinimum"><tt class="xref py py-func docutils literal"><span class="pre">traceMinimum()</span></tt></a> and used to set the tolerance in
+minimization.</li>
+<li><strong>dtstart</strong> (<em>float, optional</em>) &#8211; The starting stepsize, relative to <tt class="docutils literal"><span class="pre">tHigh-tLow</span></tt>.</li>
+<li><strong>tjump</strong> (<em>float, optional</em>) &#8211; The jump in <em class="xref py py-obj">t</em> from the end of one phase to the initial tracing point
+in another. If this is too large, intermediate phases may be skipped.
+Relative to <tt class="docutils literal"><span class="pre">tHigh-tLow</span></tt>.</li>
+<li><strong>forbidCrit</strong> (<em>callable or None, optional</em>) &#8211; A function that determines whether or not to forbid a phase with a given
+starting point. Should take a point <em class="xref py py-obj">x</em> as input, and return True (if
+the phase should be discarded) or False (if the phase should be kept).</li>
+<li><strong>single_trace_args</strong> (<em>dict, optional</em>) &#8211; Arguments to pass to <a class="reference internal" href="#transitionFinder.traceMinimum" title="transitionFinder.traceMinimum"><tt class="xref py py-func docutils literal"><span class="pre">traceMinimum()</span></tt></a>.</li>
+<li><strong>local_min_args</strong> (<em>dict, optoinal</em>) &#8211; Arguments to pass to <tt class="xref py py-func docutils literal"><span class="pre">findApproxLocalMinima()</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>phases</strong> (<em>dict</em>) &#8211;
+A dictionary of <a class="reference internal" href="#transitionFinder.Phase" title="transitionFinder.Phase"><tt class="xref py py-class docutils literal"><span class="pre">Phase</span></tt></a> instances. The keys in the dictionary
+are integers corresponding to the order in which the phases were
+constructed.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.findApproxLocalMin">
+<tt class="descname">findApproxLocalMin</tt><big>(</big><em>f</em>, <em>x1</em>, <em>x2</em>, <em>args=()</em>, <em>n=100</em>, <em>edge=0.05</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#findApproxLocalMin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.findApproxLocalMin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find minima on a straight line between two points.</p>
+<p>When jumping between phases, we want to make sure that we
+don&#8217;t jump over an intermediate phase. This function does a rough
+calculation to find any such intermediate phases.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>f</strong> (<em>callable</em>) &#8211; The function <em class="xref py py-obj">f(x)</em> to minimize.</li>
+<li><strong>x2</strong> (<em>x1,</em>) &#8211; The points between which to find minima.</li>
+<li><strong>args</strong> (<em>tuple, optional</em>) &#8211; Extra arguments to pass to <em class="xref py py-obj">f</em>.</li>
+<li><strong>n</strong> (<em>int, optional</em>) &#8211; Number of points to test for local minima.</li>
+<li><strong>edge</strong> (<em>float, optional</em>) &#8211; Don&#8217;t test for minima directly next to the input points. If <tt class="docutils literal"><span class="pre">edge==0</span></tt>,
+the minima potentially go all the way to input points. If <tt class="docutils literal"><span class="pre">edge==0.5</span></tt>,
+the range of tested minima shrinks to a single point at the center of
+the two points.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>list</em> &#8211;
+A list of approximate minima, with each minimum having the same shape
+as <em class="xref py py-obj">x1</em> and <em class="xref py py-obj">x2</em>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.removeRedundantPhases">
+<tt class="descname">removeRedundantPhases</tt><big>(</big><em>f</em>, <em>phases</em>, <em>xeps=1e-05</em>, <em>diftol=0.01</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#removeRedundantPhases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.removeRedundantPhases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove redundant phases from a dictionary output by <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a>.</p>
+<p>Although <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a> attempts to only trace each phase once, there
+are still instances where a single phase gets traced twice. If a phase is
+included twice, the routines for finding transition regions and tunneling
+get very confused. This attempts to avoid that problem.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>f</strong> (<em>callable</em>) &#8211; The function <em class="xref py py-obj">f(x,t)</em> which was passed to <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a>.</li>
+<li><strong>phases</strong> (<em>dict</em>) &#8211; The output of <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a>.</li>
+<li><strong>xeps</strong> (<em>float, optional</em>) &#8211; Error tolerance in minimization.</li>
+<li><strong>diftol</strong> (<em>float, optional</em>) &#8211; Maximum separation between two phases before they are considered to be
+coincident.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>None</em></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p>If two phases are merged to get rid of redundancy, the resulting phase has
+a key that is a string combination of the two prior keys.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Make sure to test removeRedundantPhases().</p>
+</div>
+<div class="admonition-todo last admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Possibly add extra logic to account for phases which coinincide
+at one end but not the other.</p>
+</div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This hasn&#8217;t been thoroughly tested yet.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.getStartPhase">
+<tt class="descname">getStartPhase</tt><big>(</big><em>phases</em>, <em>V=None</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#getStartPhase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.getStartPhase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the key for the high-T phase.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>phases</strong> (<em>dict</em>) &#8211; Output from <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a>.</li>
+<li><strong>V</strong> (<em>callable</em>) &#8211; The potential V(x,T). Only necessary if there are
+multiple phases with the same Tmax.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="calculating-phase-transitions">
+<h2>Calculating phase transitions<a class="headerlink" href="#calculating-phase-transitions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="transitionFinder.tunnelFromPhase">
+<tt class="descname">tunnelFromPhase</tt><big>(</big><em>phases</em>, <em>start_phase</em>, <em>V</em>, <em>dV</em>, <em>Tmax</em>, <em>Ttol=0.001</em>, <em>maxiter=100</em>, <em>phitol=1e-08</em>, <em>overlapAngle=45.0</em>, <em>nuclCriterion=&lt;function &lt;lambda&gt; at 0x10a6fe230&gt;</em>, <em>verbose=True</em>, <em>fullTunneling_params={}</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#tunnelFromPhase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.tunnelFromPhase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the instanton and nucleation temeprature for tunneling from
+<em class="xref py py-obj">start_phase</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>phases</strong> (<em>dict</em>) &#8211; Output from <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a>.</li>
+<li><strong>start_phase</strong> (<em>Phase object</em>) &#8211; The metastable phase from which tunneling occurs.</li>
+<li><strong>dV</strong> (<em>V,</em>) &#8211; The potential V(x,T) and its gradient.</li>
+<li><strong>Tmax</strong> (<em>float</em>) &#8211; The highest temperature at which to try tunneling.</li>
+<li><strong>Ttol</strong> (<em>float, optional</em>) &#8211; Tolerance for finding the nucleation temperature.</li>
+<li><strong>maxiter</strong> (<em>int, optional</em>) &#8211; Maximum number of times to try tunneling.</li>
+<li><strong>phitol</strong> (<em>float, optional</em>) &#8211; Tolerance for finding the minima.</li>
+<li><strong>overlapAngle</strong> (<em>float, optional</em>) &#8211; If two phases are in the same direction, only try tunneling to the
+closer one. Set to zero to always try tunneling to all available phases.</li>
+<li><strong>nuclCriterion</strong> (<em>callable</em>) &#8211; Function of the action <em>S</em> and temperature <em>T</em>. Should return 0 for the
+correct nucleation rate, &gt; 0 for a low rate and &lt; 0 for a high rate.
+Defaults to <tt class="docutils literal"><span class="pre">S/T</span> <span class="pre">-</span> <span class="pre">140</span></tt>.</li>
+<li><strong>verbose</strong> (<em>bool</em>) &#8211; If true, print a message before each attempted tunneling.</li>
+<li><strong>fullTunneling_params</strong> (<em>dict</em>) &#8211; Parameters to pass to <a class="reference internal" href="pathDeformation.html#pathDeformation.fullTunneling" title="pathDeformation.fullTunneling"><tt class="xref py py-func docutils literal"><span class="pre">pathDeformation.fullTunneling()</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p><em>dict or None</em> &#8211;
+A description of the tunneling solution at the nucleation temperature,
+or None if there is no found solution. Has the following keys:</p>
+<ul class="simple">
+<li><em>Tnuc</em> : the nucleation temperature</li>
+<li><em>low_vev, high_vev</em> : vevs for the low-T phase (the phase that the
+instanton tunnels to) and high-T phase (the phase that the instanton
+tunnels from).</li>
+<li><em>low_phase, high_phase</em> : identifier keys for the low-T and high-T
+phases.</li>
+<li><em>action</em> : The Euclidean action of the instanton.</li>
+<li><em>instanton</em> : Output from <a class="reference internal" href="pathDeformation.html#pathDeformation.fullTunneling" title="pathDeformation.fullTunneling"><tt class="xref py py-func docutils literal"><span class="pre">pathDeformation.fullTunneling()</span></tt></a>, or
+None for a second-order transition.</li>
+<li><em>trantype</em> : 1 or 2 for first or second-order transitions.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.secondOrderTrans">
+<tt class="descname">secondOrderTrans</tt><big>(</big><em>high_phase</em>, <em>low_phase</em>, <em>Tstr='Tnuc'</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#secondOrderTrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.secondOrderTrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assemble a dictionary describing a second-order phase transition.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.findAllTransitions">
+<tt class="descname">findAllTransitions</tt><big>(</big><em>phases</em>, <em>V</em>, <em>dV</em>, <em>tunnelFromPhase_args={}</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#findAllTransitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.findAllTransitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the complete phase transition history for the potential <em class="xref py py-obj">V</em>.</p>
+<p>This functions uses <a class="reference internal" href="#transitionFinder.tunnelFromPhase" title="transitionFinder.tunnelFromPhase"><tt class="xref py py-func docutils literal"><span class="pre">tunnelFromPhase()</span></tt></a> to find the transition
+temperature and instanton for each phase, starting at the highest phase
+in the potential. Note that if there are multiple transitions that could
+occur at the same minimum (if, for example, there is a Z2 symmetry or
+a second-order transition breaks in multiple directions), only one of the
+transitions will be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>phases</strong> (<em>dict</em>) &#8211; Output from <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a>.</li>
+<li><strong>dV</strong> (<em>V,</em>) &#8211; The potential function and its gradient, each a function of field
+value (which should be an array, not a scalar) and a temperature.</li>
+<li><strong>tunnelFromPhase_args</strong> (<em>dict</em>) &#8211; Parameters to pass to <a class="reference internal" href="#transitionFinder.tunnelFromPhase" title="transitionFinder.tunnelFromPhase"><tt class="xref py py-func docutils literal"><span class="pre">tunnelFromPhase()</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>list of transitions</em> &#8211;
+Each item is a dictionary describing the transition (see
+<a class="reference internal" href="#transitionFinder.tunnelFromPhase" title="transitionFinder.tunnelFromPhase"><tt class="xref py py-func docutils literal"><span class="pre">tunnelFromPhase()</span></tt></a> for keys). The first transition is the one at
+the highest temperature.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.findCriticalTemperatures">
+<tt class="descname">findCriticalTemperatures</tt><big>(</big><em>phases</em>, <em>V</em>, <em>start_high=False</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#findCriticalTemperatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.findCriticalTemperatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all temperatures <em class="xref py py-obj">Tcrit</em> such that there is degeneracy between any
+two phases.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>phases</strong> (<em>dict</em>) &#8211; Output from <a class="reference internal" href="#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">traceMultiMin()</span></tt></a>.</li>
+<li><strong>V</strong> (<em>callable</em>) &#8211; The potential function <em class="xref py py-obj">V(x,T)</em>, where <em class="xref py py-obj">x</em> is the field value (which
+should be an array, not a scalar) and <em class="xref py py-obj">T</em> is the temperature.</li>
+<li><strong>start_high</strong> (<em>bool, optional</em>) &#8211; If True, only include those transitions which could be reached starting
+from the high-T phase. NOT IMPLEMENTED YET.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><p><em>list of transitions</em> &#8211;
+Transitions are sorted in decreasing temperature. Each transition is a
+dictionary with the following keys:</p>
+<ul class="simple">
+<li><em>Tcrit</em> : the critical temperature</li>
+<li><em>low_vev, high_vev</em> : vevs for the low-T phase (the phase that the
+model transitions to) and high-T phase (the phase that the model
+transitions from).</li>
+<li><em>low_phase, high_phase</em> : identifier keys for the low-T and high-T
+phases.</li>
+<li><em>trantype</em> : 1 or 2 for first or second-order transitions.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="transitionFinder.addCritTempsForFullTransitions">
+<tt class="descname">addCritTempsForFullTransitions</tt><big>(</big><em>phases</em>, <em>crit_trans</em>, <em>full_trans</em><big>)</big><a class="reference internal" href="_modules/transitionFinder.html#addCritTempsForFullTransitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transitionFinder.addCritTempsForFullTransitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each transition dictionary in <em class="xref py py-obj">full_trans</em>, find the corresponding
+transition in <em class="xref py py-obj">crit_trans</em> and add it to the dictionary for the key
+<em class="xref py py-obj">crit_trans</em>, or add None if no corresponding transition is found.</p>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p class="last">The phases in the supercooled transitions might not be exactly
+the same as the phases in the critical temperature transitions. This would
+be the case, for example, if in <em class="xref py py-obj">full_trans</em> the phase transitions go like
+1 -&gt; 2 -&gt; 3, but in <em class="xref py py-obj">crit_trans</em> they go like 1 -&gt; (2 or 3).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>phases</strong> (<em>dict</em>) &#8211; </li>
+<li><strong>crit_trans</strong> (<em>list</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">transitionFinder.py</a><ul>
+<li><a class="reference internal" href="#finding-the-phase-structure">Finding the phase structure</a></li>
+<li><a class="reference internal" href="#calculating-phase-transitions">Calculating phase transitions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pathDeformation.html"
+                        title="previous chapter">pathDeformation.py</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="generic_potential.html"
+                        title="next chapter">generic_potential.py</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/transitionFinder.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="generic_potential.html" title="generic_potential.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pathDeformation.html" title="pathDeformation.py"
+             >previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

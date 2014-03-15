@@ -1,0 +1,1063 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pathDeformation &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pathDeformation</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A module for finding instantons between vacua in multiple field dimensions.</span>
+
+<span class="sd">The basic strategy is an iterative process:</span>
+
+<span class="sd">    1. Make an ansatz for the path along which the field will travel.</span>
+<span class="sd">    2. Split up the equations of motion into components that are parallel and </span>
+<span class="sd">       perpendicular to the direction of travel along the path.</span>
+<span class="sd">    3. The direction of motion parallel to the path reduces to a </span>
+<span class="sd">       one-dimensional equation of motion, which can be solved using the </span>
+<span class="sd">       overshoot / undershoot techniques in :mod:`tunneling1D`. Solve it.</span>
+<span class="sd">    4. Treating the motion of the field as a classical particle moving in an</span>
+<span class="sd">       inverted potential, calculate the normal forces that would need to act</span>
+<span class="sd">       on the particle to keep it on the path. If this forces are (close enough</span>
+<span class="sd">       to) zero, the ansatz was correctly. Otherwise iteratively deform the path</span>
+<span class="sd">       in the direction of the normal forces, stopping when the forces go to</span>
+<span class="sd">       zero.</span>
+<span class="sd">    5. Loop back to step 3 until no further deformation is necessary.</span>
+
+<span class="sd">The classes :class:`Deformation_Spline` and :class:`Deformation_Points` will</span>
+<span class="sd">perform step 3, while :func:`fullTunneling` will run the entire loop.</span>
+
+<span class="sd">For more explicit details, see the original paper </span>
+<span class="sd">`Comput. Phys. Commun. 183 (2012)`_ [`arXiv:1109.4189`_].</span>
+
+<span class="sd">.. _`Comput. Phys. Commun. 183 (2012)`: </span>
+<span class="sd">    http://dx.doi.org/10.1016/j.cpc.2012.04.004</span>
+
+<span class="sd">.. _`arXiv:1109.4189`: http://arxiv.org/abs/1109.4189</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;2.0a1&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span><span class="p">,</span> <span class="n">interpolate</span><span class="p">,</span> <span class="n">special</span><span class="p">,</span> <span class="n">integrate</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">tunneling1D</span>
+<span class="kn">import</span> <span class="nn">helper_functions</span>
+
+<span class="c">#from __future__ import print_function</span>
+
+<span class="n">pylab</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="DeformationError"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.DeformationError">[docs]</a><span class="k">class</span> <span class="nc">DeformationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when path deformation fails.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+	</div>
+<div class="viewcode-block" id="Deformation_Spline"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Spline">[docs]</a><span class="k">class</span> <span class="nc">Deformation_Spline</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deform a path in the presence of a potential such that the normal forces </span>
+<span class="sd">    along the path are zero.</span>
+<span class="sd">    </span>
+<span class="sd">    This class fits a spline to the points, and does the actual deformation</span>
+<span class="sd">    on the spline rather than on the points themselves. This make the path</span>
+<span class="sd">    somewhat smoother than it would otherwise be (which is generally desirable),</span>
+<span class="sd">    but it does make it difficult to resolve sharp turns in the path.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        The list of points that constitutes the original path. Should have</span>
+<span class="sd">        shape ``(n_points, n_dimensions)``.</span>
+<span class="sd">    dphidr : array_like</span>
+<span class="sd">        The &#39;speed&#39; along the path at the initial points. This does not change</span>
+<span class="sd">        as the path deforms. Should have shape ``(n_points,)``. Gets saved into</span>
+<span class="sd">        the attribute `v2` as ``v2 = dphidr[:,np.newaxis]**2``.</span>
+<span class="sd">    dV : callable</span>
+<span class="sd">        The potential gradient as a function of phi. The output shape should be </span>
+<span class="sd">        the same as the input shape, which will be ``(..., n_dimensions)``.</span>
+<span class="sd">    nb : int, optional</span>
+<span class="sd">        Number of basis splines to use.</span>
+<span class="sd">    kb : int, optional</span>
+<span class="sd">        Order of basis splines.</span>
+<span class="sd">    v2min : float, optional</span>
+<span class="sd">        The smallest the square of dphidr is allowed to be, relative</span>
+<span class="sd">        to the characteristic force exterted by F_ext. Note that the</span>
+<span class="sd">        self-correcting nature of the deformation goes away when dphidr=0.</span>
+<span class="sd">    fix_start, fix_end : bool, optional</span>
+<span class="sd">        If True, the force on the first/last point along the path is set to</span>
+<span class="sd">        zero, so the point will not change in the deformation step.</span>
+<span class="sd">    save_all_steps : bool, optional</span>
+<span class="sd">        If True, each step gets saved into ``self.phi_list`` and </span>
+<span class="sd">        ``self.F_list``.</span>
+<span class="sd">        </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        Set during initialization, and then rewritten at each step.</span>
+<span class="sd">    num_steps : int</span>
+<span class="sd">        Total number of steps taken.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Additional (private) attributes</span>
+<span class="sd">    -------------------------------</span>
+<span class="sd">    _L : float</span>
+<span class="sd">        Total length of the path, set during initialization.</span>
+<span class="sd">    _t : array_like</span>
+<span class="sd">        Array from (0,1] marking the locations of each point.</span>
+<span class="sd">    _X, _dX, _d2X : array_like</span>
+<span class="sd">        Spline basis functions and their derivatives evaluated at `_t`. Set</span>
+<span class="sd">        during initialization.</span>
+<span class="sd">    _beta : array_like</span>
+<span class="sd">        The spline coefficients for each dimension. Recalculated each step.</span>
+<span class="sd">    _F_prev, _phi_prev : array_like</span>
+<span class="sd">        The normal force and the path points at the last step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dphidr</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">nb</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kb</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">v2min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> 
+                 <span class="n">fix_start</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fix_end</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save_all_steps</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="c"># First step: convert phi to a set of path lengths.</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="n">dphi</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dL</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dphi</span><span class="o">*</span><span class="n">dphi</span><span class="p">,</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_L</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_L</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-100</span>  <span class="c"># Without this, the first data point isn&#39;t in </span>
+                            <span class="c"># any bin (this matters for dX).</span>
+        
+        <span class="c"># Create the starting spline:</span>
+        <span class="c"># make the knots and then the spline matrices at each point t</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">kb</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">nb</span><span class="o">+</span><span class="mi">3</span><span class="o">-</span><span class="n">kb</span><span class="p">)),</span> 
+                       <span class="p">[</span><span class="mf">1.</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">kb</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_X</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_dX</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_d2X</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">Nbspld2</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">,</span> <span class="n">kb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="c"># Shape (n, 1)</span>
+        <span class="c"># subtract off the linear component.</span>
+        <span class="n">phi0</span><span class="p">,</span> <span class="n">phi1</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>  <span class="c"># These are shape (1,N)</span>
+        <span class="n">phi_lin</span> <span class="o">=</span> <span class="n">phi0</span> <span class="o">+</span> <span class="p">(</span><span class="n">phi1</span><span class="o">-</span><span class="n">phi0</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span><span class="p">,</span> <span class="n">residues</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_X</span><span class="p">,</span> <span class="n">phi</span><span class="o">-</span><span class="n">phi_lin</span><span class="p">)</span>
+        
+        <span class="c"># save the points for future use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="c"># shape (n,N)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">dphidr</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="c"># shape (n,1)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dV</span> <span class="o">=</span> <span class="n">dV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phi_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_F_prev</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_all_steps</span> <span class="o">=</span> <span class="n">save_all_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_end</span> <span class="o">=</span> <span class="n">fix_start</span><span class="p">,</span> <span class="n">fix_end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">=</span> <span class="mi">0</span>
+        
+        <span class="c"># ensure that v2 isn&#39;t too small:</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">dphidr</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">v2min</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_L</span><span class="o">/</span><span class="n">nb</span> <span class="p">)</span>
+        <span class="n">v2</span><span class="p">[</span><span class="n">v2</span><span class="o">&lt;</span><span class="n">v2min</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        
+    <span class="n">_forces_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;forces_rval&quot;</span><span class="p">,</span> <span class="s">&quot;F_norm dV&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="Deformation_Spline.forces"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Spline.forces">[docs]</a>    <span class="k">def</span> <span class="nf">forces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the normal force and potential gradient on the path.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        F_norm, dV : array_like</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">d2X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d2X</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span>
+        <span class="sd">&quot;&quot;&quot;First find phi, dphi, and d2phi. Note that dphi needs to get a</span>
+<span class="sd">        linear component added in, while d2phi does not.&quot;&quot;&quot;</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
+        <span class="n">dphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beta</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:,:]</span><span class="o">*</span><span class="n">dX</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> \
+               <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="n">d2phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">beta</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:,:]</span><span class="o">*</span><span class="n">d2X</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Compute dphi/ds, where s is the path length instead of the path</span>
+<span class="sd">        parameter t. This is just the direction along the path.&quot;&quot;&quot;</span>
+        <span class="n">dphi_sq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dphi</span><span class="o">*</span><span class="n">dphi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">dphids</span> <span class="o">=</span> <span class="n">dphi</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dphi_sq</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Then find the acceleration along the path, i.e. d2phi/ds2:&quot;&quot;&quot;</span>
+        <span class="n">d2phids2</span> <span class="o">=</span> <span class="p">(</span><span class="n">d2phi</span> <span class="o">-</span> <span class="n">dphi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dphi</span><span class="o">*</span><span class="n">d2phi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">/</span> 
+                    <span class="n">dphi_sq</span><span class="p">)</span><span class="o">/</span><span class="n">dphi_sq</span>
+        <span class="sd">&quot;&quot;&quot;Now we have the path at the points t, as well its derivatives with </span>
+<span class="sd">        respect to it&#39;s path length. We still need to get the normal force </span>
+<span class="sd">        acting on the path.&quot;&quot;&quot;</span>
+        <span class="n">dV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="n">dV_perp</span> <span class="o">=</span> <span class="n">dV</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dV</span><span class="o">*</span><span class="n">dphids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">*</span><span class="n">dphids</span>
+        <span class="n">F_norm</span> <span class="o">=</span> <span class="n">d2phids2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">-</span> <span class="n">dV_perp</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fix_start</span><span class="p">):</span>
+            <span class="n">F_norm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fix_end</span><span class="p">):</span>
+            <span class="n">F_norm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forces_rval</span><span class="p">(</span><span class="n">F_norm</span><span class="p">,</span> <span class="n">dV</span><span class="p">)</span>
+                                </div>
+    <span class="n">_step_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;step_rval&quot;</span><span class="p">,</span> <span class="s">&quot;stepsize step_reversed fRatio&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="Deformation_Spline.step"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Spline.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lastStep</span><span class="p">,</span> <span class="n">maxstep</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">minstep</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">reverseCheck</span><span class="o">=.</span><span class="mi">15</span><span class="p">,</span>
+             <span class="n">stepIncrease</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">stepDecrease</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">checkAfterFit</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+             <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deform the path one step.</span>
+<span class="sd">        </span>
+<span class="sd">        Each point is pushed in the direction of the normal force - the force </span>
+<span class="sd">        that the path exerts on a classical particle moving with speed `dphidr`</span>
+<span class="sd">        in a potential with gradient `dV` such that the particle stays on the</span>
+<span class="sd">        path. A stepsize of 1 corresponds to moving the path an amount </span>
+<span class="sd">        ``L*N/(dV_max)``, where `L` is the length of the (original) path,</span>
+<span class="sd">        `N` is the normal force, and `dV_max` is the maximum force exerted by</span>
+<span class="sd">        the potential along the path.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lastStep : float</span>
+<span class="sd">            Size of the last step.</span>
+<span class="sd">        maxstep, minstep : float, optional</span>
+<span class="sd">        reverseCheck : float, optional</span>
+<span class="sd">            Percentage of points for which the force can reverse direcitons</span>
+<span class="sd">            (relative to the last step) before the stepsize is decreased.</span>
+<span class="sd">            If ``reverseCheck &gt;= 1``, the stepsize is kept at `lastStep`.</span>
+<span class="sd">        stepIncrease, stepDecrease : float, optional</span>
+<span class="sd">            The amount to increase or decrease stepsize over the last step.</span>
+<span class="sd">            Both should be bigger than 1.</span>
+<span class="sd">        checkAfterFit : bool, optional</span>
+<span class="sd">            If True, the convergence test is performed after the points are fit</span>
+<span class="sd">            to a spline. If False, it&#39;s done beforehand.</span>
+<span class="sd">        verbose : bool, optional</span>
+<span class="sd">            If True, output is printed at each step.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        stepsize : float</span>
+<span class="sd">            The stepsize used for this step.</span>
+<span class="sd">        step_reversed : bool</span>
+<span class="sd">            True if this step was reversed, otherwise False</span>
+<span class="sd">        fRatio : float</span>
+<span class="sd">            The ratio of the maximum normal force to the maximum potential</span>
+<span class="sd">            gradient. When the path is a perfect fit, this should go to zero. If </span>
+<span class="sd">            ``checkAfterFit == True``, the normal force in this ratio is defined</span>
+<span class="sd">            by the change in phi this step *after* being fit to a spline. Note</span>
+<span class="sd">            that if the spline does a poor job of fitting the points after the </span>
+<span class="sd">            deformation in this step (which might be the case if there are not </span>
+<span class="sd">            enough basis functions), and if ``checkAfterFit == False``, this</span>
+<span class="sd">            ratio can be non-zero or large even if there is no change in `phi`.</span>
+<span class="sd">            </span>
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        In prior versions of this function (CosmoTransitions v1.0.2 and </span>
+<span class="sd">        earlier), the start and end points of the</span>
+<span class="sd">        path were effectively held fixed during the main deformation. This was</span>
+<span class="sd">        because the line ``phi_lin = phi[:1] + ...`` was calculated *before* the</span>
+<span class="sd">        line ``phi = phi+F*stepsize``. Since the spline basis functions are</span>
+<span class="sd">        zero at the start and end points (the spline is added on top of the</span>
+<span class="sd">        straight line between the end points), when the points were later taken</span>
+<span class="sd">        from the spline the end points wouldn&#39;t move. This was by design, since</span>
+<span class="sd">        for thin-walled bubbles the endpoints should stay fixed at the two</span>
+<span class="sd">        vacua. However, this caused problems for thick-walled bubbles where the</span>
+<span class="sd">        end points should move. </span>
+<span class="sd">        </span>
+<span class="sd">        To get around this, prior versions added an extra block of code to move</span>
+<span class="sd">        the end points before the main deformation. However, this was</span>
+<span class="sd">        unnecessarily complicated and led to error-prone code. In this version,</span>
+<span class="sd">        the end points are always allowed to move if the force `F` is non-zero.</span>
+<span class="sd">        In the thin-walled case, the force should be almost exactly zero at</span>
+<span class="sd">        the end points anyways (there is zero potential gradient and `dphidr` is</span>
+<span class="sd">        zero), so they should stay fixed on their own.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Find out the direction of the deformation.</span>
+        <span class="n">F</span><span class="p">,</span><span class="n">dV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">()</span>
+        <span class="n">F_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="o">*</span><span class="n">F</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">dV_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dV</span><span class="o">*</span><span class="n">dV</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">fRatio1</span> <span class="o">=</span> <span class="n">F_max</span> <span class="o">/</span> <span class="n">dV_max</span>
+        <span class="c"># Rescale the normal force so that it&#39;s relative to L:</span>
+        <span class="n">F</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_L</span> <span class="o">/</span> <span class="n">dV_max</span>
+                
+        <span class="c"># Now, see how big the stepsize should be</span>
+        <span class="n">stepsize</span> <span class="o">=</span> <span class="n">lastStep</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">maxstep</span> <span class="o">&gt;</span> <span class="n">minstep</span><span class="p">)</span>
+        <span class="n">step_reversed</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="n">reverseCheck</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_F_prev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">FdotFlast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_F_prev</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">FdotFlast</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">FdotFlast</span><span class="p">)</span><span class="o">*</span><span class="n">reverseCheck</span><span class="p">:</span>
+                <span class="c"># we want to reverse the last step</span>
+                <span class="k">if</span> <span class="n">stepsize</span> <span class="o">&gt;</span> <span class="n">minstep</span><span class="p">:</span>
+                    <span class="n">step_reversed</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_phi_prev</span>
+                    <span class="n">F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_F_prev</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s">&quot;step reversed&quot;</span><span class="p">)</span>
+                    <span class="n">stepsize</span> <span class="o">=</span> <span class="n">lastStep</span><span class="o">/</span><span class="n">stepDecrease</span>
+            <span class="k">else</span><span class="p">:</span>	
+                <span class="sd">&quot;&quot;&quot; No (large number of) indices reversed, just do a regular</span>
+<span class="sd">                step. Increase the stepsize a bit over the last one.&quot;&quot;&quot;</span>
+                <span class="n">stepsize</span> <span class="o">=</span> <span class="n">lastStep</span> <span class="o">*</span> <span class="n">stepIncrease</span>
+        <span class="k">if</span> <span class="n">stepsize</span> <span class="o">&gt;</span> <span class="n">maxstep</span><span class="p">:</span> <span class="n">stepsize</span> <span class="o">=</span> <span class="n">maxstep</span>
+        <span class="k">if</span> <span class="n">stepsize</span> <span class="o">&lt;</span> <span class="n">minstep</span><span class="p">:</span> <span class="n">stepsize</span> <span class="o">=</span> <span class="n">minstep</span>
+                
+        <span class="c"># Save the state before the step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_phi_prev</span> <span class="o">=</span> <span class="n">phi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_F_prev</span> <span class="o">=</span> <span class="n">F</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_all_steps</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+                
+        <span class="sd">&quot;&quot;&quot;Now make the step. It&#39;s important to not use += so that this doesn&#39;t</span>
+<span class="sd">        change the value stored in self.phi_list.&quot;&quot;&quot;</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span><span class="o">+</span><span class="n">F</span><span class="o">*</span><span class="n">stepsize</span>
+        
+        <span class="c"># fit to the spline</span>
+        <span class="n">phi_lin</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">phi</span><span class="p">[:</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_t</span>
+        <span class="n">phi</span> <span class="o">-=</span> <span class="n">phi_lin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span><span class="p">,</span> <span class="n">residues</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_X</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_beta</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:,:]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_X</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">phi</span> <span class="o">+=</span> <span class="n">phi_lin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">phi</span>
+        
+        <span class="n">Ffit</span> <span class="o">=</span> <span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_phi_prev</span><span class="p">)</span><span class="o">/</span><span class="n">stepsize</span>
+        <span class="n">fRatio2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Ffit</span><span class="o">*</span><span class="n">Ffit</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_L</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> 
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;step: </span><span class="si">%i</span><span class="s">; stepsize: </span><span class="si">%0.2e</span><span class="s">; fRatio1 </span><span class="si">%0.2e</span><span class="s">; fRatio2: </span><span class="si">%0.2e</span><span class="s">&quot;</span>
+                  <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">,</span> <span class="n">fRatio1</span><span class="p">,</span> <span class="n">fRatio2</span><span class="p">))</span>
+        
+        <span class="n">fRatio</span> <span class="o">=</span> <span class="n">fRatio2</span> <span class="k">if</span> <span class="n">checkAfterFit</span> <span class="k">else</span> <span class="n">fRatio1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_rval</span><span class="p">(</span><span class="n">stepsize</span><span class="p">,</span> <span class="n">step_reversed</span><span class="p">,</span> <span class="n">fRatio</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Deformation_Spline.deformPath"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Spline.deformPath">[docs]</a>    <span class="k">def</span> <span class="nf">deformPath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startstep</span><span class="o">=</span><span class="mf">2e-3</span><span class="p">,</span> 
+                   <span class="n">fRatioConv</span><span class="o">=.</span><span class="mo">02</span><span class="p">,</span> <span class="n">converge_0</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">fRatioIncrease</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> 
+                   <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">step_params</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deform the path many individual steps, stopping either when the</span>
+<span class="sd">        convergence criterium is reached, when the maximum number of iterations</span>
+<span class="sd">        is reached, or when the path appears to be running away from</span>
+<span class="sd">        convergence.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        startstep : float, optional</span>
+<span class="sd">            Starting stepsize used in :func:`step`.</span>
+<span class="sd">        fRatioConv : float, optional</span>
+<span class="sd">            The routine will stop when the maximum normal force on the path</span>
+<span class="sd">            divided by the maximum potential gradient is less than this.</span>
+<span class="sd">        converge_0 : float, optional</span>
+<span class="sd">            On the first step, use a different convergence criterion. Check if</span>
+<span class="sd">            ``fRatio &lt; convergence_0 * fRatioConv``. </span>
+<span class="sd">        fRatioIncrease :float, optional</span>
+<span class="sd">            The maximum fractional amount that fRatio can increase before</span>
+<span class="sd">            raising an error.</span>
+<span class="sd">        maxiter : int, optional</span>
+<span class="sd">            Maximum number of steps to take (ignoring reversed steps).</span>
+<span class="sd">        verbose : bool, optional</span>
+<span class="sd">            If True, print the ending condition.</span>
+<span class="sd">        callback : callable, optional</span>
+<span class="sd">            Called after each step. Should accept an instance of this class as a</span>
+<span class="sd">            parameter, and return False if deformation should stop.</span>
+<span class="sd">        step_params : dict, optional</span>
+<span class="sd">            Parameters to pass to :func:`step`.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        deformation_converged : bool</span>
+<span class="sd">            True if the routine stopped because it converged (as determined by</span>
+<span class="sd">            `fRatioConv`), False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minfRatio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">minfRatio_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">minfRatio_beta</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">minfRatio_phi</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">stepsize</span> <span class="o">=</span> <span class="n">startstep</span>
+        <span class="n">deformation_converged</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">stepsize</span><span class="p">,</span> <span class="n">step_reversed</span><span class="p">,</span> <span class="n">fRatio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">stepsize</span><span class="p">,</span> <span class="o">**</span><span class="n">step_params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">minfRatio</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">minfRatio</span><span class="p">,</span> <span class="n">fRatio</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fRatio</span> <span class="o">&lt;</span> <span class="n">fRatioConv</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">==</span> <span class="mi">1</span> 
+                                       <span class="ow">and</span> <span class="n">fRatio</span> <span class="o">&lt;</span> <span class="n">converge_0</span><span class="o">*</span><span class="n">fRatioConv</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> 
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Path deformation converged. &quot;</span> <span class="o">+</span>
+                          <span class="s">&quot;</span><span class="si">%i</span><span class="s"> steps. fRatio = </span><span class="si">%0.5e</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">,</span><span class="n">fRatio</span><span class="p">))</span>
+                <span class="n">deformation_converged</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">minfRatio</span> <span class="o">==</span> <span class="n">fRatio</span><span class="p">:</span>
+                <span class="n">minfRatio_beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span>
+                <span class="n">minfRatio_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span>
+                <span class="n">minfRatio_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
+            <span class="k">if</span> <span class="n">fRatio</span> <span class="o">&gt;</span> <span class="n">fRatioIncrease</span><span class="o">*</span><span class="n">minfRatio</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">step_reversed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span> <span class="o">=</span> <span class="n">minfRatio_beta</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">minfRatio_phi</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span><span class="p">[:</span><span class="n">minfRatio_index</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span><span class="p">[:</span><span class="n">minfRatio_index</span><span class="p">]</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Deformation doesn&#39;t appear to be converging.&quot;</span>
+                           <span class="s">&quot;Stopping at the point of best convergence.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">DeformationError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">&gt;=</span> <span class="n">maxiter</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> 
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Maximum number of deformation iterations reached.&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">deformation_converged</span>
+        </div></div>
+<div class="viewcode-block" id="Deformation_Points"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Points">[docs]</a><span class="k">class</span> <span class="nc">Deformation_Points</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deform a path in the presence of a potential such that the normal forces </span>
+<span class="sd">    along the path are zero.</span>
+<span class="sd">    </span>
+<span class="sd">    Unlike :class:`Deformation_Spline`, this class changes the points</span>
+<span class="sd">    themselves rather than fitting a spline to the points. It is a more </span>
+<span class="sd">    straightforward implementation, and when run with comparable inputs (i.e.,</span>
+<span class="sd">    the number of basis splines is about the same as the number of points), this</span>
+<span class="sd">    method tends to be somewhat faster. The individual stepsizes here change</span>
+<span class="sd">    with the total number of points, whereas in the spline implementation they</span>
+<span class="sd">    mostly depend on the number of basis functions. However, as long as the path</span>
+<span class="sd">    is fairly smooth, the total number of splines in that class can probably be </span>
+<span class="sd">    smaller than the total number of points in this class, so this class will</span>
+<span class="sd">    tend to be somewhat slower.</span>
+<span class="sd">    </span>
+<span class="sd">    The two implementations should converge upon the same answer when the </span>
+<span class="sd">    number of points and basis functions get large.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        The list of points that constitutes the original path. Should have</span>
+<span class="sd">        shape ``(n_points, n_dimensions)``.</span>
+<span class="sd">    dphidr : array_like</span>
+<span class="sd">        The &#39;speed&#39; along the path at the initial points. This does not change</span>
+<span class="sd">        as the path deforms. Should have shape ``(n_points,)``. Gets saved into</span>
+<span class="sd">        the attribute ``self.v2`` as ``v2 = dphidr[:,np.newaxis]**2``.</span>
+<span class="sd">    dV : callable</span>
+<span class="sd">        The potential gradient as a function of phi. The output shape should be </span>
+<span class="sd">        the same as the input shape, which will be ``(..., n_dimensions)``.</span>
+<span class="sd">    fix_start, fix_end : bool, optional</span>
+<span class="sd">        If True, the force on the first/last point along the path is set to</span>
+<span class="sd">        zero, so the point will not change in the deformation step.</span>
+<span class="sd">    save_all_steps : bool, optional</span>
+<span class="sd">        If True, each step gets saved into ``self.phi_list`` and </span>
+<span class="sd">        ``self.F_list``.</span>
+<span class="sd">        </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        Set during initialization, and then rewritten at each step.</span>
+<span class="sd">    num_steps : int</span>
+<span class="sd">        Total number of steps taken.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dphidr</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span>
+                 <span class="n">fix_start</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fix_end</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">save_all_steps</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="c"># shape (n,N)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">dphidr</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="c"># shape (n,1)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dV</span> <span class="o">=</span> <span class="n">dV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_all_steps</span> <span class="o">=</span> <span class="n">save_all_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fix_end</span> <span class="o">=</span> <span class="n">fix_start</span><span class="p">,</span> <span class="n">fix_end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">=</span> <span class="mi">0</span>
+        
+    <span class="n">_forces_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;forces_rval&quot;</span><span class="p">,</span> <span class="s">&quot;F_norm dV&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="Deformation_Points.forces"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Points.forces">[docs]</a>    <span class="k">def</span> <span class="nf">forces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the normal force and potential gradient on the path.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        F_norm, dV : array_like</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">phi</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
+        <span class="c"># Let `t` be some variable that parametrizes the points such that</span>
+        <span class="c"># t_i = i. Calculate the derivs of phi w/ respect to t.</span>
+        <span class="n">dphi</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">deriv14_const_dx</span><span class="p">(</span><span class="n">phi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">d2phi</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">deriv23_const_dx</span><span class="p">(</span><span class="n">phi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> 
+        <span class="c"># Let `x` be some variable that parametrizes the path such that</span>
+        <span class="c"># |dphi/dx| = 1. Calculate the derivs.</span>
+        <span class="n">dphi_abssq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dphi</span><span class="o">*</span><span class="n">dphi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">dphi</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dphi_abssq</span><span class="p">)</span> <span class="c"># This is now dphi/dx</span>
+        <span class="n">d2phi</span> <span class="o">/=</span> <span class="n">dphi_abssq</span> <span class="c"># = d2phi/dx2 + (dphi/dx)(d2phi/dt2)/(dphi/dt)^2</span>
+        <span class="n">d2phi</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d2phi</span><span class="o">*</span><span class="n">dphi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">dphi</span> <span class="c"># = d2phi/dx2</span>
+        <span class="c"># Calculate the total force.</span>
+        <span class="n">dV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="n">dV_perp</span> <span class="o">=</span> <span class="n">dV</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dV</span><span class="o">*</span><span class="n">dphi</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">dphi</span>
+        <span class="n">F_norm</span> <span class="o">=</span> <span class="n">d2phi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">-</span> <span class="n">dV_perp</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fix_start</span><span class="p">):</span>
+            <span class="n">F_norm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fix_end</span><span class="p">):</span>
+            <span class="n">F_norm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forces_rval</span><span class="p">(</span><span class="n">F_norm</span><span class="p">,</span> <span class="n">dV</span><span class="p">)</span>
+                </div>
+    <span class="n">_step_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;step_rval&quot;</span><span class="p">,</span> <span class="s">&quot;stepsize fRatio&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="Deformation_Points.step"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Points.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">,</span> <span class="n">minstep</span><span class="p">,</span> <span class="n">diff_check</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">step_decrease</span><span class="o">=</span><span class="mf">2.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take two half-steps in the direction of the normal force.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        stepsize : float</span>
+<span class="sd">            Determines change in `phi`: ``phi += F_norm*stepsize``.</span>
+<span class="sd">        minstep : float</span>
+<span class="sd">            The smallest the stepsize is allowed to be.</span>
+<span class="sd">        diff_check : float, optional</span>
+<span class="sd">            The stepsize is chosen such that difference between the forces at</span>
+<span class="sd">            beginning of the step and halfway through the step is small </span>
+<span class="sd">            compared to the force itself: ``max(F2-F1) &lt; diff_check * max(F1)``,</span>
+<span class="sd">            where ``max`` here really means the maximum absolute value of the</span>
+<span class="sd">            force in each direction.</span>
+<span class="sd">        step_decrease : float, optional</span>
+<span class="sd">            Amount by which to decrease the stepsize if the step is too big.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        stepsize : float</span>
+<span class="sd">            The stepsize used for this step.</span>
+<span class="sd">        fRatio : float</span>
+<span class="sd">            The ratio of the maximum normal force to the maximum potential</span>
+<span class="sd">            gradient. When the path is a perfect fit, this should go to zero.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">F1</span><span class="p">,</span><span class="n">dV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">()</span>
+        <span class="n">F_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F1</span><span class="o">*</span><span class="n">F1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">dV_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dV</span><span class="o">*</span><span class="n">dV</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">fRatio</span> <span class="o">=</span> <span class="n">F_max</span> <span class="o">/</span> <span class="n">dV_max</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_all_steps</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">F1</span><span class="p">)</span>
+        
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="c"># Take one full step</span>
+          <span class="c">#  phi1 = self.phi + F*stepsize</span>
+            <span class="c"># Take two half steps</span>
+            <span class="n">phi2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">+</span> <span class="n">F1</span><span class="o">*</span><span class="p">(</span><span class="n">stepsize</span><span class="o">*</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">F2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">(</span><span class="n">phi2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">stepsize</span> <span class="o">&lt;=</span> <span class="n">minstep</span><span class="p">:</span>
+                <span class="n">stepsize</span> <span class="o">=</span> <span class="n">minstep</span>
+                <span class="k">break</span>
+          <span class="c">#  phi2 += F2*(stepsize*0.5)</span>
+            <span class="n">DF_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">F2</span><span class="o">-</span><span class="n">F1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">F_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">F1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">DF_max</span> <span class="o">&lt;</span> <span class="n">diff_check</span><span class="o">*</span><span class="n">F_max</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="k">break</span>
+            <span class="n">stepsize</span> <span class="o">/=</span> <span class="n">step_decrease</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">phi2</span> <span class="o">+</span> <span class="n">F2</span><span class="o">*</span><span class="p">(</span><span class="n">stepsize</span><span class="o">*</span><span class="mf">0.5</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_rval</span><span class="p">(</span><span class="n">stepsize</span><span class="p">,</span> <span class="n">fRatio</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="Deformation_Points.deformPath"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.Deformation_Points.deformPath">[docs]</a>    <span class="k">def</span> <span class="nf">deformPath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startstep</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">minstep</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">step_increase</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                   <span class="n">fRatioConv</span><span class="o">=.</span><span class="mo">02</span><span class="p">,</span> <span class="n">converge_0</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">fRatioIncrease</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span> 
+                   <span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">step_params</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deform the path many individual steps, stopping either when the</span>
+<span class="sd">        convergence criterium is reached, when the maximum number of iterations</span>
+<span class="sd">        is reached, or when the path appears to be running away from</span>
+<span class="sd">        convergence.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        startstep, maxstep : float, optional</span>
+<span class="sd">            Starting and maximum stepsizes used in :func:`step`, rescaled by </span>
+<span class="sd">            ``|phi[0]-phi[1]| / (max(dV)*num_points)``.</span>
+<span class="sd">        fRatioConv : float, optional</span>
+<span class="sd">            The routine will stop when the maximum normal force on the path</span>
+<span class="sd">            divided by the maximum potential gradient is less than this.</span>
+<span class="sd">        converge_0 : float, optional</span>
+<span class="sd">            On the first step, use a different convergence criterion. Check if</span>
+<span class="sd">            ``fRatio &lt; convergence_0 * fRatioConv``. </span>
+<span class="sd">        fRatioIncrease :float, optional</span>
+<span class="sd">            The maximum fractional amount that fRatio can increase before</span>
+<span class="sd">            raising an error.</span>
+<span class="sd">        maxiter : int, optional</span>
+<span class="sd">            Maximum number of steps to take (ignoring reversed steps).</span>
+<span class="sd">        verbose : int, optional</span>
+<span class="sd">            If ``verbose &gt;= 1``, print the ending condition.</span>
+<span class="sd">            If ``verbose &gt;= 2``, print `fRatio` and `stepsize` at each step.</span>
+<span class="sd">        callback : callable, optional</span>
+<span class="sd">            Called after each step. Should accept an instance of this class as a</span>
+<span class="sd">            parameter, and return False if deformation should stop.</span>
+<span class="sd">        step_params : dict, optional</span>
+<span class="sd">            Parameters to pass to :func:`step`.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        deformation_converged : bool</span>
+<span class="sd">            True if the routine stopped because it converged (as determined by</span>
+<span class="sd">            `fRatioConv`), False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minfRatio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">Delta_phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">dV_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mf">0.5</span>
+        <span class="n">step_scale</span> <span class="o">=</span> <span class="n">Delta_phi</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span> <span class="o">*</span> <span class="n">dV_max</span><span class="p">)</span>
+        <span class="n">stepsize</span> <span class="o">=</span> <span class="n">startstep</span> <span class="o">*</span> <span class="n">step_scale</span>
+        <span class="n">minstep</span> <span class="o">*=</span> <span class="n">step_scale</span>
+        <span class="n">deformation_converged</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">stepsize</span><span class="p">,</span> <span class="n">fRatio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">stepsize</span><span class="p">,</span> <span class="n">minstep</span><span class="p">,</span> <span class="o">**</span><span class="n">step_params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;step: </span><span class="si">%i</span><span class="s">; stepsize: </span><span class="si">%0.2e</span><span class="s">; fRatio: </span><span class="si">%0.2e</span><span class="s">&quot;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">,</span> <span class="n">fRatio</span><span class="p">))</span>
+            <span class="n">stepsize</span> <span class="o">*=</span> <span class="n">step_increase</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">minfRatio</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">minfRatio</span><span class="p">,</span> <span class="n">fRatio</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fRatio</span> <span class="o">&lt;</span> <span class="n">fRatioConv</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">==</span> <span class="mi">1</span> 
+                                       <span class="ow">and</span> <span class="n">fRatio</span> <span class="o">&lt;</span> <span class="n">converge_0</span><span class="o">*</span><span class="n">fRatioConv</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span> 
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Path deformation converged.&quot;</span> <span class="o">+</span>
+                          <span class="s">&quot;</span><span class="si">%i</span><span class="s"> steps. fRatio = </span><span class="si">%0.5e</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">,</span><span class="n">fRatio</span><span class="p">))</span>
+                <span class="n">deformation_converged</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">minfRatio</span> <span class="o">==</span> <span class="n">fRatio</span><span class="p">:</span>
+                <span class="n">minfRatio_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span>
+                <span class="n">minfRatio_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi</span>
+            <span class="k">if</span> <span class="n">fRatio</span> <span class="o">&gt;</span> <span class="n">fRatioIncrease</span><span class="o">*</span><span class="n">minfRatio</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">phi</span> <span class="o">=</span> <span class="n">minfRatio_phi</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_list</span><span class="p">[:</span><span class="n">minfRatio_index</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">F_list</span><span class="p">[:</span><span class="n">minfRatio_index</span><span class="p">]</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Deformation doesn&#39;t appear to be converging.&quot;</span>
+                           <span class="s">&quot;Stopping at the point of best convergence.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">DeformationError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">&gt;=</span> <span class="n">maxiter</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s">&quot;Maximum number of iterations reached.&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">deformation_converged</span>
+            
+            
+        
+        
+</div></div>
+<span class="n">_extrapolatePhi_rtype</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;extrapolatePhi_rval&quot;</span><span class="p">,</span> <span class="s">&quot;phi s L&quot;</span><span class="p">)</span>			
+<span class="k">def</span> <span class="nf">_extrapolatePhi</span><span class="p">(</span><span class="n">phi0</span><span class="p">,</span> <span class="n">V</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tails</span> <span class="o">=</span> <span class="o">.</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of points along the path, going linearly</span>
+<span class="sd">    beyond the path to include the nearest minima.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi0 : array_like</span>
+<span class="sd">        The (multi-dimensional) path to extend.</span>
+<span class="sd">    V : callable or None</span>
+<span class="sd">        The potential to minimize, or None if the path should be extended a </span>
+<span class="sd">        fixed amount beyond its ends.</span>
+<span class="sd">    tails : float</span>
+<span class="sd">        The amount relative to the path length to extrapolate beyond the end of</span>
+<span class="sd">        the path (if V is None) or beyond the minima (if V is not None).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        The extended list of points. The spacing between points in the extended</span>
+<span class="sd">        regions should be approximately the same as the spacing between the</span>
+<span class="sd">        input points.</span>
+<span class="sd">    s : array_like</span>
+<span class="sd">        The distance along the path (starting at ``phi0[0]``).</span>
+<span class="sd">    L : float</span>
+<span class="sd">        Total length of the path excluding tails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phi1</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">phi0</span>
+    <span class="n">dphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi1</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">phi1</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dphi</span><span class="p">)</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">s1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">npoints</span> <span class="o">=</span> <span class="n">phi1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="n">phi_hat0</span> <span class="o">=</span> <span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+    <span class="k">if</span> <span class="n">V</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">s0min</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">V0</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">V</span><span class="p">(</span> <span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">phi_hat0</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">L</span><span class="p">)</span>
+        <span class="n">s0min</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">V0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">L</span>
+    <span class="k">if</span> <span class="n">s0min</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="n">s0min</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">s0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">s0min</span> <span class="o">-</span> <span class="n">L</span><span class="o">*</span><span class="n">tails</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">npoints</span><span class="o">*</span><span class="n">tails</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">phi0</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">phi_hat0</span><span class="o">*</span><span class="n">s0</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="n">phi_hat2</span> <span class="o">=</span> <span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+    <span class="k">if</span> <span class="n">V</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">s2min</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">V2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">V</span><span class="p">(</span> <span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">phi_hat2</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">L</span><span class="p">)</span>
+        <span class="n">s2min</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">V2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">L</span>
+    <span class="k">if</span> <span class="n">s2min</span> <span class="o">&lt;</span> <span class="n">L</span><span class="p">:</span> <span class="n">s2min</span> <span class="o">=</span> <span class="n">L</span>
+    <span class="n">s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">s2min</span> <span class="o">+</span> <span class="n">L</span><span class="o">*</span><span class="n">tails</span><span class="p">,</span> <span class="n">npoints</span><span class="o">*</span><span class="n">tails</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">phi2</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">phi_hat2</span><span class="o">*</span><span class="p">(</span><span class="n">s2</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">-</span><span class="n">L</span><span class="p">)</span>
+        
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi1</span><span class="p">,</span> <span class="n">phi2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">_extrapolatePhi_rtype</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_pathDeriv</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates to 4th order if len(phi) &gt;= 5, otherwise 1st/2nd order.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="n">dphi</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">deriv14_const_dx</span><span class="p">(</span><span class="n">phi</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">dphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="n">dphi</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">phi</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">dphi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.5</span><span class="o">*</span><span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">phi</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">dphi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mf">1.5</span><span class="o">*</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">phi</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+        <span class="n">dphi</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">dphi</span>
+    
+<div class="viewcode-block" id="SplinePath"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.SplinePath">[docs]</a><span class="k">class</span> <span class="nc">SplinePath</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit a spline to a path in field space, and find the potential on that path.</span>
+<span class="sd">    </span>
+<span class="sd">    The spline-fitting happens in several steps:</span>
+
+<span class="sd">      1. The derivatives of the input points are found, and used to</span>
+<span class="sd">         determine the path length and direction at each point.</span>
+<span class="sd">      2. If `extend_to_minima` is True, additional points are added at each end</span>
+<span class="sd">         of the path such that ends lie on local minima.</span>
+<span class="sd">      3. The points are fit to a spline, with the knots given by the path</span>
+<span class="sd">         distances from the first point.</span>
+<span class="sd">      4. If `reeval_distances` is True, the distances to each point are </span>
+<span class="sd">         re-evaluated using the spline. A new spline is fit with more accurate </span>
+<span class="sd">         knots.</span>
+<span class="sd">    </span>
+<span class="sd">    The potential as a function of distance can be defined in one of two ways.</span>
+<span class="sd">    If `V_spline_samples` is None, the potential as a function of distance `x`</span>
+<span class="sd">    along the path is given by `V[pts(x)]`, where `pts(x)` is the spline</span>
+<span class="sd">    function that defines the path. If `V_spline_samples` is not None, the</span>
+<span class="sd">    potential is first evaluated `V_spline_samples` times along the path, and </span>
+<span class="sd">    another spline is fit to the output. In other words, when `V_spline_samples`</span>
+<span class="sd">    is None, the input potential `V` is evaluated for every value `x` passed to</span>
+<span class="sd">    to the class method :meth:`V`, whereas if `V_spline_samples` is not None, </span>
+<span class="sd">    the input potential is only evaluated during initialization.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pts : array_like</span>
+<span class="sd">        The points that describe the path, with shape ``(num_points, N_dim)``.</span>
+<span class="sd">    V : callable</span>
+<span class="sd">        The potential function. Input arrays will be shape ``(npts, N_dim)`` and</span>
+<span class="sd">        output should have shape ``(npts,)``. Can be None.</span>
+<span class="sd">    dV : callable, optional.</span>
+<span class="sd">        The gradient of the potential. Input arrays will be shape </span>
+<span class="sd">        ``(npts, N_dim)`` and output should have shape ``(npts, N_dim)``. Only</span>
+<span class="sd">        used if ``V_spline_samples=None``.</span>
+<span class="sd">    V_spline_samples : int or None, optional</span>
+<span class="sd">        Number of samples to take along the path to create the spline</span>
+<span class="sd">        interpolation functions. If None, the potential is evaluated directly</span>
+<span class="sd">        from `V` given in the input. If not None, `V_spline_samples` should be </span>
+<span class="sd">        large enough to resolve the smallest features in the potential. For </span>
+<span class="sd">        example, the potential may have a very narrow potential barrier over</span>
+<span class="sd">        which multiple samples should be taken.</span>
+<span class="sd">    extend_to_minima : bool, optional</span>
+<span class="sd">        If True, the input path is extended at each end until it hits local</span>
+<span class="sd">        minima.</span>
+<span class="sd">    reeval_distances : bool, optional</span>
+<span class="sd">        If True, get more accurate distances to each knot by integrating along</span>
+<span class="sd">        the spline.</span>
+<span class="sd">        </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    L : float</span>
+<span class="sd">        The total length of the path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">V_spline_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">extend_to_minima</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">reeval_distances</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="c"># 1. Find derivs</span>
+        <span class="n">dpts</span> <span class="o">=</span> <span class="n">_pathDeriv</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+        <span class="c"># 2. Extend the path</span>
+        <span class="k">if</span> <span class="n">extend_to_minima</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">V_lin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p0</span><span class="p">,</span> <span class="n">dp0</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span> <span class="k">return</span> <span class="n">V</span><span class="p">(</span><span class="n">p0</span><span class="o">+</span><span class="n">x</span><span class="o">*</span><span class="n">dp0</span><span class="p">)</span>
+            <span class="c"># extend at the front of the path</span>
+            <span class="n">xmin</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">V_lin</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dpts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">V</span><span class="p">),</span> 
+                                 <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">xmin</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span> <span class="n">xmin</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">nx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">xmin</span><span class="p">)</span><span class="o">-.</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">pt_ext</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">dpts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt_ext</span><span class="p">,</span> <span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c"># extend at the end of the path</span>
+            <span class="n">xmin</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">V_lin</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dpts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">V</span><span class="p">),</span> 
+                                 <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">xmin</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span> <span class="n">xmin</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">nx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">xmin</span><span class="p">)</span><span class="o">-.</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">pt_ext</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">dpts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">pt_ext</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c"># Recalculate the derivative</span>
+            <span class="n">dpts</span> <span class="o">=</span> <span class="n">_pathDeriv</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+        <span class="c"># 3. Find knot positions and fit the spline.</span>
+        <span class="n">pdist</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dpts</span><span class="o">*</span><span class="n">dpts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span> 
+                                   <span class="n">initial</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">pdist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="c"># degree of the spline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path_tck</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splprep</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">pdist</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c"># 4. Re-evaluate the distance to each point.</span>
+        <span class="k">if</span> <span class="n">reeval_distances</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">dpdx</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> 
+                <span class="n">dp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dp</span><span class="o">*</span><span class="n">dp</span><span class="p">))</span>
+            <span class="n">pdist</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">odeint</span><span class="p">(</span><span class="n">dpdx</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">pdist</span><span class="p">,</span>
+                                     <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">pdist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">1e-8</span><span class="p">)[:,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="n">pdist</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path_tck</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splprep</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">pdist</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c"># Now make the potential spline.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_V</span> <span class="o">=</span> <span class="n">V</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dV</span> <span class="o">=</span> <span class="n">dV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">V_spline_samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span><span class="n">V_spline_samples</span><span class="p">)</span>
+            <span class="c"># extend 20% beyond this so that we more accurately model the</span>
+            <span class="c"># path end points</span>
+            <span class="n">x_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">*.</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">x_ext</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="o">+</span><span class="n">x_ext</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="SplinePath.V"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.SplinePath.V">[docs]</a>    <span class="k">def</span> <span class="nf">V</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The potential as a function of the distance `x` along the path.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_tck</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="SplinePath.dV"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.SplinePath.dV">[docs]</a>    <span class="k">def</span> <span class="nf">dV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;`dV/dx` as a function of the distance `x` along the path.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_tck</span><span class="p">)</span>
+            <span class="n">dpdx</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">dV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dV</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dV</span><span class="o">.</span><span class="n">T</span><span class="o">*</span><span class="n">dpdx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="SplinePath.d2V"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.SplinePath.d2V">[docs]</a>    <span class="k">def</span> <span class="nf">d2V</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;`d^2V/dx^2` as a function of the distance `x` along the path.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_tck</span><span class="p">,</span> <span class="n">der</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;No spline specified. Cannot calculate d2V.&quot;</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="SplinePath.pts"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.SplinePath.pts">[docs]</a>    <span class="k">def</span> <span class="nf">pts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the path points as a function of the distance `x` along the</span>
+<span class="sd">        path. Return value is an array with shape ``(len(x), N_dim)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path_tck</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        
+        </div></div>
+<div class="viewcode-block" id="fullTunneling"><a class="viewcode-back" href="../pathDeformation.html#pathDeformation.fullTunneling">[docs]</a><span class="k">def</span> <span class="nf">fullTunneling</span><span class="p">(</span><span class="n">path_pts</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fixEndCutoff</span><span class="o">=.</span><span class="mo">03</span><span class="p">,</span> 
+                  <span class="n">save_all_steps</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">V_spline_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                  <span class="n">tunneling_class</span><span class="o">=</span><span class="n">tunneling1D</span><span class="o">.</span><span class="n">SingleFieldInstanton</span><span class="p">,</span>
+                  <span class="n">tunneling_init_params</span><span class="o">=</span><span class="p">{},</span>
+                  <span class="n">tunneling_findProfile_params</span><span class="o">=</span><span class="p">{},</span>
+                  <span class="n">deformation_class</span><span class="o">=</span><span class="n">Deformation_Spline</span><span class="p">,</span>
+                  <span class="n">deformation_init_params</span><span class="o">=</span><span class="p">{},</span>
+                  <span class="n">deformation_deform_params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the instanton solution in multiple field dimension.</span>
+<span class="sd">    </span>
+<span class="sd">    This function works by looping four steps:</span>
+<span class="sd">    </span>
+<span class="sd">      1. Fit a spline to the path given by phi.</span>
+<span class="sd">      2. Calculate the one-dimensional tunneling along this path.</span>
+<span class="sd">      3. Deform the path to satisfy the transverse equations of motion.</span>
+<span class="sd">      4. Check for convergence, and then go back to step 1.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_pts : array_like</span>
+<span class="sd">        An array of points that constitute the initial guess for the tunneling</span>
+<span class="sd">        path, with shape ``(num_points, N_dim)``. The first point should be at</span>
+<span class="sd">        (or near) the lower minimum (the minimum to which the field is</span>
+<span class="sd">        tunneling), and the last point should be at the metastable minimum.</span>
+<span class="sd">    V, dV : callable</span>
+<span class="sd">        The potential function and its gradient. Both should accept input of</span>
+<span class="sd">        shape ``(num_points, N_dim)`` and shape ``(N_dim,)``. </span>
+<span class="sd">    maxiter : int, optional</span>
+<span class="sd">        Maximum number of allowed deformation / tunneling iterations.</span>
+<span class="sd">    save_all_steps : bool, optional</span>
+<span class="sd">        If True, additionally output every single deformation sub-step. </span>
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        If True, print a message at the start of each step.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    V_spline_samples : int, optional</span>
+<span class="sd">        Passed to :class:`SplinePath`. If None, no second derivative will be</span>
+<span class="sd">        passed to the tunneling class, and it will instead be evaluted using</span>
+<span class="sd">        finite differences.</span>
+<span class="sd">    tunneling_class : class, optional</span>
+<span class="sd">        Either :class:`tunneling1D.SingleFieldInstanton` or a subclass.</span>
+<span class="sd">    tunneling_init_params : dict, optional</span>
+<span class="sd">        Extra parameters to pass to the tunneling class.</span>
+<span class="sd">    tunneling_findProfile_params : dict, optional</span>
+<span class="sd">        Extra parameters to pass to ``tunneling_class.findProfile()``.</span>
+<span class="sd">    deformation_class : class, optional</span>
+<span class="sd">        Either :class:`Deformation_Spline` or :class:`Deformation_Points`, or</span>
+<span class="sd">        some other object that exposes the same interface.</span>
+<span class="sd">    deformation_init_params : dict, optional</span>
+<span class="sd">        Extra parameters to pass to the deformation class.</span>
+<span class="sd">    deformation_deform_params : dict, optional</span>
+<span class="sd">        Extra parameters to pass to ``deformation_class.deformPath()``.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    profile1D : namedtuple</span>
+<span class="sd">        The return value from ``tunneling_class.findProfile()``.</span>
+<span class="sd">    Phi : array_like or list</span>
+<span class="sd">        The points that constitute the final deformed path. They are in </span>
+<span class="sd">        one-to-one correspondence with the points in `profile1D`.</span>
+<span class="sd">    action : float</span>
+<span class="sd">        The Euclidean action of the instanton.</span>
+<span class="sd">    fRatio : float</span>
+<span class="sd">        A ratio of the largest transverse force on the final path relative to</span>
+<span class="sd">        the largest potential gradient. This would be zero if the solution were</span>
+<span class="sd">        perfect.</span>
+<span class="sd">    saved_steps : list</span>
+<span class="sd">        A list of lists, with each sub-list containing the saved steps for each</span>
+<span class="sd">        deformation. Only written to if `save_all_steps` is True.</span>
+<span class="sd">        </span>
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    The following code shows typical usage for :func:`fullTunneling`. Most of</span>
+<span class="sd">    the code is in setting up the potentials and plotting; it only takes one</span>
+<span class="sd">    line to actually calculate each instanton.</span>
+<span class="sd">    </span>
+<span class="sd">    .. plot:: ../test/fullTunneling_plot.py</span>
+<span class="sd">       :include-source:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">maxiter</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">path_pts</span><span class="p">)</span>
+    <span class="n">saved_steps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">deformation_init_params</span><span class="p">[</span><span class="s">&#39;save_all_steps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">save_all_steps</span>
+    <span class="k">for</span> <span class="n">num_iter</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s">&quot;Starting tunneling step </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">num_iter</span><span class="p">)</span>
+        <span class="c"># 1. Fit the spline to the path.</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">SplinePath</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">V_spline_samples</span><span class="o">=</span><span class="n">V_spline_samples</span><span class="p">,</span>
+                          <span class="n">extend_to_minima</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="c"># 2. Do 1d tunneling along the path.</span>
+        <span class="k">if</span> <span class="n">V_spline_samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">tobj</span> <span class="o">=</span> <span class="n">tunneling_class</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">dV</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">d2V</span><span class="p">,</span> 
+                                   <span class="o">**</span><span class="n">tunneling_init_params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tobj</span> <span class="o">=</span> <span class="n">tunneling_class</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">dV</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> 
+                                   <span class="o">**</span><span class="n">tunneling_init_params</span><span class="p">)</span>
+        <span class="n">profile1D</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">findProfile</span><span class="p">(</span><span class="o">**</span><span class="n">tunneling_findProfile_params</span><span class="p">)</span>
+        <span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span> <span class="o">=</span> <span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">,</span> <span class="n">profile1D</span><span class="o">.</span><span class="n">dPhi</span>
+        <span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">evenlySpacedPhi</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">phi</span><span class="p">),</span> 
+                                         <span class="n">fixAbs</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">dphi</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">dphi</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c"># enforce this</span>
+        <span class="c"># 3. Deform the path.</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">pts</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="c"># multi-dimensional points</span>
+        <span class="n">deform_obj</span> <span class="o">=</span> <span class="n">deformation_class</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">dphi</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="o">**</span><span class="n">deformation_init_params</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">converged</span> <span class="o">=</span> <span class="n">deform_obj</span><span class="o">.</span><span class="n">deformPath</span><span class="p">(</span><span class="o">**</span><span class="n">deformation_deform_params</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">DeformationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">converged</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">deform_obj</span><span class="o">.</span><span class="n">phi</span>
+        <span class="k">if</span> <span class="n">save_all_steps</span><span class="p">:</span> <span class="n">saved_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deform_obj</span><span class="o">.</span><span class="n">phi_list</span><span class="p">)</span>
+        <span class="c"># 4. Check convergence. If the deformation converged after one step,</span>
+        <span class="c"># then assume that `path` is a good solution.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">converged</span> <span class="ow">and</span> <span class="n">deform_obj</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s">&quot;Reached maxiter in fullTunneling. No convergence.&quot;</span><span class="p">)</span>
+    <span class="c"># Calculate the ratio of max perpendicular force to max gradient.</span>
+    <span class="c"># Make sure that we go back a step and use the forces on the path, not the</span>
+    <span class="c"># most recently deformed path.</span>
+    <span class="n">deform_obj</span> <span class="o">=</span> <span class="n">deformation_class</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">dphi</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="o">**</span><span class="n">deformation_init_params</span><span class="p">)</span>
+    <span class="n">F</span><span class="p">,</span> <span class="n">dV</span> <span class="o">=</span> <span class="n">deform_obj</span><span class="o">.</span><span class="n">forces</span><span class="p">()</span>
+    <span class="n">F_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="o">*</span><span class="n">F</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">dV_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dV</span><span class="o">*</span><span class="n">dV</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">fRatio</span> <span class="o">=</span> <span class="n">F_max</span> <span class="o">/</span> <span class="n">dV_max</span>
+    <span class="c"># Assemble the output</span>
+    <span class="n">rtuple</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;fullTunneling_rval&quot;</span><span class="p">,</span> 
+                        <span class="s">&quot;profile1D Phi action fRatio saved_steps&quot;</span><span class="p">)</span>
+    <span class="n">Phi</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">pts</span><span class="p">(</span><span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">findAction</span><span class="p">(</span><span class="n">profile1D</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rtuple</span><span class="p">(</span><span class="n">profile1D</span><span class="p">,</span> <span class="n">Phi</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">fRatio</span><span class="p">,</span> <span class="n">saved_steps</span><span class="p">)</span>
+        
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

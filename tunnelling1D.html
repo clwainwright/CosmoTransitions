@@ -1,0 +1,703 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>tunneling1D.py &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="index.html" />
+    <link rel="next" title="pathDeformation.py" href="pathDeformation.html" />
+    <link rel="prev" title="Overview" href="Overview.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pathDeformation.html" title="pathDeformation.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Overview"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-tunneling1D">
+<span id="tunneling1d-py"></span><h1>tunneling1D.py<a class="headerlink" href="#module-tunneling1D" title="Permalink to this headline">¶</a></h1>
+<p>This module (along with a few functions in <a class="reference internal" href="helper_functions.html#module-helper_functions" title="helper_functions"><tt class="xref py py-mod docutils literal"><span class="pre">helper_functions</span></tt></a>) contains
+everything that is needed to calculate instantons in one field dimension.
+The primary class is <a class="reference internal" href="#tunneling1D.SingleFieldInstanton" title="tunneling1D.SingleFieldInstanton"><tt class="xref py py-class docutils literal"><span class="pre">SingleFieldInstanton</span></tt></a>, which can calculate the
+instanton solution in any number of spatial dimensions using the overshoot /
+undershoot method. Additional classes inherit common functionality from this
+one, and can be used to calculate the bubble wall profile with constant
+friction (<a class="reference internal" href="#tunneling1D.WallWithConstFriction" title="tunneling1D.WallWithConstFriction"><tt class="xref py py-class docutils literal"><span class="pre">WallWithConstFriction</span></tt></a>) instead of radius-dependent friction,
+or to calculate the instanton in the presence of gravity (<em>not yet
+implemented</em>).</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Create and document a <em>CDL_Instanton</em> class for tunneling with gravity.</p>
+</div>
+<div class="section" id="potentialerror">
+<h2>PotentialError<a class="headerlink" href="#potentialerror" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="tunneling1D.PotentialError">
+<em class="property">exception </em><tt class="descname">PotentialError</tt><a class="reference internal" href="_modules/tunneling1D.html#PotentialError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.PotentialError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used when the potential does not have the expected characteristics.</p>
+<p>The error messages should be tuples, with the second item being one of
+<tt class="docutils literal"><span class="pre">(&quot;no</span> <span class="pre">barrier&quot;,</span> <span class="pre">&quot;stable,</span> <span class="pre">not</span> <span class="pre">metastable&quot;)</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="singlefieldinstanton">
+<h2>SingleFieldInstanton<a class="headerlink" href="#singlefieldinstanton" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tunneling1D.SingleFieldInstanton">
+<em class="property">class </em><tt class="descname">SingleFieldInstanton</tt><big>(</big><em>phi_absMin</em>, <em>phi_metaMin</em>, <em>V</em>, <em>dV=None</em>, <em>d2V=None</em>, <em>phi_eps=0.001</em>, <em>alpha=2</em>, <em>phi_bar=None</em>, <em>rscale=None</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class will calculate properties of an instanton with a single scalar
+Field without gravity using the overshoot/undershoot method.</p>
+<p>Most users will probably be primarily interested in the functions
+<a class="reference internal" href="#tunneling1D.SingleFieldInstanton.findProfile" title="tunneling1D.SingleFieldInstanton.findProfile"><tt class="xref py py-func docutils literal"><span class="pre">findProfile()</span></tt></a> and <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.findAction" title="tunneling1D.SingleFieldInstanton.findAction"><tt class="xref py py-func docutils literal"><span class="pre">findAction()</span></tt></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When the bubble is thin-walled (due to nearly degenerate minima), an
+approximate solution is found to the equations of motion and integration
+starts close to the wall itself (instead of always starting at the center
+of the bubble). This way the overshoot/undershoot method runs just as fast
+for extremely thin-walled bubbles as it does for thick-walled bubbles.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>phi_absMin</strong> (<em>float</em>) &#8211; The field value at the stable vacuum to which the instanton
+tunnels. Nowhere in the code is it <em>required</em> that there actually be a
+minimum at <em class="xref py py-obj">phi_absMin</em>, but the <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.findProfile" title="tunneling1D.SingleFieldInstanton.findProfile"><tt class="xref py py-func docutils literal"><span class="pre">findProfile()</span></tt></a> function will only
+use initial conditions between <em class="xref py py-obj">phi_absMin</em> and <em class="xref py py-obj">phi_metaMin</em>, and the
+code is optimized for thin-walled bubbles when the center of the
+instanton is close to <em class="xref py py-obj">phi_absMin</em>.</li>
+<li><strong>phi_metaMin</strong> (<em>float</em>) &#8211; The field value in the metastable vacuum.</li>
+<li><strong>V</strong> (<em>callable</em>) &#8211; The potential function. It should take as its single parameter the field
+value <em class="xref py py-obj">phi</em>.</li>
+<li><strong>d2V</strong> (<em>dV,</em>) &#8211; The potential&#8217;s first and second derivatives. If not None, these
+override the methods <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.dV" title="tunneling1D.SingleFieldInstanton.dV"><tt class="xref py py-func docutils literal"><span class="pre">dV()</span></tt></a> and <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.d2V" title="tunneling1D.SingleFieldInstanton.d2V"><tt class="xref py py-func docutils literal"><span class="pre">d2V()</span></tt></a>.</li>
+<li><strong>phi_eps</strong> (<em>float, optional</em>) &#8211; A small value used to calculate derivatives (if not overriden by
+the user) and in the function <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.dV_from_absMin" title="tunneling1D.SingleFieldInstanton.dV_from_absMin"><tt class="xref py py-func docutils literal"><span class="pre">dV_from_absMin()</span></tt></a>. The input should
+be unitless; it is later rescaled by <tt class="docutils literal"><span class="pre">abs(phi_absMin</span> <span class="pre">-</span> <span class="pre">phi_metaMin)</span></tt>.</li>
+<li><strong>alpha</strong> (<em>int or float, optional</em>) &#8211; The coefficient for the friction term in the ODE. This is also
+the number of spacetime dimensions minus 1.</li>
+<li><strong>phi_bar</strong> (<em>float, optional</em>) &#8211; The field value at the edge of the barrier. If <em class="xref py py-obj">None</em>, it is found by
+<a class="reference internal" href="#tunneling1D.SingleFieldInstanton.findBarrierLocation" title="tunneling1D.SingleFieldInstanton.findBarrierLocation"><tt class="xref py py-func docutils literal"><span class="pre">findBarrierLocation()</span></tt></a>.</li>
+<li><strong>rscale</strong> (<em>float, optional</em>) &#8211; The approximate radial scale of the instanton. If <em class="xref py py-obj">None</em> it is found by
+<a class="reference internal" href="#tunneling1D.SingleFieldInstanton.findRScale" title="tunneling1D.SingleFieldInstanton.findRScale"><tt class="xref py py-func docutils literal"><span class="pre">findRScale()</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#tunneling1D.PotentialError" title="tunneling1D.PotentialError"><tt class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></tt></a> &#8211; 
+when the barrier is non-existent or when the presumably stable minimum
+has a higher energy that the metastable minimum.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-examples admonition">
+<p class="first admonition-title">Examples</p>
+<p>Thick and thin-walled bubbles:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">tunneling1D</span> <span class="kn">import</span> <span class="n">SingleFieldInstanton</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="c"># Thin-walled</span>
+<span class="k">def</span> <span class="nf">V1</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">0.49</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">0.235</span> <span class="o">*</span> <span class="n">phi</span><span class="o">**</span><span class="mi">2</span>
+<span class="k">def</span> <span class="nf">dV1</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="n">phi</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-.</span><span class="mi">47</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">SingleFieldInstanton</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">V1</span><span class="p">,</span> <span class="n">dV1</span><span class="p">)</span><span class="o">.</span><span class="n">findProfile</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
+
+<span class="c"># Thick-walled</span>
+<span class="k">def</span> <span class="nf">V2</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">0.4</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">phi</span><span class="o">**</span><span class="mi">2</span>
+<span class="k">def</span> <span class="nf">dV2</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="n">phi</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-.</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">SingleFieldInstanton</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">V2</span><span class="p">,</span> <span class="n">dV2</span><span class="p">)</span><span class="o">.</span><span class="n">findProfile</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">r&quot;Radius $r$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r&quot;Field $\phi$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//tunnelling1D-1.py">Source code</a>, <a class="reference external" href=".//tunnelling1D-1.png">png</a>, <a class="reference external" href=".//tunnelling1D-1.hires.png">hires.png</a>, <a class="reference external" href=".//tunnelling1D-1.pdf">pdf</a>)</p>
+<div class="last figure">
+<img alt="_images/tunnelling1D-1.png" src="_images/tunnelling1D-1.png" />
+</div>
+</div>
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.dV">
+<tt class="descname">dV</tt><big>(</big><em>phi</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.dV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.dV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <em class="xref py py-obj">dV/dphi</em> using finite differences.</p>
+<p>The finite difference is given by <em class="xref py py-obj">self.phi_eps</em>, and the derivative
+is calculated to fourth order.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.dV_from_absMin">
+<tt class="descname">dV_from_absMin</tt><big>(</big><em>delta_phi</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.dV_from_absMin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.dV_from_absMin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <em class="xref py py-obj">dV/dphi</em> at <tt class="docutils literal"><span class="pre">phi</span> <span class="pre">=</span> <span class="pre">phi_absMin</span> <span class="pre">+</span> <span class="pre">delta_phi</span></tt>.</p>
+<p>It is sometimes helpful to find <em class="xref py py-obj">dV/dphi</em> extremely close to the
+minimum. In this case, floating-point error can be significant. To get
+increased accuracy, this function expands about the minimum in
+a Taylor series and uses that for nearby values. That is,
+<span class="math">\(V'(\phi) \approx V''(\phi_{\rm absMin})(\phi-\phi_{\rm absMin})\)</span>.
+For values that are farther away, it instead uses <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.dV" title="tunneling1D.SingleFieldInstanton.dV"><tt class="xref py py-func docutils literal"><span class="pre">dV()</span></tt></a>.
+It blends the two methods so that there are no numerical
+discontinuities.</p>
+<p>This uses <em class="xref py py-obj">self.phi_eps</em> to determine whether the field is considered
+nearby or not.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.d2V">
+<tt class="descname">d2V</tt><big>(</big><em>phi</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.d2V"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.d2V" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <em class="xref py py-obj">d^2V/dphi^2</em> using finite differences.</p>
+<p>The finite difference is given by <em class="xref py py-obj">self.phi_eps</em>, and the derivative
+is calculated to fourth order.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.findBarrierLocation">
+<tt class="descname">findBarrierLocation</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.findBarrierLocation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.findBarrierLocation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find edge of the potential barrier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>phi_barrier</strong> (<em>float</em>) &#8211;
+The value such that <em class="xref py py-obj">V(phi_barrier) = V(phi_metaMin)</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.findRScale">
+<tt class="descname">findRScale</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.findRScale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.findRScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the characteristic length scale for tunneling over the potential
+barrier.</p>
+<p>The characteristic length scale should formally be given by the period
+of oscillations about the top of the potential barrier. However, it is
+perfectly acceptable for the potential barrier to have a flat top, in
+which case a naive calculation of the length scale would be infinite.
+Instead, this function finds the top of the barrier along with a cubic
+function that has a maximum at the barrier top and a minimum at the
+metastable minimum. The returned length scale is then the period of
+oscillations about this cubic maximum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#tunneling1D.PotentialError" title="tunneling1D.PotentialError"><tt class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></tt></a> &#8211; 
+when the barrier is non-existent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.exactSolution">
+<tt class="descname">exactSolution</tt><big>(</big><em>r</em>, <em>phi0</em>, <em>dV</em>, <em>d2V</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.exactSolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.exactSolution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find <em class="xref py py-obj">phi(r)</em> given <em class="xref py py-obj">phi(r=0)</em>, assuming a quadratic potential.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>r</strong> (<em>float</em>) &#8211; The radius at which the solution should be calculated.</li>
+<li><strong>phi0</strong> (<em>float</em>) &#8211; The field at <em class="xref py py-obj">r=0</em>.</li>
+<li><strong>d2V</strong> (<em>dV,</em>) &#8211; The potential&#8217;s first and second derivatives evaluated at <em class="xref py py-obj">phi0</em>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>phi, dphi</strong> (<em>float</em>) &#8211;
+The field and its derivative evaluated at <em class="xref py py-obj">r</em>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p>If the potential at the point <span class="math">\(\phi_0\)</span> is a simple quadratic, the
+solution to the instanton equation of motion can be determined exactly.
+The non-singular solution to</p>
+<div class="math">
+\[\frac{d^2\phi}{dr^2} + \frac{\alpha}{r}\frac{d\phi}{dr} =
+V'(\phi_0) + V''(\phi_0) (\phi-\phi_0)\]</div>
+<p>is</p>
+<div class="math">
+\[\phi(r)-\phi_0 = \frac{V'}{V''}\left[
+\Gamma(\nu+1)\left(\frac{\beta r}{2}\right)^{-\nu} I_\nu(\beta r) - 1
+\right]\]</div>
+<p class="last">where <span class="math">\(\nu = \frac{\alpha-1}{2}\)</span>, <span class="math">\(I_\nu\)</span> is the modified
+Bessel function, and <span class="math">\(\beta^2 = V''(\phi_0) &gt; 0\)</span>. If instead
+<span class="math">\(-\beta^2 = V''(\phi_0) &lt; 0\)</span>, the solution is the same but with
+<span class="math">\(I_\nu \rightarrow J_\nu\)</span>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.initialConditions">
+<tt class="descname">initialConditions</tt><big>(</big><em>delta_phi0</em>, <em>rmin</em>, <em>delta_phi_cutoff</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.initialConditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.initialConditions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the initial conditions for integration.</p>
+<p>The instanton equations of motion are singular at <em class="xref py py-obj">r=0</em>, so we
+need to start the integration at some larger radius. This
+function finds the value <em class="xref py py-obj">r0</em> such that <em class="xref py py-obj">phi(r0) = phi_cutoff</em>.
+If there is no such value, it returns the intial conditions at <em class="xref py py-obj">rmin</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>delta_phi0</strong> (<em>float</em>) &#8211; <em class="xref py py-obj">delta_phi0 = phi(r=0) - phi_absMin</em></li>
+<li><strong>rmin</strong> (<em>float</em>) &#8211; The smallest acceptable radius at which to start integration.</li>
+<li><strong>delta_phi_cutoff</strong> (<em>float</em>) &#8211; The desired value for <em class="xref py py-obj">phi(r0)</em>.
+<em class="xref py py-obj">delta_phi_cutoff = phi(r0) - phi_absMin</em>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>r0, phi, dphi</strong> (<em>float</em>) &#8211;
+The initial radius and the field and its derivative at that radius.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p class="last">The field values are calculated using <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.exactSolution" title="tunneling1D.SingleFieldInstanton.exactSolution"><tt class="xref py py-func docutils literal"><span class="pre">exactSolution()</span></tt></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.equationOfMotion">
+<tt class="descname">equationOfMotion</tt><big>(</big><em>y</em>, <em>r</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.equationOfMotion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.equationOfMotion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to integrate the bubble wall.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.integrateProfile">
+<tt class="descname">integrateProfile</tt><big>(</big><em>r0</em>, <em>y0</em>, <em>dr0</em>, <em>epsfrac</em>, <em>epsabs</em>, <em>drmin</em>, <em>rmax</em>, <em>*eqn_args</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.integrateProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.integrateProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the bubble wall equation:</p>
+<div class="math">
+\[\frac{d^2\phi}{dr^2} + \frac{\alpha}{r}\frac{d\phi}{dr} =
+\frac{dV}{d\phi}.\]</div>
+<p>The integration will stop when it either overshoots or undershoots
+the false vacuum minimum, or when it converges upon the false vacuum
+minimum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>r0</strong> (<em>float</em>) &#8211; The starting radius for the integration.</li>
+<li><strong>y0</strong> (<em>array_like</em>) &#8211; The starting values [phi(r0), dphi(r0)].</li>
+<li><strong>dr0</strong> (<em>float</em>) &#8211; The starting integration stepsize.</li>
+<li><strong>epsabs</strong> (<em>epsfrac,</em>) &#8211; The error tolerances used for integration. This is fed into
+<a class="reference internal" href="helper_functions.html#helper_functions.rkqs" title="helper_functions.rkqs"><tt class="xref py py-func docutils literal"><span class="pre">helper_functions.rkqs()</span></tt></a> and is used to test for convergence.</li>
+<li><strong>drmin</strong> (<em>float</em>) &#8211; The minimum allowed value of <em class="xref py py-obj">dr</em> before raising an error.</li>
+<li><strong>rmax</strong> (<em>float</em>) &#8211; The maximum allowed value of <em class="xref py py-obj">r-r0</em> before raising an error.</li>
+<li><strong>eqn_args</strong> (<em>tuple</em>) &#8211; Extra arguments to pass to <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.equationOfMotion" title="tunneling1D.SingleFieldInstanton.equationOfMotion"><tt class="xref py py-func docutils literal"><span class="pre">equationOfMotion()</span></tt></a>. Useful for
+subclasses.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>r</strong> (<em>float</em>) &#8211;
+The final radius.</li>
+<li><strong>y</strong> (<em>array_like</em>) &#8211;
+The final field values [phi, dphi]</li>
+<li><strong>convergence_type</strong> (<em>str</em>) &#8211;
+Either &#8216;overshoot&#8217;, &#8216;undershoot&#8217;, or &#8216;converged&#8217;.</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="helper_functions.html#helper_functions.IntegrationError" title="helper_functions.IntegrationError"><tt class="xref py py-exc docutils literal"><span class="pre">helper_functions.IntegrationError</span></tt></a> &#8211;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tunneling1D.SingleFieldInstanton.profile_rval">
+<tt class="descname">profile_rval</tt><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.profile_rval" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Profile1D</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.integrateAndSaveProfile">
+<tt class="descname">integrateAndSaveProfile</tt><big>(</big><em>R</em>, <em>y0</em>, <em>dr</em>, <em>epsfrac</em>, <em>epsabs</em>, <em>drmin</em>, <em>*eqn_args</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.integrateAndSaveProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.integrateAndSaveProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Integrate the bubble profile, saving the output in an array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>R</strong> (<em>array_like</em>) &#8211; The array of points at which we want to save the profile.</li>
+<li><strong>y0</strong> (<em>float</em>) &#8211; The starting values [phi(r0), dphi(r0)].</li>
+<li><strong>dr</strong> (<em>float</em>) &#8211; Starting stepsize.</li>
+<li><strong>epsabs</strong> (<em>epsfrac,</em>) &#8211; The error tolerances used for integration. This
+is fed into <a class="reference internal" href="helper_functions.html#helper_functions.rkqs" title="helper_functions.rkqs"><tt class="xref py py-func docutils literal"><span class="pre">helper_functions.rkqs()</span></tt></a>.</li>
+<li><strong>drmin</strong> (<em>float</em>) &#8211; The smallest allowed stepsize.</li>
+<li><strong>eqn_args</strong> (<em>tuple</em>) &#8211; Extra arguments to pass to <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.equationOfMotion" title="tunneling1D.SingleFieldInstanton.equationOfMotion"><tt class="xref py py-func docutils literal"><span class="pre">equationOfMotion()</span></tt></a>. Useful for
+subclasses.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211;
+Radii and field values which make up the bubble profile.</li>
+<li><strong>Rerr</strong> (<em>float or None</em>) &#8211;
+The first value of <em class="xref py py-obj">r</em> at which <tt class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></tt>, or <em class="xref py py-obj">None</em> if
+<tt class="docutils literal"><span class="pre">dr</span> <span class="pre">&gt;=</span> <span class="pre">drmin</span></tt> always.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p class="last">Subclasses can use this function without overriding it even if the
+subclass uses more fields/values in its equation of motion (i.e.,
+<tt class="docutils literal"><span class="pre">len(y0)</span> <span class="pre">&gt;</span> <span class="pre">2</span></tt>). This is accomplished by setting the class variable
+<a class="reference internal" href="#tunneling1D.SingleFieldInstanton.profile_rval" title="tunneling1D.SingleFieldInstanton.profile_rval"><tt class="xref py py-obj docutils literal"><span class="pre">profile_rval</span></tt></a> to a different named tuple type with more than four
+inputs. The first three should always be <em>R, Phi, dPhi</em>, and the last
+one should be <em>Rerr</em>, but additional values can be stuck in between.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.findProfile">
+<tt class="descname">findProfile</tt><big>(</big><em>xguess=None</em>, <em>xtol=0.0001</em>, <em>phitol=0.0001</em>, <em>thinCutoff=0.01</em>, <em>npoints=500</em>, <em>rmin=0.0001</em>, <em>rmax=10000.0</em>, <em>max_interior_pts=None</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.findProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.findProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the bubble profile by iteratively over/undershooting.</p>
+<p>This will call <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.integrateProfile" title="tunneling1D.SingleFieldInstanton.integrateProfile"><tt class="xref py py-func docutils literal"><span class="pre">integrateProfile()</span></tt></a> many times, trying to find
+the correct initial condition <em class="xref py py-obj">phi(r=0)</em> such that the field ends up
+in the metastable vacuum at infinity. Once the correct initial
+condition is found, it calls <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.integrateAndSaveProfile" title="tunneling1D.SingleFieldInstanton.integrateAndSaveProfile"><tt class="xref py py-func docutils literal"><span class="pre">integrateAndSaveProfile()</span></tt></a> to find
+the profile along the length of the wall.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xguess</strong> (<em>float, optional</em>) &#8211; The initial guess for <em class="xref py py-obj">x</em>. If <em class="xref py py-obj">None</em>, <em class="xref py py-obj">xguess</em> is set such
+that <tt class="docutils literal"><span class="pre">phi_guess</span> <span class="pre">=</span> <span class="pre">self.phi_bar</span></tt>.</li>
+<li><strong>xtol</strong> (<em>float, optional</em>) &#8211; Target accuracy in <em class="xref py py-obj">x</em>.</li>
+<li><strong>phitol</strong> (<em>float, optional</em>) &#8211; Fractional error tolerance in integration.</li>
+<li><strong>thinCutoff</strong> (<em>float, optional</em>) &#8211; Equal to <em class="xref py py-obj">delta_phi_cutoff / (phi_metaMin - phi_absMin)</em>, where
+<em class="xref py py-obj">delta_phi_cutoff</em> is used  in <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.initialConditions" title="tunneling1D.SingleFieldInstanton.initialConditions"><tt class="xref py py-func docutils literal"><span class="pre">initialConditions()</span></tt></a>.</li>
+<li><strong>npoints</strong> (<em>int</em>) &#8211; Number of points to return in the profile.</li>
+<li><strong>rmin</strong> (<em>float</em>) &#8211; Relative to <tt class="docutils literal"><span class="pre">self.rscale</span></tt>. Sets the smallest starting
+radius, the starting stepsize, and the smallest allowed stepsize
+(<tt class="docutils literal"><span class="pre">0.01*rmin</span></tt>).</li>
+<li><strong>rmax</strong> (<em>float</em>) &#8211; Relative <tt class="docutils literal"><span class="pre">self.rscale</span></tt>. Sets the maximum allowed integration
+distance.</li>
+<li><strong>max_interior_pts</strong> (<em>int</em>) &#8211; Maximum number of points to place between <tt class="docutils literal"><span class="pre">r=0</span></tt> and the start of
+integration. If None, <tt class="docutils literal"><span class="pre">max_interior_pts=npoints/2</span></tt>. If zero, no
+points are added to the bubble interior.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211;
+Radii and field values which make up the bubble profile. Note that
+<em class="xref py py-obj">R[0]</em> can be much bigger than zero for thin-walled bubbles.</li>
+<li><strong>Rerr</strong> (<em>float or None</em>) &#8211;
+The first value of <em class="xref py py-obj">r</em> at which <tt class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></tt>, or <em class="xref py py-obj">None</em> if
+<tt class="docutils literal"><span class="pre">dr</span> <span class="pre">&gt;=</span> <span class="pre">drmin</span></tt> always.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p>For very thin-walled bubbles, the initially value of <em class="xref py py-obj">phi</em> can be
+extremely close to the stable minimum and small variations in <em class="xref py py-obj">phi</em>
+can cause large variations in the integration. Rather than varying
+<em class="xref py py-obj">phi(r=0)</em> directly, it is easier to vary a parameter <em class="xref py py-obj">x</em> defined by</p>
+<div class="math">
+\[\phi(r=0) = \phi_{\rm absMin}
++ e^{-x}(\phi_{\rm metaMin}-\phi_{\rm absMin})\]</div>
+<p class="last">This way, <em class="xref py py-obj">phi = phi_metaMin</em> when <em class="xref py py-obj">x</em> is zero and
+<em class="xref py py-obj">phi = phi_absMin</em> when <em class="xref py py-obj">x</em> is  infinity.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.findAction">
+<tt class="descname">findAction</tt><big>(</big><em>profile</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.findAction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.findAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Euclidean action for the instanton:</p>
+<div class="math">
+\[S = \int [(d\phi/dr)^2 + V(\phi)] r^\alpha dr d\Omega_\alpha\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile</strong> &#8211; Output from <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.findProfile" title="tunneling1D.SingleFieldInstanton.findProfile"><tt class="xref py py-func docutils literal"><span class="pre">findProfile()</span></tt></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>float</em> &#8211;
+The Euclidean action.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.SingleFieldInstanton.evenlySpacedPhi">
+<tt class="descname">evenlySpacedPhi</tt><big>(</big><em>phi</em>, <em>dphi</em>, <em>npoints=100</em>, <em>k=3</em>, <em>fixAbs=True</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#SingleFieldInstanton.evenlySpacedPhi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.SingleFieldInstanton.evenlySpacedPhi" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes <em class="xref py py-obj">phi</em> and <em class="xref py py-obj">dphi</em> as input, which will probably
+come from the output of <a class="reference internal" href="#tunneling1D.SingleFieldInstanton.findProfile" title="tunneling1D.SingleFieldInstanton.findProfile"><tt class="xref py py-func docutils literal"><span class="pre">findProfile()</span></tt></a>, and returns a different
+set of arrays <em class="xref py py-obj">phi2</em> and <em class="xref py py-obj">dphi2</em> such that <em class="xref py py-obj">phi2</em> is linearly spaced
+(instead of <em class="xref py py-obj">r</em>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dphi</strong> (<em>phi,</em>) &#8211; </li>
+<li><strong>npoints</strong> (<em>int</em>) &#8211; The number of points to output.</li>
+<li><strong>k</strong> (<em>int</em>) &#8211; The degree of spline fitting. <tt class="docutils literal"><span class="pre">k=1</span></tt> means linear interpolation.</li>
+<li><strong>fixAbs</strong> (<em>bool</em>) &#8211; If true, make phi go all the way to <em class="xref py py-obj">phi_absMin</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="wallwithconstfriction">
+<h2>WallWithConstFriction<a class="headerlink" href="#wallwithconstfriction" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="tunneling1D.WallWithConstFriction">
+<em class="property">class </em><tt class="descname">WallWithConstFriction</tt><big>(</big><em>phi_absMin</em>, <em>phi_metaMin</em>, <em>V</em>, <em>dV=None</em>, <em>d2V=None</em>, <em>phi_eps=0.001</em>, <em>alpha=2</em>, <em>phi_bar=None</em>, <em>rscale=None</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#WallWithConstFriction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.WallWithConstFriction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tunneling1D.SingleFieldInstanton" title="tunneling1D.SingleFieldInstanton"><tt class="xref py py-class docutils literal"><span class="pre">tunneling1D.SingleFieldInstanton</span></tt></a></p>
+<p>This class solves a modified version of the instanton equations of motion
+with a <em>constant</em> friction term.</p>
+<p>This may be useful if one wants to estimate the shape of a bubble wall
+moving through a plasma. It will, however, be a rough estimate since a real
+friction force would most likely be field-dependent.</p>
+<dl class="method">
+<dt id="tunneling1D.WallWithConstFriction.findRScale">
+<tt class="descname">findRScale</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#WallWithConstFriction.findRScale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.WallWithConstFriction.findRScale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the characteristic length scale for tunneling over the potential
+barrier.</p>
+<p>Since for this class the tunneling solution always goes between the two
+minima, we want to take the overall shape between the two (not just
+at the top of the barrier) to set the radial scale. This finds the scale
+by fitting a simple quadratic to the potential.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#tunneling1D.PotentialError" title="tunneling1D.PotentialError"><tt class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></tt></a> &#8211; 
+when the barrier is non-existent.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.WallWithConstFriction.initialConditions">
+<tt class="descname">initialConditions</tt><big>(</big><em>F</em>, <em>phi0_rel=0.001</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#WallWithConstFriction.initialConditions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.WallWithConstFriction.initialConditions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the initial conditions for integration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>F</strong> (<em>float</em>) &#8211; Magnitude of the friction term.</li>
+<li><strong>phi0_rel</strong> (<em>float</em>) &#8211; The initial value for the field, relative to the two minima
+with 0.0 being at <em class="xref py py-obj">phi_absMin</em> and 1.0 being at <em class="xref py py-obj">phi_metaMin</em>
+(should be close to 0.0).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>r0, phi, dphi</strong> (<em>float</em>) &#8211;
+The initial radius and the field and its derivative at that radius.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p>Approximate the equation of motion near the minimum as</p>
+<div class="math">
+\[\phi'' + F \phi' = (\phi-\phi_{absMin}) \frac{d^2V}{d\phi^2}\]</div>
+<p>which has solution</p>
+<div class="math">
+\[\phi(r) = (\phi_0-\phi_{absMin}) e^{kr} + \phi_{absMin}\]</div>
+<p class="last">where <span class="math">\(k = (\sqrt{F^2 + 4 V''} - F) / 2\)</span>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.WallWithConstFriction.equationOfMotion">
+<tt class="descname">equationOfMotion</tt><big>(</big><em>y</em>, <em>r</em>, <em>F</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#WallWithConstFriction.equationOfMotion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.WallWithConstFriction.equationOfMotion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to integrate the bubble wall.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tunneling1D.WallWithConstFriction.profile_rval">
+<tt class="descname">profile_rval</tt><a class="headerlink" href="#tunneling1D.WallWithConstFriction.profile_rval" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Profile1D</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.WallWithConstFriction.findProfile">
+<tt class="descname">findProfile</tt><big>(</big><em>Fguess=None</em>, <em>Ftol=0.0001</em>, <em>phitol=0.0001</em>, <em>npoints=500</em>, <em>rmin=0.0001</em>, <em>rmax=10000.0</em>, <em>phi0_rel=0.001</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#WallWithConstFriction.findProfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.WallWithConstFriction.findProfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the bubble profile by iteratively over/undershooting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Fguess</strong> (<em>float, optional</em>) &#8211; The initial guess for <em class="xref py py-obj">F</em>. If <em class="xref py py-obj">None</em>, <em class="xref py py-obj">Fguess</em> is calculated from
+<em class="xref py py-obj">self.rscale</em>.</li>
+<li><strong>Ftol</strong> (<em>float, optional</em>) &#8211; Target accuracy in <em class="xref py py-obj">F</em>, relative to <em class="xref py py-obj">Fguess</em>.</li>
+<li><strong>phitol</strong> (<em>float, optional</em>) &#8211; Fractional error tolerance in integration.</li>
+<li><strong>npoints</strong> (<em>int</em>) &#8211; Number of points to return in the profile.</li>
+<li><strong>rmin</strong> (<em>float</em>) &#8211; Relative to <tt class="docutils literal"><span class="pre">self.rscale</span></tt>. Sets the smallest starting
+radius, the starting stepsize, and the smallest allowed stepsize
+(<tt class="docutils literal"><span class="pre">0.01*rmin</span></tt>).</li>
+<li><strong>rmax</strong> (<em>float</em>) &#8211; Relative <tt class="docutils literal"><span class="pre">self.rscale</span></tt>. Sets the maximum allowed integration
+distance.</li>
+<li><strong>phi0_rel</strong> (<em>float</em>) &#8211; Passed to <a class="reference internal" href="#tunneling1D.WallWithConstFriction.initialConditions" title="tunneling1D.WallWithConstFriction.initialConditions"><tt class="xref py py-func docutils literal"><span class="pre">initialConditions()</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211;
+Radii and field values which make up the bubble profile. Note that
+<em class="xref py py-obj">R[0]</em> can be much bigger than zero for thin-walled bubbles.</li>
+<li><strong>Rerr</strong> (<em>float or None</em>) &#8211;
+The first value of <em class="xref py py-obj">r</em> at which <tt class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></tt>, or <em class="xref py py-obj">None</em> if
+<tt class="docutils literal"><span class="pre">dr</span> <span class="pre">&gt;=</span> <span class="pre">drmin</span></tt> always.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="tunneling1D.WallWithConstFriction.findAction">
+<tt class="descname">findAction</tt><big>(</big><em>profile</em><big>)</big><a class="reference internal" href="_modules/tunneling1D.html#WallWithConstFriction.findAction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tunneling1D.WallWithConstFriction.findAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Always returns <tt class="xref py py-obj docutils literal"><span class="pre">np.inf</span></tt>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tunneling1D.py</a><ul>
+<li><a class="reference internal" href="#potentialerror">PotentialError</a></li>
+<li><a class="reference internal" href="#singlefieldinstanton">SingleFieldInstanton</a></li>
+<li><a class="reference internal" href="#wallwithconstfriction">WallWithConstFriction</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Overview.html"
+                        title="previous chapter">Overview</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pathDeformation.html"
+                        title="next chapter">pathDeformation.py</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tunnelling1D.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pathDeformation.html" title="pathDeformation.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Overview.html" title="Overview"
+             >previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

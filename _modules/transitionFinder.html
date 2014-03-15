@@ -1,0 +1,1076 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>transitionFinder &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for transitionFinder</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The transitionFinder module is used to calculate finite temperature </span>
+<span class="sd">cosmological phase transitions: it contains functions to find the phase </span>
+<span class="sd">structure as a function of temperature, and functions to find the transition </span>
+<span class="sd">(bubble nucleation) temperature for each phase.</span>
+<span class="sd">In contrast, :mod:`pathDefomration` is useful for finding the tunneling</span>
+<span class="sd">solution for a fixed potential or a potential at a fixed temperature.</span>
+
+<span class="sd">The most directly used functions in this module will likely be </span>
+<span class="sd">:func:`traceMultiMin` for finding the phase structure, and </span>
+<span class="sd">:func:`findAllTransitions` and :func:`findCriticalTemperatures` for calculating</span>
+<span class="sd">properties of the phase transitions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">linalg</span><span class="p">,</span> <span class="n">interpolate</span><span class="p">,</span> <span class="n">optimize</span>
+
+<span class="kn">import</span> <span class="nn">pathDeformation</span>
+<span class="kn">import</span> <span class="nn">tunneling1D</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;2.0a1&quot;</span>
+
+
+<span class="n">_traceMinimum_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;traceMinimum_rval&quot;</span><span class="p">,</span> <span class="s">&quot;X T dXdT overX overT&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="traceMinimum"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.traceMinimum">[docs]</a><span class="k">def</span> <span class="nf">traceMinimum</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">d2f_dxdt</span><span class="p">,</span> <span class="n">d2f_dx2</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="n">dtstart</span><span class="p">,</span> <span class="n">deltaX_target</span><span class="p">,</span>
+                 <span class="n">dtabsMax</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">dtfracMax</span><span class="o">=.</span><span class="mi">25</span><span class="p">,</span> <span class="n">dtmin</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> 
+                 <span class="n">deltaX_tol</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">minratio</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trace the minimum `xmin(t)` of the function `f(x,t)`, starting at `x0, t0`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : callable</span>
+<span class="sd">        The scalar function `f(x,t)` which needs to be minimized. The input will</span>
+<span class="sd">        be of the same type as `(x0,t0)`.</span>
+<span class="sd">    d2f_dxdt, d2f_dx2 : callable</span>
+<span class="sd">        Functions which return returns derivatives of `f(x)`. `d2f_dxdt` should</span>
+<span class="sd">        return the derivative of the gradient of `f(x)` with respect to `t`, and</span>
+<span class="sd">        `d2f_dx2` should return the Hessian matrix of `f(x)` evaluated at `t`.</span>
+<span class="sd">        Both should take as inputs `(x,t)`.</span>
+<span class="sd">    x0 : array_like</span>
+<span class="sd">        The initial starting point. Must be an array even if the potential is</span>
+<span class="sd">        one-dimensional (in which case the array should have length 1).</span>
+<span class="sd">    t0 : float</span>
+<span class="sd">        The initial starting parameter `t`.</span>
+<span class="sd">    tstop : float</span>
+<span class="sd">        Stop the trace when `t` reaches `tstop`.</span>
+<span class="sd">    dtstart : float</span>
+<span class="sd">        Initial stepsize.</span>
+<span class="sd">    deltaX_target : float</span>
+<span class="sd">        The target error in x at each step. Determines the</span>
+<span class="sd">        stepsize in t by extrapolation from last error.</span>
+<span class="sd">    dtabsMax : float, optional</span>
+<span class="sd">    dtfracMax : float, optional</span>
+<span class="sd">        The largest stepsize in t will be the LARGEST of </span>
+<span class="sd">        ``abs(dtstart)*dtabsMax`` and ``t*dtfracMax``.</span>
+<span class="sd">    dtmin : float, optional</span>
+<span class="sd">        The smallest stepsize we&#39;ll allow before assuming the transition ends,</span>
+<span class="sd">        relative to `dtstart`</span>
+<span class="sd">    deltaX_tol : float, optional</span>
+<span class="sd">        ``deltaX_tol*deltaX_target`` gives the maximum error in x</span>
+<span class="sd">        before we want to shrink the stepsize and recalculate the minimum.</span>
+<span class="sd">    minratio : float, optional</span>
+<span class="sd">        The smallest ratio between smallest and largest eigenvalues in the</span>
+<span class="sd">        Hessian matrix before treating the smallest eigenvalue as zero (and</span>
+<span class="sd">        thus signaling a saddle point and the end of the minimum).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">      X, T, dXdT : array_like</span>
+<span class="sd">        Arrays of the minimum at different values of t, and</span>
+<span class="sd">        its derivative with respect to t.</span>
+<span class="sd">      overX : array_like</span>
+<span class="sd">        The point beyond which the phase seems to disappear.</span>
+<span class="sd">      overT : float</span>
+<span class="sd">        The t-value beyond which the phase seems to disappear.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    In prior versions, `d2f_dx2` was optional and called `d2f`, while `d2f_dxdt`</span>
+<span class="sd">    was calculated from an optional parameter `df` using finite differences. If</span>
+<span class="sd">    Neither of these were supplied, they would be calculated directly from</span>
+<span class="sd">    `f(x,t)` using finite differences. This lead to a messier calling signature,</span>
+<span class="sd">    since additional parameters were needed to find the finite differences. By</span>
+<span class="sd">    instead requiring that the derivatives be supplied, the task of creating the</span>
+<span class="sd">    derivative functions can be delegated to more general purpose routines </span>
+<span class="sd">    (see e.g. :class:`helper_functions.gradientFunction` and </span>
+<span class="sd">    :class:`helper_functions.hessianFunction`).</span>
+<span class="sd">    </span>
+<span class="sd">    Also new in this version, `dtmin` and `dtabsMax` are now relative to</span>
+<span class="sd">    `dtstart`. The idea here is that there should be some required parameter </span>
+<span class="sd">    that sets the scale, and then optional parameters can set the tolerances </span>
+<span class="sd">    relative to this scale. `deltaX_target` is now not optional for the same</span>
+<span class="sd">    reasoning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;traceMinimum t0 = </span><span class="si">%0.6g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">t0</span><span class="p">)</span>
+    <span class="n">Ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+    <span class="n">M0</span> <span class="o">=</span> <span class="n">d2f_dx2</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">t0</span><span class="p">)</span>
+    <span class="n">minratio</span> <span class="o">*=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">M0</span><span class="p">)))</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">M0</span><span class="p">)))</span>
+    <span class="k">def</span> <span class="nf">dxmindt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">d2f_dx2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">M</span><span class="p">))</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mf">1e-3</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">M</span><span class="p">)))</span><span class="o">**</span><span class="n">Ndim</span><span class="p">:</span>
+            <span class="c"># Assume matrix is singular</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">False</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">d2f_dxdt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">eigs</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dxdt</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">M</span><span class="p">,</span><span class="n">b</span><span class="p">,</span> <span class="n">overwrite_a</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">overwrite_b</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">isneg</span> <span class="o">=</span> <span class="p">((</span><span class="n">eigs</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span><span class="n">eigs</span><span class="p">)</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">eigs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">minratio</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">dxdt</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">isneg</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="n">dxdt</span><span class="p">,</span> <span class="n">isneg</span>
+    <span class="n">xeps</span> <span class="o">=</span> <span class="n">deltaX_target</span> <span class="o">*</span> <span class="mf">1e-2</span>
+    <span class="k">def</span> <span class="nf">fmin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">,),</span> <span class="n">xtol</span><span class="o">=</span><span class="n">xeps</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> 
+                             <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">deltaX_tol</span> <span class="o">=</span> <span class="n">deltaX_tol</span> <span class="o">*</span> <span class="n">deltaX_target</span>
+    <span class="n">tscale</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dtstart</span><span class="p">)</span>
+    <span class="n">dtabsMax</span> <span class="o">=</span> <span class="n">dtabsMax</span> <span class="o">*</span> <span class="n">tscale</span>
+    <span class="n">dtmin</span> <span class="o">=</span> <span class="n">dtmin</span> <span class="o">*</span> <span class="n">tscale</span>
+    
+    <span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">xerr</span> <span class="o">=</span> <span class="n">x0</span><span class="p">,</span><span class="n">t0</span><span class="p">,</span><span class="n">dtstart</span><span class="p">,</span><span class="mf">0.0</span>
+    <span class="n">dxdt</span><span class="p">,</span> <span class="n">negeig</span> <span class="o">=</span> <span class="n">dxmindt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">dXdT</span> <span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">],[</span><span class="n">t</span><span class="p">],[</span><span class="n">dxdt</span><span class="p">]</span>
+    <span class="n">overX</span> <span class="o">=</span> <span class="n">overT</span> <span class="o">=</span> <span class="n">overdXdT</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="k">while</span> <span class="n">dxdt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">);</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="c"># Get the values at the next step</span>
+        <span class="n">tnext</span> <span class="o">=</span> <span class="n">t</span><span class="o">+</span><span class="n">dt</span>
+        <span class="n">xnext</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">dxdt</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="n">tnext</span><span class="p">)</span>
+        <span class="n">dxdt_next</span><span class="p">,</span> <span class="n">negeig</span> <span class="o">=</span> <span class="n">dxmindt</span><span class="p">(</span><span class="n">xnext</span><span class="p">,</span><span class="n">tnext</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dxdt_next</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">negeig</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="c"># We got stuck on a saddle, so there must be a phase transition </span>
+            <span class="c"># there.</span>
+            <span class="n">dt</span> <span class="o">*=</span> <span class="o">.</span><span class="mi">5</span>
+            <span class="n">overX</span><span class="p">,</span> <span class="n">overT</span><span class="p">,</span> <span class="n">overdXdT</span> <span class="o">=</span> <span class="n">xnext</span><span class="p">,</span> <span class="n">tnext</span><span class="p">,</span> <span class="n">dxdt_next</span>
+            <span class="n">hasHitSaddle</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># The step might still be too big if it&#39;s outside of our error </span>
+            <span class="c"># tolerance.</span>
+            <span class="n">xerr</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x</span><span class="o">+</span><span class="n">dxdt</span><span class="o">*</span><span class="n">dt</span> <span class="o">-</span> <span class="n">xnext</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> 
+                        <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">xnext</span><span class="o">-</span><span class="n">dxdt_next</span><span class="o">*</span><span class="n">dt</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+            <span class="k">if</span> <span class="n">xerr</span> <span class="o">&lt;</span> <span class="n">deltaX_tol</span><span class="p">:</span> <span class="c"># Normal step, error is small</span>
+                <span class="n">T</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tnext</span><span class="p">)</span>
+                <span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xnext</span><span class="p">)</span>
+                <span class="n">dXdT</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dxdt_next</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">overT</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="c"># change the stepsize only if the last step wasn&#39;t </span>
+                    <span class="c"># troublesome</span>
+                    <span class="n">dt</span> <span class="o">*=</span> <span class="n">deltaX_target</span><span class="o">/</span><span class="p">(</span><span class="n">xerr</span><span class="o">+</span><span class="mf">1e-100</span><span class="p">)</span> 
+                <span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">dxdt</span> <span class="o">=</span> <span class="n">xnext</span><span class="p">,</span> <span class="n">tnext</span><span class="p">,</span> <span class="n">dxdt_next</span>
+                <span class="n">overX</span> <span class="o">=</span> <span class="n">overT</span> <span class="o">=</span> <span class="n">overdXdT</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Either stepsize was too big, or we hit a transition. </span>
+                <span class="c"># Just cut the step in half.</span>
+                <span class="n">dt</span> <span class="o">*=</span> <span class="o">.</span><span class="mi">5</span>
+                <span class="n">overX</span><span class="p">,</span> <span class="n">overT</span><span class="p">,</span> <span class="n">overdXdT</span> <span class="o">=</span> <span class="n">xnext</span><span class="p">,</span> <span class="n">tnext</span><span class="p">,</span> <span class="n">dxdt_next</span>
+        <span class="c"># Now do some checks on dt.</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dtmin</span><span class="p">):</span>
+            <span class="c"># Found a transition! Or at least a point where the step is really </span>
+            <span class="c"># small.</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&gt;=</span> <span class="n">tstop</span> <span class="ow">or</span> <span class="n">dt</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="n">tstop</span><span class="p">:</span>
+            <span class="c"># Reached tstop, but we want to make sure we stop right at tstop.</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">tstop</span><span class="o">-</span><span class="n">t</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">dxdt</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="n">tstop</span><span class="p">)</span>
+            <span class="n">dxdt</span><span class="p">,</span><span class="n">negeig</span> <span class="o">=</span> <span class="n">dxmindt</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">tstop</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">tstop</span>
+            <span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dXdT</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">dxdt</span>
+            <span class="k">break</span>
+        <span class="n">dtmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">t</span><span class="o">*</span><span class="n">dtfracMax</span><span class="p">,</span> <span class="n">dtabsMax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">dtmax</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">*</span><span class="n">dtmax</span>
+    <span class="k">if</span> <span class="n">overT</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">overX</span><span class="p">,</span> <span class="n">overT</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">);</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">dXdT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dXdT</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_traceMinimum_rval</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dXdT</span><span class="p">,</span> <span class="n">overX</span><span class="p">,</span> <span class="n">overT</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="Phase"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.Phase">[docs]</a><span class="k">class</span> <span class="nc">Phase</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describes a temperature-dependent minimum, plus second-order transitions</span>
+<span class="sd">    to and from that minimum.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key : hashable</span>
+<span class="sd">        A unique identifier for the phase (usually an int).</span>
+<span class="sd">    X, T, dXdT : array_like</span>
+<span class="sd">        The minima and its derivative at different temperatures.</span>
+<span class="sd">    tck : tuple</span>
+<span class="sd">        Spline knots and coefficients, used in `interpolate.splev`.</span>
+<span class="sd">    low_trans : set</span>
+<span class="sd">        Phases (identified by keys) which are joined by a second-order</span>
+<span class="sd">        transition to this phase.</span>
+<span class="sd">    high_trans : set</span>
+<span class="sd">        Phases (identified by keys) which are joined by a second-order</span>
+<span class="sd">        transition to this phase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dXdT</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="c"># We shouldn&#39;t ever really need to sort the array, but there must be </span>
+        <span class="c"># some bug in the above code that makes it so that occasionally the last </span>
+        <span class="c"># step goes backwards. This should fix that.</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">T</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">dXdT</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dXdT</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T</span> <span class="o">=</span> <span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dXdT</span> <span class="o">=</span> <span class="n">dXdT</span>
+        <span class="c"># Make the spline:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">tck</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splprep</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tck</span> <span class="o">=</span> <span class="n">tck</span>
+        <span class="c"># Make default connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">low_trans</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">high_trans</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>        
+        
+<div class="viewcode-block" id="Phase.valAt"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.Phase.valAt">[docs]</a>    <span class="k">def</span> <span class="nf">valAt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the minimum at the value `T` using a spline.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        T : float or array_like</span>
+<span class="sd">        deriv : int</span>
+<span class="sd">            If deriv &gt; 0, instead return the derivative of the minimum with </span>
+<span class="sd">            respect to `T`. Can return up to the third derivative for cubic</span>
+<span class="sd">            splines (when ``len(X) &gt; 3``) or first derivative for linear</span>
+<span class="sd">            splines.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tck</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        </div>
+<div class="viewcode-block" id="Phase.addLinkFrom"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.Phase.addLinkFrom">[docs]</a>    <span class="k">def</span> <span class="nf">addLinkFrom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_phase</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a link from `other_phase` to this phase, checking to see if there</span>
+<span class="sd">        is a second-order transition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">other_phase</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">low_trans</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">other_phase</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">other_phase</span><span class="o">.</span><span class="n">high_trans</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">other_phase</span><span class="o">.</span><span class="n">T</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high_trans</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">other_phase</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">other_phase</span><span class="o">.</span><span class="n">low_trans</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">popts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">get_printoptions</span><span class="p">()</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">formatter</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;float&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s">&quot;</span><span class="si">%0.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span><span class="p">})</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">Xstr</span> <span class="o">=</span> <span class="s">&quot;[</span><span class="si">%s</span><span class="s">, ..., </span><span class="si">%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Xstr</span> <span class="o">=</span> <span class="s">&quot;[</span><span class="si">%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">Tstr</span> <span class="o">=</span> <span class="s">&quot;[</span><span class="si">%0.4g</span><span class="s">, ..., </span><span class="si">%0.4g</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Tstr</span> <span class="o">=</span> <span class="s">&quot;[</span><span class="si">%0.4g</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dXdT</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">dXdTstr</span> <span class="o">=</span> <span class="s">&quot;[</span><span class="si">%s</span><span class="s">, ..., </span><span class="si">%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dXdT</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dXdT</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dXdTstr</span> <span class="o">=</span> <span class="s">&quot;[</span><span class="si">%s</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dXdT</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;Phase(key=</span><span class="si">%s</span><span class="s">, X=</span><span class="si">%s</span><span class="s">, T=</span><span class="si">%s</span><span class="s">, dXdT=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">Xstr</span><span class="p">,</span> <span class="n">Tstr</span><span class="p">,</span> <span class="n">dXdTstr</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="o">**</span><span class="n">popts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+                    
+
+        
+    </div>
+<div class="viewcode-block" id="traceMultiMin"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.traceMultiMin">[docs]</a><span class="k">def</span> <span class="nf">traceMultiMin</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">d2f_dxdt</span><span class="p">,</span> <span class="n">d2f_dx2</span><span class="p">,</span>
+                  <span class="n">points</span><span class="p">,</span> <span class="n">tLow</span><span class="p">,</span> <span class="n">tHigh</span><span class="p">,</span> <span class="n">deltaX_target</span><span class="p">,</span>
+                  <span class="n">dtstart</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">tjump</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">forbidCrit</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> 
+                  <span class="n">single_trace_args</span><span class="o">=</span><span class="p">{},</span> <span class="n">local_min_args</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trace multiple minima `xmin(t)` of the function `f(x,t)`.</span>
+<span class="sd">    </span>
+<span class="sd">    This function will trace the minima starting from the initial `(x,t)` values</span>
+<span class="sd">    given in `points`. When a phase disappears, the function will search for</span>
+<span class="sd">    new nearby minima, and trace them as well. In this way, if each minimum</span>
+<span class="sd">    corresponds to a different phase, this function can find the (possibly)</span>
+<span class="sd">    complete phase structure of the potential.</span>
+<span class="sd">        </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : callable</span>
+<span class="sd">        The scalar function `f(x,t)` which needs to be minimized. The input will</span>
+<span class="sd">        be of the same type as each entry in the `points` parameter.</span>
+<span class="sd">    d2f_dxdt, d2f_dx2 : callable</span>
+<span class="sd">        Functions which return returns derivatives of `f(x)`. `d2f_dxdt` should</span>
+<span class="sd">        return the derivative of the gradient of `f(x)` with respect to `t`, and</span>
+<span class="sd">        `d2f_dx2` should return the Hessian matrix of `f(x)` evaluated at `t`.</span>
+<span class="sd">        Both should take as inputs `(x,t)`.</span>
+<span class="sd">    points : list</span>
+<span class="sd">        A list of points [(x1,t1), (x2,t2),...] that we want to trace, where</span>
+<span class="sd">        `x1`, `x2`, etc. are each a one-dimensional array.</span>
+<span class="sd">    tLow, tHigh : float</span>
+<span class="sd">        Lowest and highest temperatures between which to trace.</span>
+<span class="sd">    deltaX_target : float</span>
+<span class="sd">        Passed to :func:`traceMinimum` and used to set the tolerance in</span>
+<span class="sd">        minimization.</span>
+<span class="sd">    dtstart : float, optional</span>
+<span class="sd">        The starting stepsize, relative to ``tHigh-tLow``.</span>
+<span class="sd">    tjump : float, optional</span>
+<span class="sd">        The jump in `t` from the end of one phase to the initial tracing point </span>
+<span class="sd">        in another. If this is too large, intermediate phases may be skipped.</span>
+<span class="sd">        Relative to ``tHigh-tLow``.</span>
+<span class="sd">    forbidCrit : callable or None, optional</span>
+<span class="sd">        A function that determines whether or not to forbid a phase with a given</span>
+<span class="sd">        starting point. Should take a point `x` as input, and return True (if</span>
+<span class="sd">        the phase should be discarded) or False (if the phase should be kept).</span>
+<span class="sd">    single_trace_args : dict, optional</span>
+<span class="sd">        Arguments to pass to :func:`traceMinimum`.</span>
+<span class="sd">    local_min_args : dict, optoinal</span>
+<span class="sd">        Arguments to pass to :func:`findApproxLocalMinima`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    phases : dict</span>
+<span class="sd">        A dictionary of :class:`Phase` instances. The keys in the dictionary</span>
+<span class="sd">        are integers corresponding to the order in which the phases were</span>
+<span class="sd">        constructed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># We want the minimization here to be very accurate so that we don&#39;t get </span>
+    <span class="c"># stuck on a saddle or something. This isn&#39;t much of a bottle neck.</span>
+    <span class="n">xeps</span> <span class="o">=</span> <span class="n">deltaX_target</span><span class="o">*</span><span class="mf">1e-2</span>
+    <span class="k">def</span> <span class="nf">fmin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="n">xeps</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="p">,),</span> <span class="n">xtol</span><span class="o">=</span><span class="n">xeps</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">,</span> 
+                             <span class="n">ftol</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">dtstart</span> <span class="o">=</span> <span class="n">dtstart</span> <span class="o">*</span> <span class="p">(</span><span class="n">tHigh</span><span class="o">-</span><span class="n">tLow</span><span class="p">)</span>
+    <span class="n">tjump</span> <span class="o">=</span> <span class="n">tjump</span> <span class="o">*</span> <span class="p">(</span><span class="n">tHigh</span><span class="o">-</span><span class="n">tLow</span><span class="p">)</span>
+    <span class="n">phases</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">nextPoint</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span><span class="n">t</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="n">nextPoint</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">t</span><span class="p">,</span><span class="n">dtstart</span><span class="p">,</span><span class="n">fmin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">),</span><span class="bp">None</span><span class="p">])</span>
+    
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">nextPoint</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">t1</span><span class="p">,</span><span class="n">dt1</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">linkedFrom</span> <span class="o">=</span> <span class="n">nextPoint</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">t1</span><span class="p">)</span> <span class="c"># make sure we start as accurately as possible.</span>
+        <span class="c"># Check to see if this point is outside the bounds</span>
+        <span class="k">if</span> <span class="n">t1</span> <span class="o">&lt;</span> <span class="n">tLow</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t1</span> <span class="o">==</span> <span class="n">tLow</span> <span class="ow">and</span> <span class="n">dt1</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">t1</span> <span class="o">&gt;</span> <span class="n">tHigh</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t1</span> <span class="o">==</span> <span class="n">tHigh</span> <span class="ow">and</span> <span class="n">dt1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">forbidCrit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">forbidCrit</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c"># Check to see if it&#39;s redudant with another phase</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">t1</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> 
+                <span class="n">t1</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
+                <span class="k">continue</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span> <span class="n">phase</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span> <span class="n">t1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">x1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">*</span><span class="n">deltaX_target</span><span class="p">:</span>
+                <span class="c"># The point is already covered</span>
+                <span class="c"># Skip this phase and change the linkage.</span>
+                <span class="k">if</span> <span class="n">linkedFrom</span> <span class="o">!=</span> <span class="n">i</span> <span class="ow">and</span> <span class="n">linkedFrom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">phase</span><span class="o">.</span><span class="n">addLinkFrom</span><span class="p">(</span><span class="n">phases</span><span class="p">[</span><span class="n">linkedFrom</span><span class="p">])</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># The point is not already covered. Trace the phase.</span>
+            <span class="k">print</span> <span class="s">&quot;Tracing phase starting at x =&quot;</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="s">&quot;; t =&quot;</span><span class="p">,</span><span class="n">t1</span>
+            <span class="n">phase_key</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span>
+            <span class="n">oldNumPoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nextPoint</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">t1</span> <span class="o">&gt;</span> <span class="n">tLow</span><span class="p">):</span>
+                <span class="k">print</span> <span class="s">&quot;Tracing minimum down&quot;</span>
+                <span class="n">down_trace</span> <span class="o">=</span> <span class="n">traceMinimum</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">d2f_dxdt</span><span class="p">,</span> <span class="n">d2f_dx2</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> 
+                                          <span class="n">t1</span><span class="p">,</span> <span class="n">tLow</span><span class="p">,</span> <span class="o">-</span><span class="n">dt1</span><span class="p">,</span> <span class="n">deltaX_target</span><span class="p">,</span> 
+                                          <span class="o">**</span><span class="n">single_trace_args</span><span class="p">)</span>
+                <span class="n">X_down</span><span class="p">,</span> <span class="n">T_down</span><span class="p">,</span> <span class="n">dXdT_down</span><span class="p">,</span> <span class="n">nX</span><span class="p">,</span> <span class="n">nT</span> <span class="o">=</span> <span class="n">down_trace</span>                
+                <span class="n">t2</span><span class="p">,</span><span class="n">dt2</span> <span class="o">=</span> <span class="n">nT</span><span class="o">-</span><span class="n">tjump</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="o">*</span><span class="n">tjump</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">nX</span><span class="p">,</span><span class="n">t2</span><span class="p">)</span>
+                <span class="n">nextPoint</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">t2</span><span class="p">,</span><span class="n">dt2</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">phase_key</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">X_down</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">deltaX_target</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">findApproxLocalMin</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">X_down</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">x2</span><span class="p">,(</span><span class="n">t2</span><span class="p">,)):</span>
+                        <span class="n">nextPoint</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">t2</span><span class="p">,</span><span class="n">dt2</span><span class="p">,</span><span class="n">fmin</span><span class="p">(</span><span class="n">point</span><span class="p">,</span><span class="n">t2</span><span class="p">),</span><span class="n">phase_key</span><span class="p">])</span>
+                <span class="n">X_down</span> <span class="o">=</span> <span class="n">X_down</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">T_down</span> <span class="o">=</span> <span class="n">T_down</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">dXdT_down</span> <span class="o">=</span> <span class="n">dXdT_down</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">t1</span> <span class="o">&lt;</span> <span class="n">tHigh</span><span class="p">):</span>
+                <span class="k">print</span> <span class="s">&quot;Tracing minimum up&quot;</span>
+                <span class="n">up_trace</span> <span class="o">=</span> <span class="n">traceMinimum</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">d2f_dxdt</span><span class="p">,</span> <span class="n">d2f_dx2</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> 
+                                        <span class="n">t1</span><span class="p">,</span> <span class="n">tHigh</span><span class="p">,</span> <span class="o">+</span><span class="n">dt1</span><span class="p">,</span> <span class="n">deltaX_target</span><span class="p">,</span> 
+                                        <span class="o">**</span><span class="n">single_trace_args</span><span class="p">)</span>
+                <span class="n">X_up</span><span class="p">,</span> <span class="n">T_up</span><span class="p">,</span> <span class="n">dXdT_up</span><span class="p">,</span> <span class="n">nX</span><span class="p">,</span> <span class="n">nT</span> <span class="o">=</span> <span class="n">up_trace</span>
+                <span class="n">t2</span><span class="p">,</span><span class="n">dt2</span> <span class="o">=</span> <span class="n">nT</span><span class="o">+</span><span class="n">tjump</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="o">*</span><span class="n">tjump</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">nX</span><span class="p">,</span><span class="n">t2</span><span class="p">)</span>
+                <span class="n">nextPoint</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">t2</span><span class="p">,</span><span class="n">dt2</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">phase_key</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">X_up</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">deltaX_target</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">findApproxLocalMin</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">X_up</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">x2</span><span class="p">,(</span><span class="n">t2</span><span class="p">,)):</span>
+                        <span class="n">nextPoint</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">t2</span><span class="p">,</span><span class="n">dt2</span><span class="p">,</span><span class="n">fmin</span><span class="p">(</span><span class="n">point</span><span class="p">,</span><span class="n">t2</span><span class="p">),</span><span class="n">phase_key</span><span class="p">])</span>
+            <span class="c"># Then join the two together</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">t1</span> <span class="o">&lt;=</span> <span class="n">tLow</span><span class="p">):</span>
+                <span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">dXdT</span> <span class="o">=</span> <span class="n">X_up</span><span class="p">,</span> <span class="n">T_up</span><span class="p">,</span> <span class="n">dXdT_up</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">t1</span> <span class="o">&gt;=</span> <span class="n">tHigh</span><span class="p">):</span>
+                <span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">dXdT</span> <span class="o">=</span> <span class="n">X_down</span><span class="p">,</span> <span class="n">T_down</span><span class="p">,</span> <span class="n">dXdT_down</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_down</span><span class="p">,</span> <span class="n">X_up</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T_down</span><span class="p">,</span> <span class="n">T_up</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">dXdT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dXdT_down</span><span class="p">,</span> <span class="n">dXdT_up</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">forbidCrit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">forbidCrit</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> 
+                                           <span class="n">forbidCrit</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
+                <span class="c"># The phase is forbidden. </span>
+                <span class="c"># Don&#39;t add it, and make it a dead-end.</span>
+                <span class="n">nextPoint</span> <span class="o">=</span> <span class="n">nextPoint</span><span class="p">[:</span><span class="n">oldNumPoints</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">newphase</span> <span class="o">=</span> <span class="n">Phase</span><span class="p">(</span><span class="n">phase_key</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">dXdT</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">linkedFrom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">newphase</span><span class="o">.</span><span class="n">addLinkFrom</span><span class="p">(</span><span class="n">phases</span><span class="p">[</span><span class="n">linkedFrom</span><span class="p">])</span>
+                <span class="n">phases</span><span class="p">[</span><span class="n">phase_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">newphase</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># The phase is just a single point. </span>
+                <span class="c"># Don&#39;t add it, and make it a dead-end.</span>
+                <span class="n">nextPoint</span> <span class="o">=</span> <span class="n">nextPoint</span><span class="p">[:</span><span class="n">oldNumPoints</span><span class="p">]</span>
+        
+    <span class="k">return</span> <span class="n">phases</span>
+    </div>
+<div class="viewcode-block" id="findApproxLocalMin"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.findApproxLocalMin">[docs]</a><span class="k">def</span> <span class="nf">findApproxLocalMin</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">(),</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">edge</span><span class="o">=.</span><span class="mo">05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find minima on a straight line between two points.</span>
+<span class="sd">    </span>
+<span class="sd">    When jumping between phases, we want to make sure that we</span>
+<span class="sd">    don&#39;t jump over an intermediate phase. This function does a rough </span>
+<span class="sd">    calculation to find any such intermediate phases.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : callable</span>
+<span class="sd">        The function `f(x)` to minimize.</span>
+<span class="sd">    x1, x2 : array_like</span>
+<span class="sd">        The points between which to find minima.</span>
+<span class="sd">    args : tuple, optional</span>
+<span class="sd">        Extra arguments to pass to `f`.</span>
+<span class="sd">    n : int, optional</span>
+<span class="sd">        Number of points to test for local minima.</span>
+<span class="sd">    edge : float, optional</span>
+<span class="sd">        Don&#39;t test for minima directly next to the input points. If ``edge==0``,</span>
+<span class="sd">        the minima potentially go all the way to input points. If ``edge==0.5``,</span>
+<span class="sd">        the range of tested minima shrinks to a single point at the center of</span>
+<span class="sd">        the two points.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of approximate minima, with each minimum having the same shape</span>
+<span class="sd">        as `x1` and `x2`. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x1</span><span class="p">,</span><span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x1</span><span class="o">-</span><span class="n">x2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+    <span class="c">#if dx &lt; mindeltax:</span>
+    <span class="c">#	return np.array([]).reshape(0,len(x1))</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">+</span> <span class="p">(</span><span class="n">x2</span><span class="o">-</span><span class="n">x1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="n">edge</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">&gt;</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            </div>
+<span class="k">def</span> <span class="nf">_removeRedundantPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">removed_phase</span><span class="p">,</span> <span class="n">redundant_with_phase</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">removed_phase</span><span class="o">.</span><span class="n">low_trans</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="n">redundant_with_phase</span><span class="o">.</span><span class="n">key</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">high_trans</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">removed_phase</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">redundant_with_phase</span><span class="o">.</span><span class="n">addLinkFrom</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">removed_phase</span><span class="o">.</span><span class="n">high_trans</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="n">redundant_with_phase</span><span class="o">.</span><span class="n">key</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">low_trans</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">removed_phase</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">redundant_with_phase</span><span class="o">.</span><span class="n">addLinkFrom</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">phases</span><span class="p">[</span><span class="n">removed_phase</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+            
+<div class="viewcode-block" id="removeRedundantPhases"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.removeRedundantPhases">[docs]</a><span class="k">def</span> <span class="nf">removeRedundantPhases</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="n">xeps</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">diftol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove redundant phases from a dictionary output by :func:`traceMultiMin`.</span>
+<span class="sd">    </span>
+<span class="sd">    Although :func:`traceMultiMin` attempts to only trace each phase once, there</span>
+<span class="sd">    are still instances where a single phase gets traced twice. If a phase is</span>
+<span class="sd">    included twice, the routines for finding transition regions and tunneling </span>
+<span class="sd">    get very confused. This attempts to avoid that problem.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : callable</span>
+<span class="sd">        The function `f(x,t)` which was passed to :func:`traceMultiMin`.</span>
+<span class="sd">    phases : dict</span>
+<span class="sd">        The output of :func:`traceMultiMin`.</span>
+<span class="sd">    xeps : float, optional</span>
+<span class="sd">        Error tolerance in minimization.</span>
+<span class="sd">    diftol : float, optional</span>
+<span class="sd">        Maximum separation between two phases before they are considered to be</span>
+<span class="sd">        coincident.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If two phases are merged to get rid of redundancy, the resulting phase has</span>
+<span class="sd">    a key that is a string combination of the two prior keys.</span>
+
+<span class="sd">    .. todo:: Make sure to test removeRedundantPhases().</span>
+<span class="sd">    .. todo:: </span>
+<span class="sd">        Possibly add extra logic to account for phases which coinincide</span>
+<span class="sd">        at one end but not the other.</span>
+<span class="sd">    </span>
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+<span class="sd">    This hasn&#39;t been thoroughly tested yet.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># I want to make the logic extremely simple at the cost of checking the</span>
+    <span class="c"># same thing multiple times.</span>
+    <span class="c"># There&#39;s just no way this function is going to be the bottle neck.</span>
+    <span class="k">def</span> <span class="nf">fmin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">t</span><span class="p">,),</span> 
+                        <span class="n">xtol</span><span class="o">=</span><span class="n">xeps</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+    <span class="n">has_redundant_phase</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">while</span> <span class="n">has_redundant_phase</span><span class="p">:</span>
+        <span class="n">has_redundant_phase</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">phase1</span><span class="p">,</span> <span class="n">phase2</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">phases</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">tmax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">phase1</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">phase2</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">tmin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">phase1</span><span class="o">.</span><span class="n">T</span><span class="p">[</span> <span class="mi">0</span><span class="p">],</span> <span class="n">phase2</span><span class="o">.</span><span class="n">T</span><span class="p">[</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">tmin</span> <span class="o">&gt;</span> <span class="n">tmax</span><span class="p">:</span> <span class="c"># no overlap in the phases</span>
+                    <span class="k">continue</span>
+                <span class="n">x1</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">phase1</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">tmax</span><span class="p">),</span> <span class="n">tmax</span><span class="p">)</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">phase2</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">tmax</span><span class="p">),</span> <span class="n">tmax</span><span class="p">)</span>
+                <span class="n">dif</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x1</span><span class="o">-</span><span class="n">x2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+                <span class="n">same_at_tmax</span> <span class="o">=</span> <span class="p">(</span><span class="n">dif</span> <span class="o">&lt;</span> <span class="n">diftol</span><span class="p">)</span>
+                <span class="n">x1</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">phase1</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">tmin</span><span class="p">),</span> <span class="n">tmin</span><span class="p">)</span>
+                <span class="n">x2</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">phase2</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">tmin</span><span class="p">),</span> <span class="n">tmin</span><span class="p">)</span>
+                <span class="n">dif</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">x1</span><span class="o">-</span><span class="n">x2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+                <span class="n">same_at_tmin</span> <span class="o">=</span> <span class="p">(</span><span class="n">dif</span> <span class="o">&lt;</span> <span class="n">diftol</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">same_at_tmin</span> <span class="ow">and</span> <span class="n">same_at_tmax</span><span class="p">:</span>
+                    <span class="c"># Phases are redundant</span>
+                    <span class="n">has_redundant_phase</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="n">p_low</span> <span class="o">=</span> <span class="n">phase1</span> <span class="k">if</span> <span class="n">phase1</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">phase2</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="n">phase2</span>
+                    <span class="n">p_high</span> <span class="o">=</span> <span class="n">phase1</span> <span class="k">if</span> <span class="n">phase1</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">phase2</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">phase2</span>
+                    <span class="k">if</span> <span class="n">p_low</span> <span class="ow">is</span> <span class="n">p_high</span><span class="p">:</span>
+                        <span class="n">p_reject</span> <span class="o">=</span> <span class="n">phase1</span> <span class="k">if</span> <span class="n">p_low</span> <span class="ow">is</span> <span class="n">phase2</span> <span class="k">else</span> <span class="n">phase2</span>
+                        <span class="n">_removeRedundantPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">p_reject</span><span class="p">,</span> <span class="n">p_low</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">i</span> <span class="o">=</span> <span class="n">p_low</span><span class="o">.</span><span class="n">T</span> <span class="o">&lt;=</span> <span class="n">tmax</span>
+                        <span class="n">T_low</span> <span class="o">=</span> <span class="n">p_low</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">X_low</span> <span class="o">=</span> <span class="n">p_low</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">dXdT_low</span> <span class="o">=</span> <span class="n">p_low</span><span class="o">.</span><span class="n">dXdT</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">i</span> <span class="o">=</span> <span class="n">p_high</span><span class="o">.</span><span class="n">T</span> <span class="o">&gt;</span> <span class="n">tmax</span>
+                        <span class="n">T_high</span> <span class="o">=</span> <span class="n">p_high</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">X_high</span> <span class="o">=</span> <span class="n">p_high</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">dXdT_high</span> <span class="o">=</span> <span class="n">p_high</span><span class="o">.</span><span class="n">dXdT</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T_low</span><span class="p">,</span> <span class="n">T_high</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_low</span><span class="p">,</span> <span class="n">X_high</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">dXdT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dXdT_low</span><span class="p">,</span> <span class="n">dXdT_high</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">newkey</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">p_low</span><span class="o">.</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p_high</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+                        <span class="n">newphase</span> <span class="o">=</span> <span class="n">Phase</span><span class="p">(</span><span class="n">newkey</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">dXdT</span><span class="p">)</span>
+                        <span class="n">phases</span><span class="p">[</span><span class="n">newkey</span><span class="p">]</span> <span class="o">=</span> <span class="n">newphase</span>
+                        <span class="n">_removeRedundantPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">p_low</span><span class="p">,</span> <span class="n">newphase</span><span class="p">)</span>
+                        <span class="n">_removeRedundantPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">p_high</span><span class="p">,</span> <span class="n">newphase</span><span class="p">)</span>
+                    <span class="k">break</span>
+                <span class="k">elif</span> <span class="n">same_at_tmin</span> <span class="ow">or</span> <span class="n">same_at_tmax</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                        <span class="s">&quot;Two phases have been found to coincide at one end &quot;</span>
+                        <span class="s">&quot;but not the other. Ideally, this function would &quot;</span>
+                        <span class="s">&quot;find where the two diverge, make a cut, and join them &quot;</span>
+                        <span class="s">&quot;such there are no more phase redundancies.</span><span class="se">\n</span><span class="s">&quot;</span>
+                        <span class="s">&quot;Instead, just raise an exception.&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_redundant_phase</span><span class="p">:</span>
+                <span class="k">break</span>
+                              </div>
+<div class="viewcode-block" id="getStartPhase"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.getStartPhase">[docs]</a><span class="k">def</span> <span class="nf">getStartPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">V</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the key for the high-T phase.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phases : dict</span>
+<span class="sd">        Output from :func:`traceMultiMin`.</span>
+<span class="sd">    V : callable</span>
+<span class="sd">        The potential V(x,T). Only necessary if there are</span>
+<span class="sd">        multiple phases with the same Tmax.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">startPhases</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">startPhase</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">Tmax</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">phases</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">Tmax</span><span class="p">:</span>
+            <span class="c"># add this to the startPhases list.</span>
+            <span class="n">startPhases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">Tmax</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">Tmax</span><span class="p">:</span>
+            <span class="n">startPhases</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">Tmax</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">startPhases</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">V</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">startPhase</span> <span class="o">=</span> <span class="n">startPhases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># more than one phase have the same maximum temperature</span>
+        <span class="c"># Pick the stable one at high temp.</span>
+        <span class="n">Vmin</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">startPhases</span><span class="p">:</span>
+            <span class="n">V_</span> <span class="o">=</span> <span class="n">V</span><span class="p">(</span><span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">Vmin</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">V_</span> <span class="o">&lt;</span> <span class="n">Vmin</span><span class="p">:</span>
+                <span class="n">Vmin</span> <span class="o">=</span> <span class="n">V_</span>
+                <span class="n">startPhase</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">assert</span> <span class="n">startPhase</span> <span class="ow">in</span> <span class="n">phases</span>
+    <span class="k">return</span> <span class="n">startPhase</span>
+
+    </div>
+<span class="k">def</span> <span class="nf">_tunnelFromPhaseAtT</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="n">start_phase</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> 
+                        <span class="n">phitol</span><span class="p">,</span> <span class="n">overlapAngle</span><span class="p">,</span> <span class="n">nuclCriterion</span><span class="p">,</span> 
+                        <span class="n">fullTunneling_params</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">outdict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the lowest action tunneling solution.</span>
+<span class="sd">    </span>
+<span class="sd">    Return ``nuclCriterion(S,T)``, and store a dictionary describing the</span>
+<span class="sd">    transition in outdict for key `T`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">T</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c"># need this when the function is run from optimize.fmin</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">if</span> <span class="n">T</span> <span class="ow">in</span> <span class="n">outdict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">nuclCriterion</span><span class="p">(</span><span class="n">outdict</span><span class="p">[</span><span class="n">T</span><span class="p">][</span><span class="s">&#39;action&#39;</span><span class="p">],</span> <span class="n">T</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fmin</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">V</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">T</span><span class="p">,),</span> <span class="n">xtol</span><span class="o">=</span><span class="n">phitol</span><span class="p">,</span> 
+        <span class="n">ftol</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="c"># Loop through all the phases, adding acceptable minima</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">start_phase</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
+    <span class="n">V0</span> <span class="o">=</span> <span class="n">V</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">tunnel_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">start_phase</span><span class="o">.</span><span class="n">key</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">T</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">T</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
+        <span class="n">V1</span> <span class="o">=</span> <span class="n">V</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">V1</span> <span class="o">&gt;=</span> <span class="n">V0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">tdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">low_vev</span><span class="o">=</span><span class="n">x1</span><span class="p">,</span> <span class="n">high_vev</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">Tnuc</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> 
+                 <span class="n">low_phase</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">high_phase</span><span class="o">=</span><span class="n">start_phase</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">tunnel_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdict</span><span class="p">)</span>
+    <span class="c"># Check for overlap</span>
+    <span class="k">if</span> <span class="n">overlapAngle</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">excluded</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cos_overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">overlapAngle</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tunnel_list</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                <span class="n">xi</span> <span class="o">=</span> <span class="n">tunnel_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span>
+                <span class="n">xj</span> <span class="o">=</span> <span class="n">tunnel_list</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span>
+                <span class="n">xi2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">xi</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">xj2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">xj</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">dotij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">xj</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">xi</span><span class="o">-</span><span class="n">x0</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">dotij</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xi2</span><span class="o">*</span><span class="n">xj2</span><span class="p">)</span> <span class="o">*</span> <span class="n">cos_overlap</span><span class="p">:</span>
+                    <span class="n">excluded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="k">if</span> <span class="n">xi2</span> <span class="o">&gt;</span> <span class="n">xj2</span> <span class="k">else</span> <span class="n">j</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">excluded</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="n">tunnel_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="c"># Get rid of the T parameter for V and dV</span>
+    <span class="k">def</span> <span class="nf">V_</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span><span class="n">V</span><span class="o">=</span><span class="n">V</span><span class="p">):</span> <span class="k">return</span> <span class="n">V</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">dV_</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span><span class="n">dV</span><span class="o">=</span><span class="n">dV</span><span class="p">):</span> <span class="k">return</span> <span class="n">dV</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+    <span class="c"># For each item in tunnel_list, try tunneling</span>
+    <span class="n">lowest_action</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">lowest_tdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tdict</span> <span class="ow">in</span> <span class="n">tunnel_list</span><span class="p">:</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Tunneling from phase </span><span class="si">%s</span><span class="s"> to phase </span><span class="si">%s</span><span class="s"> at T=</span><span class="si">%0.4g</span><span class="s">&quot;</span>
+                  <span class="o">%</span> <span class="p">(</span><span class="n">tdict</span><span class="p">[</span><span class="s">&#39;high_phase&#39;</span><span class="p">],</span> <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">],</span> <span class="n">T</span><span class="p">))</span>
+            <span class="k">print</span> <span class="s">&quot;high_vev =&quot;</span><span class="p">,</span> <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;high_vev&#39;</span><span class="p">]</span>
+            <span class="k">print</span> <span class="s">&quot;low_vev =&quot;</span><span class="p">,</span> <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span>
+            <span class="n">tobj</span> <span class="o">=</span> <span class="n">pathDeformation</span><span class="o">.</span><span class="n">fullTunneling</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span><span class="n">x0</span><span class="p">],</span> <span class="n">V_</span><span class="p">,</span> <span class="n">dV_</span><span class="p">,</span> 
+                                                 <span class="o">**</span><span class="n">fullTunneling_params</span><span class="p">)</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;instanton&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tobj</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">action</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;trantype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="n">tunneling1D</span><span class="o">.</span><span class="n">PotentialError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;no barrier&quot;</span><span class="p">:</span>
+                <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;trantype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">elif</span> <span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;stable, not metastable&quot;</span><span class="p">:</span>
+                <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;trantype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;Unexpected error message.&quot;</span>
+                <span class="k">raise</span>
+        <span class="k">if</span> <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">lowest_action</span><span class="p">:</span>
+            <span class="n">lowest_action</span> <span class="o">=</span> <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span>
+            <span class="n">lowest_tdict</span> <span class="o">=</span> <span class="n">tdict</span>
+    <span class="n">outdict</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="n">lowest_tdict</span>
+    <span class="k">return</span> <span class="n">nuclCriterion</span><span class="p">(</span><span class="n">lowest_action</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+            
+                
+<div class="viewcode-block" id="tunnelFromPhase"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.tunnelFromPhase">[docs]</a><span class="k">def</span> <span class="nf">tunnelFromPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">start_phase</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">Tmax</span><span class="p">,</span> 
+                    <span class="n">Ttol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">phitol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span> <span class="n">overlapAngle</span><span class="o">=</span><span class="mf">45.0</span><span class="p">,</span> 
+                    <span class="n">nuclCriterion</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">S</span><span class="p">,</span><span class="n">T</span><span class="p">:</span> <span class="n">S</span><span class="o">/</span><span class="p">(</span><span class="n">T</span><span class="o">+</span><span class="mf">1e-100</span><span class="p">)</span> <span class="o">-</span> <span class="mf">140.0</span><span class="p">,</span>
+                    <span class="n">verbose</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+                    <span class="n">fullTunneling_params</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the instanton and nucleation temeprature for tunneling from </span>
+<span class="sd">    `start_phase`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phases : dict</span>
+<span class="sd">        Output from :func:`traceMultiMin`.</span>
+<span class="sd">    start_phase : Phase object</span>
+<span class="sd">        The metastable phase from which tunneling occurs.</span>
+<span class="sd">    V, dV : callable</span>
+<span class="sd">        The potential V(x,T) and its gradient. </span>
+<span class="sd">    Tmax : float</span>
+<span class="sd">        The highest temperature at which to try tunneling.</span>
+<span class="sd">    Ttol : float, optional</span>
+<span class="sd">        Tolerance for finding the nucleation temperature.</span>
+<span class="sd">    maxiter : int, optional</span>
+<span class="sd">        Maximum number of times to try tunneling.</span>
+<span class="sd">    phitol : float, optional</span>
+<span class="sd">        Tolerance for finding the minima.</span>
+<span class="sd">    overlapAngle : float, optional</span>
+<span class="sd">        If two phases are in the same direction, only try tunneling to the</span>
+<span class="sd">        closer one. Set to zero to always try tunneling to all available phases.</span>
+<span class="sd">    nuclCriterion : callable</span>
+<span class="sd">        Function of the action *S* and temperature *T*. Should return 0 for the</span>
+<span class="sd">        correct nucleation rate, &gt; 0 for a low rate and &lt; 0 for a high rate.</span>
+<span class="sd">        Defaults to ``S/T - 140``.</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        If true, print a message before each attempted tunneling.</span>
+<span class="sd">    fullTunneling_params : dict</span>
+<span class="sd">        Parameters to pass to :func:`pathDeformation.fullTunneling`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        A description of the tunneling solution at the nucleation temperature,</span>
+<span class="sd">        or None if there is no found solution. Has the following keys:</span>
+
+<span class="sd">        - *Tnuc* : the nucleation temperature</span>
+<span class="sd">        - *low_vev, high_vev* : vevs for the low-T phase (the phase that the</span>
+<span class="sd">          instanton tunnels to) and high-T phase (the phase that the instanton</span>
+<span class="sd">          tunnels from).</span>
+<span class="sd">        - *low_phase, high_phase* : identifier keys for the low-T and high-T</span>
+<span class="sd">          phases.</span>
+<span class="sd">        - *action* : The Euclidean action of the instanton.</span>
+<span class="sd">        - *instanton* : Output from :func:`pathDeformation.fullTunneling`, or</span>
+<span class="sd">          None for a second-order transition.</span>
+<span class="sd">        - *trantype* : 1 or 2 for first or second-order transitions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">outdict</span> <span class="o">=</span> <span class="p">{}</span> <span class="c"># keys are T values</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">start_phase</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> 
+            <span class="n">phitol</span><span class="p">,</span> <span class="n">overlapAngle</span><span class="p">,</span> <span class="n">nuclCriterion</span><span class="p">,</span> 
+            <span class="n">fullTunneling_params</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">outdict</span><span class="p">)</span>
+    <span class="n">Tmin</span> <span class="o">=</span> <span class="n">start_phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">Tmax</span> <span class="o">&gt;=</span> <span class="n">Tmin</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">Tnuc</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="n">_tunnelFromPhaseAtT</span><span class="p">,</span> <span class="n">Tmin</span><span class="p">,</span> <span class="n">Tmax</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+                               <span class="n">xtol</span><span class="o">=</span><span class="n">Ttol</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">maxiter</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>                
+        <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">message</span> <span class="o">!=</span> <span class="s">&quot;f(a) and f(b) must have different signs&quot;</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">if</span> <span class="n">nuclCriterion</span><span class="p">(</span><span class="n">outdict</span><span class="p">[</span><span class="n">Tmax</span><span class="p">][</span><span class="s">&#39;action&#39;</span><span class="p">],</span> <span class="n">Tmax</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nuclCriterion</span><span class="p">(</span><span class="n">outdict</span><span class="p">[</span><span class="n">Tmin</span><span class="p">][</span><span class="s">&#39;action&#39;</span><span class="p">],</span> <span class="n">Tmax</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># tunneling *may* be possible. Find the minimum.</span>
+                <span class="k">def</span> <span class="nf">abort_fmin</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">outdict</span><span class="o">=</span><span class="n">outdict</span><span class="p">,</span> <span class="n">nc</span><span class="o">=</span><span class="n">nuclCriterion</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">nc</span><span class="p">(</span><span class="n">outdict</span><span class="p">[</span><span class="n">T</span><span class="p">][</span><span class="s">&#39;action&#39;</span><span class="p">],</span> <span class="n">T</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">StopIteration</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">Tmin</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">_tunnelFromPhaseAtT</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">Tmin</span><span class="o">+</span><span class="n">Tmax</span><span class="p">),</span>
+                                         <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="n">Ttol</span><span class="o">*</span><span class="mi">10</span><span class="p">,</span> <span class="n">ftol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                                         <span class="n">maxiter</span><span class="o">=</span><span class="n">maxiter</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                         <span class="n">callback</span><span class="o">=</span><span class="n">abort_fmin</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">Tmin</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">nuclCriterion</span><span class="p">(</span><span class="n">outdict</span><span class="p">[</span><span class="n">Tmin</span><span class="p">][</span><span class="s">&#39;action&#39;</span><span class="p">],</span> <span class="n">Tmin</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c"># no tunneling possible</span>
+                    <span class="k">return</span> <span class="bp">None</span>
+                <span class="n">Tnuc</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="n">_tunnelFromPhaseAtT</span><span class="p">,</span> <span class="n">Tmin</span><span class="p">,</span> <span class="n">Tmax</span><span class="p">,</span> 
+                         <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="n">Ttol</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="n">maxiter</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># no tunneling possible</span>
+                <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># tunneling happens right away at Tmax</span>
+            <span class="n">Tnuc</span> <span class="o">=</span> <span class="n">Tmax</span>
+    <span class="n">rdict</span> <span class="o">=</span> <span class="n">outdict</span><span class="p">[</span><span class="n">Tnuc</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">rdict</span> <span class="k">if</span> <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;trantype&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="secondOrderTrans"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.secondOrderTrans">[docs]</a><span class="k">def</span> <span class="nf">secondOrderTrans</span><span class="p">(</span><span class="n">high_phase</span><span class="p">,</span> <span class="n">low_phase</span><span class="p">,</span> <span class="n">Tstr</span> <span class="o">=</span> <span class="s">&#39;Tnuc&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assemble a dictionary describing a second-order phase transition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rdict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">rdict</span><span class="p">[</span><span class="n">Tstr</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">high_phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">low_phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;high_vev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">high_phase</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">low_phase</span><span class="o">.</span><span class="n">key</span>
+    <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;high_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">high_phase</span><span class="o">.</span><span class="n">key</span>
+    <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;instanton&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">rdict</span><span class="p">[</span><span class="s">&#39;trantype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">rdict</span>
+
+</div>
+<div class="viewcode-block" id="findAllTransitions"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.findAllTransitions">[docs]</a><span class="k">def</span> <span class="nf">findAllTransitions</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">tunnelFromPhase_args</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the complete phase transition history for the potential `V`.</span>
+
+<span class="sd">    This functions uses :func:`tunnelFromPhase` to find the transition</span>
+<span class="sd">    temperature and instanton for each phase, starting at the highest phase</span>
+<span class="sd">    in the potential. Note that if there are multiple transitions that could</span>
+<span class="sd">    occur at the same minimum (if, for example, there is a Z2 symmetry or</span>
+<span class="sd">    a second-order transition breaks in multiple directions), only one of the</span>
+<span class="sd">    transitions will be used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phases : dict</span>
+<span class="sd">        Output from :func:`traceMultiMin`.</span>
+<span class="sd">    V, dV : callable</span>
+<span class="sd">        The potential function and its gradient, each a function of field</span>
+<span class="sd">        value (which should be an array, not a scalar) and a temperature.</span>
+<span class="sd">    tunnelFromPhase_args : dict</span>
+<span class="sd">        Parameters to pass to :func:`tunnelFromPhase`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of transitions</span>
+<span class="sd">        Each item is a dictionary describing the transition (see </span>
+<span class="sd">        :func:`tunnelFromPhase` for keys). The first transition is the one at</span>
+<span class="sd">        the highest temperature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phases</span> <span class="o">=</span> <span class="n">phases</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">start_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">getStartPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">V</span><span class="p">)]</span>
+    <span class="n">Tmax</span> <span class="o">=</span> <span class="n">start_phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">transitions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">start_phase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">phases</span><span class="p">[</span><span class="n">start_phase</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">tunnelFromPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">start_phase</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">Tmax</span><span class="p">,</span> 
+                                <span class="o">**</span><span class="n">tunnelFromPhase_args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">trans</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">start_phase</span><span class="o">.</span><span class="n">low_trans</span><span class="p">:</span>
+            <span class="n">start_phase</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="n">trans</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">low_key</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">start_phase</span><span class="o">.</span><span class="n">low_trans</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">phases</span><span class="p">:</span>
+                    <span class="n">low_key</span> <span class="o">=</span> <span class="n">key</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">low_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">low_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">low_key</span><span class="p">]</span>
+                <span class="n">transitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">secondOrderTrans</span><span class="p">(</span><span class="n">start_phase</span><span class="p">,</span> <span class="n">low_phase</span><span class="p">))</span>
+                <span class="n">start_phase</span> <span class="o">=</span> <span class="n">low_phase</span>
+                <span class="n">Tmax</span> <span class="o">=</span> <span class="n">low_phase</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">start_phase</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+            <span class="n">start_phase</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">trans</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">]]</span>
+            <span class="n">Tmax</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">transitions</span>
+       </div>
+<div class="viewcode-block" id="findCriticalTemperatures"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.findCriticalTemperatures">[docs]</a><span class="k">def</span> <span class="nf">findCriticalTemperatures</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">start_high</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find all temperatures `Tcrit` such that there is degeneracy between any</span>
+<span class="sd">    two phases.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phases : dict</span>
+<span class="sd">        Output from :func:`traceMultiMin`.</span>
+<span class="sd">    V : callable</span>
+<span class="sd">        The potential function `V(x,T)`, where `x` is the field value (which </span>
+<span class="sd">        should be an array, not a scalar) and `T` is the temperature.  </span>
+<span class="sd">    start_high : bool, optional</span>
+<span class="sd">        If True, only include those transitions which could be reached starting</span>
+<span class="sd">        from the high-T phase. NOT IMPLEMENTED YET.  </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of transitions</span>
+<span class="sd">        Transitions are sorted in decreasing temperature. Each transition is a </span>
+<span class="sd">        dictionary with the following keys:</span>
+
+<span class="sd">        - *Tcrit* : the critical temperature</span>
+<span class="sd">        - *low_vev, high_vev* : vevs for the low-T phase (the phase that the</span>
+<span class="sd">          model transitions to) and high-T phase (the phase that the model</span>
+<span class="sd">          transitions from).</span>
+<span class="sd">        - *low_phase, high_phase* : identifier keys for the low-T and high-T</span>
+<span class="sd">          phases.</span>
+<span class="sd">        - *trantype* : 1 or 2 for first or second-order transitions.        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transitions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c"># Try going from i to j (phase1 -&gt; phase2)</span>
+            <span class="n">phase1</span><span class="p">,</span> <span class="n">phase2</span> <span class="o">=</span> <span class="n">phases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">phases</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">tmax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">phase1</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">phase2</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">tmin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">phase1</span><span class="o">.</span><span class="n">T</span><span class="p">[</span> <span class="mi">0</span><span class="p">],</span> <span class="n">phase2</span><span class="o">.</span><span class="n">T</span><span class="p">[</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">tmin</span> <span class="o">&gt;=</span> <span class="n">tmax</span><span class="p">:</span>
+                <span class="c"># No overlap. Try for second-order.</span>
+                <span class="k">if</span> <span class="n">phase2</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="n">phase1</span><span class="o">.</span><span class="n">low_trans</span><span class="p">:</span>
+                    <span class="n">transitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">secondOrderTrans</span><span class="p">(</span><span class="n">phase1</span><span class="p">,</span> <span class="n">phase2</span><span class="p">,</span> <span class="s">&#39;Tcrit&#39;</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="k">def</span> <span class="nf">DV</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">V</span><span class="p">(</span><span class="n">phase1</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">T</span><span class="p">)</span> <span class="o">-</span> <span class="n">V</span><span class="p">(</span><span class="n">phase2</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">T</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">DV</span><span class="p">(</span><span class="n">tmin</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># phase1 is lower at tmin, no tunneling</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">DV</span><span class="p">(</span><span class="n">tmax</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c"># phase1 is higher even at tmax, no critical temperature</span>
+                <span class="k">continue</span>
+            <span class="n">Tcrit</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="n">DV</span><span class="p">,</span> <span class="n">tmin</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">tdict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;Tcrit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Tcrit</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;high_vev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase1</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">Tcrit</span><span class="p">)</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;high_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase1</span><span class="o">.</span><span class="n">key</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase2</span><span class="o">.</span><span class="n">valAt</span><span class="p">(</span><span class="n">Tcrit</span><span class="p">)</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">phase2</span><span class="o">.</span><span class="n">key</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;trantype&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">transitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tdict</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">start_high</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">transitions</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s">&#39;Tcrit&#39;</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">start_phase</span> <span class="o">=</span> <span class="n">getStartPhase</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;start_high=True not yet supported&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="addCritTempsForFullTransitions"><a class="viewcode-back" href="../transitionFinder.html#transitionFinder.addCritTempsForFullTransitions">[docs]</a><span class="k">def</span> <span class="nf">addCritTempsForFullTransitions</span><span class="p">(</span><span class="n">phases</span><span class="p">,</span> <span class="n">crit_trans</span><span class="p">,</span> <span class="n">full_trans</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For each transition dictionary in `full_trans`, find the corresponding</span>
+<span class="sd">    transition in `crit_trans` and add it to the dictionary for the key</span>
+<span class="sd">    `crit_trans`, or add None if no corresponding transition is found.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The phases in the supercooled transitions might not be exactly</span>
+<span class="sd">    the same as the phases in the critical temperature transitions. This would</span>
+<span class="sd">    be the case, for example, if in `full_trans` the phase transitions go like</span>
+<span class="sd">    1 -&gt; 2 -&gt; 3, but in `crit_trans` they go like 1 -&gt; (2 or 3).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phases : dict</span>
+<span class="sd">    crit_trans : list</span>
+<span class="sd">    full_trans : list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parents_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">phases</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">tcdict</span> <span class="ow">in</span> <span class="n">crit_trans</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">tcdict</span><span class="p">[</span><span class="s">&#39;high_phase&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tcdict</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">parents</span> <span class="ow">and</span> <span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+                <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="n">parents_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">parents</span>
+    <span class="k">for</span> <span class="n">tdict</span> <span class="ow">in</span> <span class="n">full_trans</span><span class="p">:</span>
+        <span class="n">low_parents</span> <span class="o">=</span> <span class="n">parents_dict</span><span class="p">[</span><span class="n">tdict</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">]]</span>
+        <span class="n">high_parents</span> <span class="o">=</span> <span class="n">parents_dict</span><span class="p">[</span><span class="n">tdict</span><span class="p">[</span><span class="s">&#39;high_phase&#39;</span><span class="p">]]</span>
+        <span class="n">common_parents</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span><span class="n">low_parents</span><span class="p">),</span> <span class="nb">set</span><span class="p">(</span><span class="n">high_parents</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">common_parents</span><span class="p">:</span>
+            <span class="c"># exclude the common parents</span>
+            <span class="k">try</span><span class="p">:</span> 
+                <span class="n">k</span> <span class="o">=</span> <span class="n">low_parents</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">low_parents</span> <span class="o">=</span> <span class="n">low_parents</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+            <span class="k">try</span><span class="p">:</span> 
+                <span class="n">k</span> <span class="o">=</span> <span class="n">high_parents</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">high_parents</span> <span class="o">=</span> <span class="n">high_parents</span><span class="p">[:</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+        <span class="k">for</span> <span class="n">tcdict</span> <span class="ow">in</span> <span class="n">crit_trans</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="c"># start at low-T</span>
+            <span class="k">if</span> <span class="n">tcdict</span><span class="p">[</span><span class="s">&#39;Tcrit&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">tcdict</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">low_parents</span> 
+                         <span class="ow">and</span> <span class="n">tcdict</span><span class="p">[</span><span class="s">&#39;high_phase&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">high_parents</span><span class="p">):</span>
+                <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;crit_trans&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tcdict</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="s">&#39;crit_trans&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+        </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

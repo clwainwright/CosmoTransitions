@@ -1,0 +1,485 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>helper_functions.py &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="index.html" />
+    <link rel="next" title="multi_field_plotting.py" href="multi_field_plotting.html" />
+    <link rel="prev" title="finiteT.py" href="finiteT.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="multi_field_plotting.html" title="multi_field_plotting.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="finiteT.html" title="finiteT.py"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-helper_functions">
+<span id="helper-functions-py"></span><h1>helper_functions.py<a class="headerlink" href="#module-helper_functions" title="Permalink to this headline">¶</a></h1>
+<p>A collection of (mostly) stand alone helper functions.</p>
+<div class="section" id="miscellaneous-functions">
+<h2>Miscellaneous functions<a class="headerlink" href="#miscellaneous-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="helper_functions.setDefaultArgs">
+<tt class="descname">setDefaultArgs</tt><big>(</big><em>func</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#setDefaultArgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.setDefaultArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the default args in <em class="xref py py-obj">func</em> to match <em class="xref py py-obj">kwargs</em>.</p>
+<p>This can be useful when dealing with deeply nested functions for which the
+default parameters cannot be set directly in the top-level function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt> &#8211; 
+if <em class="xref py py-obj">func</em> does not have default arguments that match <em class="xref py py-obj">kwargs</em>.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-example admonition">
+<p class="first admonition-title">Example</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">bar</span><span class="o">=</span><span class="s">&quot;Hello world!&quot;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">bar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setDefaultArgs</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="s">&quot;The world has changed!&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="p">()</span>
+<span class="go">The world has changed!</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.monotonicIndices">
+<tt class="descname">monotonicIndices</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#monotonicIndices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.monotonicIndices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the indices of <em class="xref py py-obj">x</em> such that <em class="xref py py-obj">x[i]</em> is purely increasing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.clampVal">
+<tt class="descname">clampVal</tt><big>(</big><em>x</em>, <em>a</em>, <em>b</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#clampVal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.clampVal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clamp the value <em class="xref py py-obj">x</em> to be between <em class="xref py py-obj">a</em> and <em class="xref py py-obj">b</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>a, b</strong> (<em>x,</em>) &#8211; Must have the same shape or be broadcastable.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>array_like</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="numerical-integration">
+<h2>Numerical integration<a class="headerlink" href="#numerical-integration" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="helper_functions.IntegrationError">
+<em class="property">exception </em><tt class="descname">IntegrationError</tt><a class="reference internal" href="_modules/helper_functions.html#IntegrationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.IntegrationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to indicate an integration error, primarily in <a class="reference internal" href="#helper_functions.rkqs" title="helper_functions.rkqs"><tt class="xref py py-func docutils literal"><span class="pre">rkqs()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.rkqs">
+<tt class="descname">rkqs</tt><big>(</big><em>y</em>, <em>dydt</em>, <em>t</em>, <em>f</em>, <em>dt_try</em>, <em>epsfrac</em>, <em>epsabs</em>, <em>args=()</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#rkqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.rkqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take a single 5th order Runge-Kutta step with error monitoring.</p>
+<p>This function is adapted from Numerical Recipes in C.</p>
+<p>The step size dynamically changes such that the error in <em class="xref py py-obj">y</em> is smaller
+than the larger of <em class="xref py py-obj">epsfrac</em> and <em class="xref py py-obj">epsabs</em>. That way, if one wants to
+disregard the fractional error, set <em class="xref py py-obj">epsfrac</em> to zero but keep <em class="xref py py-obj">epsabs</em>
+non-zero.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dydt</strong> (<em>y,</em>) &#8211; The initial value and its derivative at the start of the step.
+They should satisfy <tt class="docutils literal"><span class="pre">dydt</span> <span class="pre">=</span> <span class="pre">f(y,t)</span></tt>. <em class="xref py py-obj">dydt</em> is included here for
+efficiency (in case the calling function already calculated it).</li>
+<li><strong>t</strong> (<em>float</em>) &#8211; The integration variable.</li>
+<li><strong>f</strong> (<em>callable</em>) &#8211; The derivative function.</li>
+<li><strong>dt_try</strong> (<em>float</em>) &#8211; An initial guess for the step size.</li>
+<li><strong>epsabs</strong> (<em>epsfrac,</em>) &#8211; The maximual fractional and absolute errors. Should be either length 1
+or the same size as <em class="xref py py-obj">y</em>.</li>
+<li><strong>args</strong> (<em>tuple</em>) &#8211; Optional arguments for <em class="xref py py-obj">f</em>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>Delta_y</strong> (<em>array_like</em>) &#8211;
+Change in <em class="xref py py-obj">y</em> during this step.</li>
+<li><strong>Delta_t</strong> (<em>float</em>) &#8211;
+Change in <em class="xref py py-obj">t</em> during this step.</li>
+<li><strong>dtnext</strong> (<em>float</em>) &#8211;
+Best guess for next step size.</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#helper_functions.IntegrationError" title="helper_functions.IntegrationError"><tt class="xref py py-exc docutils literal"><span class="pre">IntegrationError</span></tt></a> &#8211; 
+If the step size gets smaller than the floating point error.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>Based on algorithms described in <a class="footnote-reference" href="#id2" id="id1">[1]</a>.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>W. H. Press, et. al. &#8220;Numerical Recipes in C: The Art of Scientific
+Computing. Second Edition.&#8221; Cambridge, 1992.</td></tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.rkqs2">
+<tt class="descname">rkqs2</tt><big>(</big><em>y</em>, <em>dydt</em>, <em>t</em>, <em>f</em>, <em>dt_try</em>, <em>inv_epsabs</em>, <em>args=()</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#rkqs2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.rkqs2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#helper_functions.rkqs" title="helper_functions.rkqs"><tt class="xref py py-func docutils literal"><span class="pre">rkqs()</span></tt></a>, but <tt class="docutils literal"><span class="pre">inv_epsabs</span> <span class="pre">=</span> <span class="pre">1/epsabs</span></tt> and <tt class="docutils literal"><span class="pre">epsfrac</span></tt> is
+not used.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="numerical-derivatives">
+<h2>Numerical derivatives<a class="headerlink" href="#numerical-derivatives" title="Permalink to this headline">¶</a></h2>
+<p>The <em>derivij()</em> functions accept arrays as input and return arrays as output.
+In contrast, <a class="reference internal" href="#helper_functions.gradientFunction" title="helper_functions.gradientFunction"><tt class="xref py py-class docutils literal"><span class="pre">gradientFunction</span></tt></a> and :class:hessianFunction` accept
+functions as input and return callable class instances (essentially functions)
+as output. The returned functions can then be used to find derivatives.</p>
+<dl class="function">
+<dt id="helper_functions.deriv14">
+<tt class="descname">deriv14</tt><big>(</big><em>y</em>, <em>x</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#deriv14"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.deriv14" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <span class="math">\(dy/dx\)</span> to fourth-order in <span class="math">\(\Delta x\)</span> using
+finite differences. The derivative is taken along the last dimension of <em class="xref py py-obj">y</em>.</p>
+<p>Both <em class="xref py py-obj">y</em> and <em class="xref py py-obj">x</em> should be numpy arrays. The derivatives are centered
+in the interior of the array, but not at the edges. The spacing in <em class="xref py py-obj">x</em>
+does not need to be uniform.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.deriv14_const_dx">
+<tt class="descname">deriv14_const_dx</tt><big>(</big><em>y</em>, <em>dx=1.0</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#deriv14_const_dx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.deriv14_const_dx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <span class="math">\(dy/dx\)</span> to fourth-order in <span class="math">\(\Delta x\)</span> using
+finite differences. The derivative is taken along the last dimension of <em class="xref py py-obj">y</em>.</p>
+<p>The output of this function should be identical to <a class="reference internal" href="#helper_functions.deriv14" title="helper_functions.deriv14"><tt class="xref py py-func docutils literal"><span class="pre">deriv14()</span></tt></a> when the
+spacing in <em class="xref py py-obj">x</em> is constant, but this will be faster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>y</strong> (<em>array_like</em>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.deriv1n">
+<tt class="descname">deriv1n</tt><big>(</big><em>y</em>, <em>x</em>, <em>n</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#deriv1n"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.deriv1n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <span class="math">\(dy/dx\)</span> to nth-order in <span class="math">\(\Delta x\)</span> using
+finite differences. The derivative is taken along the last dimension of <em class="xref py py-obj">y</em>.</p>
+<p>Both <em class="xref py py-obj">y</em> and <em class="xref py py-obj">x</em> should be numpy arrays. The derivatives are centered in the
+interior of the array, but not at the edges. The spacing in <em class="xref py py-obj">x</em> does not
+need to be uniform.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.deriv23">
+<tt class="descname">deriv23</tt><big>(</big><em>y</em>, <em>x</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#deriv23"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.deriv23" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <span class="math">\(d^2y/dx^2\)</span> to third-order in <span class="math">\(\Delta x\)</span> using
+finite differences. The derivative is taken along the last dimension of <em class="xref py py-obj">y</em>.</p>
+<p>Both <em class="xref py py-obj">y</em> and <em class="xref py py-obj">x</em> should be numpy arrays. The derivatives are centered in the
+interior of the array, but not at the edges. The spacing in <em class="xref py py-obj">x</em> does not
+need to be uniform. The accuracy increases to fourth-order if the spacing
+is uniform.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.deriv23_const_dx">
+<tt class="descname">deriv23_const_dx</tt><big>(</big><em>y</em>, <em>dx=1.0</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#deriv23_const_dx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.deriv23_const_dx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates <span class="math">\(d^2y/dx^2\)</span> to third-order in <span class="math">\(\Delta x\)</span> using
+finite differences. The derivative is taken along the last dimension of <em class="xref py py-obj">y</em>.</p>
+<p>The output of this function should be identical to <a class="reference internal" href="#helper_functions.deriv23" title="helper_functions.deriv23"><tt class="xref py py-func docutils literal"><span class="pre">deriv23()</span></tt></a> when the
+spacing in <em class="xref py py-obj">x</em> is constant, but this will be faster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>y</strong> (<em>array_like</em>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="helper_functions.gradientFunction">
+<em class="property">class </em><tt class="descname">gradientFunction</tt><big>(</big><em>f</em>, <em>eps</em>, <em>Ndim</em>, <em>order=4</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#gradientFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.gradientFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a function which returns the gradient of some scalar function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>f</strong> (<em>callable</em>) &#8211; The first argument <em class="xref py py-obj">x</em> should either be a single point with length
+<em class="xref py py-obj">Ndim</em> or an array (or matrix, etc.) of points with shape
+<tt class="docutils literal"><span class="pre">(...,</span> <span class="pre">Ndim)</span></tt>, where <tt class="docutils literal"><span class="pre">...</span></tt> is some arbitrary shape. The return
+shape should be the same as the input shape, but with the last axis
+stripped off (i.e., it should be a scalar function). Additional
+required or optional arguments are allowed.</li>
+<li><strong>eps</strong> (<em>float or array_like</em>) &#8211; The small change in <em class="xref py py-obj">x</em> used to calculate the finite differences.
+Can either be a scalar or have length <em class="xref py py-obj">Ndim</em>.</li>
+<li><strong>Ndim</strong> (<em>int</em>) &#8211; Number of dimensions for each point.</li>
+<li><strong>order</strong> (<em>2 or 4</em>) &#8211; Calculate the derivatives to either 2nd or 4th order in <em class="xref py py-obj">eps</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-example admonition">
+<p class="first admonition-title">Example</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span><span class="mf">3.</span><span class="o">*</span><span class="n">y</span><span class="o">*</span><span class="n">y</span><span class="o">*</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">gradientFunction</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">eps</span><span class="o">=.</span><span class="mo">01</span><span class="p">,</span> <span class="n">Ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">df</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">    array([[ 0.,  0.], [ 1.,  9.], [ 2.,  1.], [ 3., 10.]])</span>
+</pre></div>
+</div>
+</div>
+<dl class="method">
+<dt id="helper_functions.gradientFunction.__call__">
+<tt class="descname">__call__</tt><big>(</big><em>x</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#gradientFunction.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.gradientFunction.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the gradient. Output shape is the same as the input shape.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="helper_functions.hessianFunction">
+<em class="property">class </em><tt class="descname">hessianFunction</tt><big>(</big><em>f</em>, <em>eps</em>, <em>Ndim</em>, <em>order=4</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#hessianFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.hessianFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a function which returns the Hessian (second derivative) matrix of
+some scalar function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>f</strong> (<em>callable</em>) &#8211; The first argument <em class="xref py py-obj">x</em> should either be a single point with length
+<em class="xref py py-obj">Ndim</em> or an array (or matrix, etc.) of points with shape
+<tt class="docutils literal"><span class="pre">(...,</span> <span class="pre">Ndim)</span></tt>, where <tt class="docutils literal"><span class="pre">...</span></tt> is some arbitrary shape. The return
+shape should be the same as the input shape, but with the last axis
+stripped off (i.e., it should be a scalar function). Additional
+required or optional arguments are allowed.</li>
+<li><strong>eps</strong> (<em>float or array_like</em>) &#8211; The small change in <em class="xref py py-obj">x</em> used to calculate the finite differences.
+Can either be a scalar or have length <em class="xref py py-obj">Ndim</em>.</li>
+<li><strong>Ndim</strong> (<em>int</em>) &#8211; Number of dimensions for each point.</li>
+<li><strong>order</strong> (<em>2 or 4</em>) &#8211; Calculate the derivatives to either 2nd or 4th order in <em class="xref py py-obj">eps</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="helper_functions.hessianFunction.__call__">
+<tt class="descname">__call__</tt><big>(</big><em>x</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#hessianFunction.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.hessianFunction.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the gradient. Output shape is <tt class="docutils literal"><span class="pre">input.shape</span> <span class="pre">+</span> <span class="pre">(Ndim,)</span></tt>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="two-point-interpolation">
+<h2>Two-point interpolation<a class="headerlink" href="#two-point-interpolation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="helper_functions.makeInterpFuncs">
+<tt class="descname">makeInterpFuncs</tt><big>(</big><em>y0</em>, <em>dy0</em>, <em>d2y0</em>, <em>y1</em>, <em>dy1</em>, <em>d2y1</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#makeInterpFuncs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.makeInterpFuncs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create interpolating functions between two points with a quintic polynomial.</p>
+<p>If we&#8217;re given the first and second derivatives of a function
+at x=0 and x=1, we can make a 5th-order interpolation between
+the two.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="helper_functions.cubicInterpFunction">
+<em class="property">class </em><tt class="descname">cubicInterpFunction</tt><big>(</big><em>y0</em>, <em>dy0</em>, <em>y1</em>, <em>dy1</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#cubicInterpFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.cubicInterpFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an interpolating function between two points with a cubic polynomial.</p>
+<p>Like <a class="reference internal" href="#helper_functions.makeInterpFuncs" title="helper_functions.makeInterpFuncs"><tt class="xref py py-func docutils literal"><span class="pre">makeInterpFuncs()</span></tt></a>, but only uses the first derivatives.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="spline-interpolation">
+<h2>Spline interpolation<a class="headerlink" href="#spline-interpolation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="helper_functions.Nbspl">
+<tt class="descname">Nbspl</tt><big>(</big><em>t</em>, <em>x</em>, <em>k=3</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#Nbspl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.Nbspl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the B-spline basis functions for the knots t evaluated at the
+points x.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>t</strong> (<em>array_like</em>) &#8211; An array of knots which define the basis functions.</li>
+<li><strong>x</strong> (<em>array_like</em>) &#8211; The different values at which to calculate the functions.</li>
+<li><strong>k</strong> (<em>int, optional</em>) &#8211; The order of the spline. Must satisfy <tt class="docutils literal"><span class="pre">k</span> <span class="pre">&lt;=</span> <span class="pre">len(t)-2</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>array_like</em> &#8211;
+Has shape <tt class="docutils literal"><span class="pre">(len(x),</span> <span class="pre">len(t)-k-1)</span></tt>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p>This is fairly speedy, although it does spend a fair amount of time
+calculating things that will end up being zero. On a 2.5Ghz machine, it
+takes a few milliseconds to calculate when <tt class="docutils literal"><span class="pre">len(x)</span> <span class="pre">==</span> <span class="pre">500;</span> <span class="pre">len(t)</span> <span class="pre">==</span> <span class="pre">20;</span>
+<span class="pre">k</span> <span class="pre">==</span> <span class="pre">3</span></tt>.</p>
+<p class="last">For more info on basis splines, see e.g.
+<a class="reference external" href="http://en.wikipedia.org/wiki/B-spline">http://en.wikipedia.org/wiki/B-spline</a>.</p>
+</div>
+<div class="admonition-example admonition">
+<p class="first admonition-title">Example</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">helper_functions</span> <span class="kn">import</span> <span class="n">Nbspl</span>
+<span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Nbspl</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">r&quot;$x$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r&quot;$y_i(x)$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//helper_functions-1.py">Source code</a>, <a class="reference external" href=".//helper_functions-1.png">png</a>, <a class="reference external" href=".//helper_functions-1.hires.png">hires.png</a>, <a class="reference external" href=".//helper_functions-1.pdf">pdf</a>)</p>
+<div class="last figure">
+<img alt="_images/helper_functions-1.png" src="_images/helper_functions-1.png" />
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.Nbspld1">
+<tt class="descname">Nbspld1</tt><big>(</big><em>t</em>, <em>x</em>, <em>k=3</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#Nbspld1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.Nbspld1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#helper_functions.Nbspl" title="helper_functions.Nbspl"><tt class="xref py py-func docutils literal"><span class="pre">Nbspl()</span></tt></a>, but returns the first derivative too.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="helper_functions.Nbspld2">
+<tt class="descname">Nbspld2</tt><big>(</big><em>t</em>, <em>x</em>, <em>k=3</em><big>)</big><a class="reference internal" href="_modules/helper_functions.html#Nbspld2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#helper_functions.Nbspld2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#helper_functions.Nbspl" title="helper_functions.Nbspl"><tt class="xref py py-func docutils literal"><span class="pre">Nbspl()</span></tt></a>, but returns first and second derivatives too.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">helper_functions.py</a><ul>
+<li><a class="reference internal" href="#miscellaneous-functions">Miscellaneous functions</a></li>
+<li><a class="reference internal" href="#numerical-integration">Numerical integration</a></li>
+<li><a class="reference internal" href="#numerical-derivatives">Numerical derivatives</a></li>
+<li><a class="reference internal" href="#two-point-interpolation">Two-point interpolation</a></li>
+<li><a class="reference internal" href="#spline-interpolation">Spline interpolation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="finiteT.html"
+                        title="previous chapter">finiteT.py</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="multi_field_plotting.html"
+                        title="next chapter">multi_field_plotting.py</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/helper_functions.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="multi_field_plotting.html" title="multi_field_plotting.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="finiteT.html" title="finiteT.py"
+             >previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,900 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>generic_potential.py &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="index.html" />
+    <link rel="next" title="finiteT.py" href="finiteT.html" />
+    <link rel="prev" title="transitionFinder.py" href="transitionFinder.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="finiteT.html" title="finiteT.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="transitionFinder.html" title="transitionFinder.py"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-generic_potential">
+<span id="generic-potential-py"></span><h1>generic_potential.py<a class="headerlink" href="#module-generic_potential" title="Permalink to this headline">¶</a></h1>
+<p>The primary task of the generic_potential module is to define the
+<a class="reference internal" href="#module-generic_potential" title="generic_potential"><tt class="xref py py-class docutils literal"><span class="pre">generic_potential</span></tt></a> class, from which realistic scalar field models can
+straightforwardly be constructed. The most important part of any such model is,
+appropiately, the potential function and its gradient. This module is not
+necessary to define a potential, but it does make the process somewhat simpler
+by automatically calculating one-loop effects from a model-specific mass
+spectrum, constructing numerical derivative functions, providing a
+simplified interface to the <a class="reference internal" href="transitionFinder.html#module-transitionFinder" title="transitionFinder"><tt class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></tt></a> module, and providing
+several methods for plotting the potential and its phases.</p>
+<dl class="class">
+<dt id="generic_potential.generic_potential">
+<em class="property">class </em><tt class="descname">generic_potential</tt><big>(</big><em>*args</em>, <em>**dargs</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>An abstract class from which one can easily create finite-temperature
+effective potentials.</p>
+<p>This class acts as the skeleton around which different scalar field models
+can be formed. At a bare minimum, subclasses must implement <a class="reference internal" href="#generic_potential.generic_potential.init" title="generic_potential.generic_potential.init"><tt class="xref py py-func docutils literal"><span class="pre">init()</span></tt></a>,
+<a class="reference internal" href="#generic_potential.generic_potential.V0" title="generic_potential.generic_potential.V0"><tt class="xref py py-func docutils literal"><span class="pre">V0()</span></tt></a>, and <a class="reference internal" href="#generic_potential.generic_potential.boson_massSq" title="generic_potential.generic_potential.boson_massSq"><tt class="xref py py-func docutils literal"><span class="pre">boson_massSq()</span></tt></a>. Subclasses will also likely implement
+<a class="reference internal" href="#generic_potential.generic_potential.fermion_massSq" title="generic_potential.generic_potential.fermion_massSq"><tt class="xref py py-func docutils literal"><span class="pre">fermion_massSq()</span></tt></a> and <a class="reference internal" href="#generic_potential.generic_potential.approxZeroTMin" title="generic_potential.generic_potential.approxZeroTMin"><tt class="xref py py-func docutils literal"><span class="pre">approxZeroTMin()</span></tt></a>. Once the tree-level
+potential and particle spectrum are defined, the one-loop zero-temperature
+potential (using MS-bar renormalization) and finite-temperature potential
+can be used without any further modification.</p>
+<p>The <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt> function performs initialization specific for this abstract
+class. Subclasses should either override this initialization <em>but make sure
+to call the parent implementation</em>, or, more simply, override the
+<a class="reference internal" href="#generic_potential.generic_potential.init" title="generic_potential.generic_potential.init"><tt class="xref py py-func docutils literal"><span class="pre">init()</span></tt></a> method. In the base implementation, the former calls the latter
+and the latter does nothing. At a bare minimum, subclasses must set the
+<em class="xref py py-obj">Ndim</em> parameter to the number of dynamic field dimensions in the model.</p>
+<p>One of the main jobs of this class is to provide an easy interface for
+calculating the phase structure and phase transitions. These are given by
+the methods <a class="reference internal" href="#generic_potential.generic_potential.getPhases" title="generic_potential.generic_potential.getPhases"><tt class="xref py py-func docutils literal"><span class="pre">getPhases()</span></tt></a>, <a class="reference internal" href="#generic_potential.generic_potential.calcTcTrans" title="generic_potential.generic_potential.calcTcTrans"><tt class="xref py py-func docutils literal"><span class="pre">calcTcTrans()</span></tt></a>, and
+<a class="reference internal" href="#generic_potential.generic_potential.findAllTransitions" title="generic_potential.generic_potential.findAllTransitions"><tt class="xref py py-func docutils literal"><span class="pre">findAllTransitions()</span></tt></a>.</p>
+<p>The following attributes can (and should!) be set during initialiation:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>Ndim</strong> (<em>int</em>) &#8211; The number of dynamic field dimensions in the model. This <em>must</em> be
+overridden by subclasses during initialization.</li>
+<li><strong>x_eps</strong> (<em>float</em>) &#8211; The epsilon to use in brute-force evalutations of the gradient and
+for the second derivatives. May be overridden by subclasses;
+defaults to 0.001.</li>
+<li><strong>T_eps</strong> (<em>float</em>) &#8211; The epsilon to use in brute-force evalutations of the temperature
+derivative. May be overridden by subclasses; defaults to 0.001.</li>
+<li><strong>deriv_order</strong> (<em>int</em>) &#8211; Sets the order to which finite difference derivatives are calculated.
+Must be 2 or 4. May be overridden by subclasses; defaults to 4.</li>
+<li><strong>renormScaleSq</strong> (<em>float</em>) &#8211; The square of the renormalization scale to use in the MS-bar one-loop
+zero-temp potential. May be overridden by subclasses;
+defaults to 1000.0**2.</li>
+<li><strong>Tmax</strong> (<em>float</em>) &#8211; The maximum temperature to which minima should be followed. No
+transitions are calculated above this temperature. This is also used
+as the overall temperature scale in <a class="reference internal" href="#generic_potential.generic_potential.getPhases" title="generic_potential.generic_potential.getPhases"><tt class="xref py py-func docutils literal"><span class="pre">getPhases()</span></tt></a>.
+May be overridden by subclasses; defaults to 1000.0.</li>
+<li><strong>num_boson_dof</strong> (<em>int or None</em>) &#8211; Total number of bosonic degrees of freedom, including radiation.
+This is used to add a field-independent but temperature-dependent
+contribution to the effective potential. It does not affect the relative
+pressure or energy density between phases, so it does not affect the
+critical or nucleation temperatures. If None, the total number of
+degrees of freedom will be taken directly from <a class="reference internal" href="#generic_potential.generic_potential.boson_massSq" title="generic_potential.generic_potential.boson_massSq"><tt class="xref py py-meth docutils literal"><span class="pre">boson_massSq()</span></tt></a>.</li>
+<li><strong>num_fermion_dof</strong> (<em>int or None</em>) &#8211; Total number of fermionic degrees of freedom, including radiation.
+If None, the total number of degrees of freedom will be taken
+directly from <a class="reference internal" href="#generic_potential.generic_potential.fermion_massSq" title="generic_potential.generic_potential.fermion_massSq"><tt class="xref py py-meth docutils literal"><span class="pre">fermion_massSq()</span></tt></a>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="generic_potential.generic_potential.init">
+<tt class="descname">init</tt><big>(</big><em>*args</em>, <em>**dargs</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclasses should override this method (not __init__) to do all model
+initialization. At a bare minimum, subclasses need to specify the number
+of dimensions in the potential with <tt class="docutils literal"><span class="pre">self.Ndim</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.V0">
+<tt class="descname">V0</tt><big>(</big><em>X</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.V0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.V0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The tree-level potential. Should be overridden by subclasses.</p>
+<p>The input X can either be a single point (with length <em class="xref py py-obj">Ndim</em>), or an
+arbitrarily shaped array of points (with a last axis again having shape
+<em class="xref py py-obj">Ndim</em>). Subclass implementations should be able to handle either case.
+If the input is a single point, the output should be scalar. If the
+input is an array of points, the output should be an array with the same
+shape (except for the last axis with shape <em class="xref py py-obj">Ndim</em>).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.boson_massSq">
+<tt class="descname">boson_massSq</tt><big>(</big><em>X</em>, <em>T</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.boson_massSq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.boson_massSq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the boson particle spectrum. Should be overridden by
+subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>array_like</em>) &#8211; Field value(s).
+Either a single point (with length <em class="xref py py-obj">Ndim</em>), or an array of points.</li>
+<li><strong>T</strong> (<em>float or array_like</em>) &#8211; The temperature at which to calculate the boson masses. Can be used
+for including thermal mass corrrections. The shapes of <em class="xref py py-obj">X</em> and <em class="xref py py-obj">T</em>
+should be such that <tt class="docutils literal"><span class="pre">X.shape[:-1]</span></tt> and <tt class="docutils literal"><span class="pre">T.shape</span></tt> are
+broadcastable (that is, <tt class="docutils literal"><span class="pre">X[...,0]*T</span></tt> is a valid operation).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>massSq</strong> (<em>array_like</em>) &#8211;
+A list of the boson particle masses at each input point <em class="xref py py-obj">X</em>. The
+shape should be such that
+<tt class="docutils literal"><span class="pre">massSq.shape</span> <span class="pre">==</span> <span class="pre">(X[...,0]*T).shape</span> <span class="pre">+</span> <span class="pre">(Nbosons,)</span></tt>.
+That is, the particle index is the <em>last</em> index in the output array
+if the input array(s) are multidimensional.</li>
+<li><strong>degrees_of_freedom</strong> (<em>float or array_like</em>) &#8211;
+The number of degrees of freedom for each particle. If an array
+(i.e., different particles have different d.o.f.), it should have
+length <em class="xref py py-obj">Ndim</em>.</li>
+<li><strong>c</strong> (<em>float or array_like</em>) &#8211;
+A constant used in the one-loop zero-temperature effective
+potential. If an array, it should have length <em class="xref py py-obj">Ndim</em>. Generally
+<em class="xref py py-obj">c = 1/2</em> for gauge boson transverse modes, and <em class="xref py py-obj">c = 3/2</em> for all
+other bosons.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.fermion_massSq">
+<tt class="descname">fermion_massSq</tt><big>(</big><em>X</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.fermion_massSq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.fermion_massSq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the fermion particle spectrum. Should be overridden by
+subclasses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> (<em>array_like</em>) &#8211; Field value(s).
+Either a single point (with length <em class="xref py py-obj">Ndim</em>), or an array of points.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>massSq</strong> (<em>array_like</em>) &#8211;
+A list of the fermion particle masses at each input point <em class="xref py py-obj">X</em>. The
+shape should be such that  <tt class="docutils literal"><span class="pre">massSq.shape</span> <span class="pre">==</span> <span class="pre">(X[...,0]).shape</span></tt>.
+That is, the particle index is the <em>last</em> index in the output array
+if the input array(s) are multidimensional.</li>
+<li><strong>degrees_of_freedom</strong> (<em>float or array_like</em>) &#8211;
+The number of degrees of freedom for each particle. If an array
+(i.e., different particles have different d.o.f.), it should have
+length <em class="xref py py-obj">Ndim</em>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p class="last">Unlike <a class="reference internal" href="#generic_potential.generic_potential.boson_massSq" title="generic_potential.generic_potential.boson_massSq"><tt class="xref py py-func docutils literal"><span class="pre">boson_massSq()</span></tt></a>, no constant <em class="xref py py-obj">c</em> is needed since it is
+assumed to be <em class="xref py py-obj">c = 3/2</em> for all fermions. Also, no thermal mass
+corrections are needed.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.V1">
+<tt class="descname">V1</tt><big>(</big><em>bosons</em>, <em>fermions</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.V1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.V1" title="Permalink to this definition">¶</a></dt>
+<dd><p>The one-loop corrections to the zero-temperature potential
+using MS-bar renormalization.</p>
+<p>This is generally not called directly, but is instead used by
+<a class="reference internal" href="#generic_potential.generic_potential.Vtot" title="generic_potential.generic_potential.Vtot"><tt class="xref py py-func docutils literal"><span class="pre">Vtot()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.V1T">
+<tt class="descname">V1T</tt><big>(</big><em>bosons</em>, <em>fermions</em>, <em>T</em>, <em>include_radiation=True</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.V1T"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.V1T" title="Permalink to this definition">¶</a></dt>
+<dd><p>The one-loop finite-temperature potential.</p>
+<p>This is generally not called directly, but is instead used by
+<a class="reference internal" href="#generic_potential.generic_potential.Vtot" title="generic_potential.generic_potential.Vtot"><tt class="xref py py-func docutils literal"><span class="pre">Vtot()</span></tt></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The <tt class="xref py py-obj docutils literal"><span class="pre">Jf</span></tt> and <tt class="xref py py-obj docutils literal"><span class="pre">Jb</span></tt> functions used here are
+aliases for <a class="reference internal" href="finiteT.html#finiteT.Jf_spline" title="finiteT.Jf_spline"><tt class="xref py py-func docutils literal"><span class="pre">finiteT.Jf_spline()</span></tt></a> and <a class="reference internal" href="finiteT.html#finiteT.Jb_spline" title="finiteT.Jb_spline"><tt class="xref py py-func docutils literal"><span class="pre">finiteT.Jb_spline()</span></tt></a>,
+each of which accept mass over temperature <em>squared</em> as inputs
+(this allows for negative mass-squared values, which I take to be the
+real part defining integrals.</p>
+<div class="admonition-todo last admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Implement new versions of Jf and Jb that return zero when m=0, only
+adding in the field-independent piece later if
+<tt class="docutils literal"><span class="pre">include_radiation</span> <span class="pre">==</span> <span class="pre">True</span></tt>. This should reduce floating point
+errors when taking derivatives at very high temperature, where
+the field-independent contribution is much larger than the
+field-dependent contribution.</p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.V1T_from_X">
+<tt class="descname">V1T_from_X</tt><big>(</big><em>X</em>, <em>T</em>, <em>include_radiation=True</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.V1T_from_X"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.V1T_from_X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the mass matrix and resulting one-loop finite-T potential.</p>
+<p>Useful when calculate temperature derivatives, when the zero-temperature
+contributions don&#8217;t matter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.Vtot">
+<tt class="descname">Vtot</tt><big>(</big><em>X</em>, <em>T</em>, <em>include_radiation=True</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.Vtot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.Vtot" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total finite temperature effective potential.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>X</strong> (<em>array_like</em>) &#8211; Field value(s).
+Either a single point (with length <em class="xref py py-obj">Ndim</em>), or an array of points.</li>
+<li><strong>T</strong> (<em>float or array_like</em>) &#8211; The temperature. The shapes of <em class="xref py py-obj">X</em> and <em class="xref py py-obj">T</em>
+should be such that <tt class="docutils literal"><span class="pre">X.shape[:-1]</span></tt> and <tt class="docutils literal"><span class="pre">T.shape</span></tt> are
+broadcastable (that is, <tt class="docutils literal"><span class="pre">X[...,0]*T</span></tt> is a valid operation).</li>
+<li><strong>include_radiation</strong> (<em>bool, optional</em>) &#8211; Currently not used.
+Later, if False, this will drop all field-independent radiation
+terms from the effective potential. Useful for calculating
+differences or derivatives.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.DVtot">
+<tt class="descname">DVtot</tt><big>(</big><em>X</em>, <em>T</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.DVtot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.DVtot" title="Permalink to this definition">¶</a></dt>
+<dd><p>The finite temperature effective potential, but offset
+such that V(0, T) = 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.gradV">
+<tt class="descname">gradV</tt><big>(</big><em>X</em>, <em>T</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.gradV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.gradV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the gradient of the full effective potential.</p>
+<p>This uses <a class="reference internal" href="helper_functions.html#helper_functions.gradientFunction" title="helper_functions.gradientFunction"><tt class="xref py py-func docutils literal"><span class="pre">helper_functions.gradientFunction()</span></tt></a> to calculate the
+gradient using finite differences, with differences
+given by <em class="xref py py-obj">self.x_eps</em>. Note that <em class="xref py py-obj">self.x_eps</em> is only used directly
+the first time this function is called, so subsequently changing it
+will not have an effect.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.dgradV_dT">
+<tt class="descname">dgradV_dT</tt><big>(</big><em>X</em>, <em>T</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.dgradV_dT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.dgradV_dT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the derivative of the gradient with respect to temperature.</p>
+<p>This is useful when trying to follow the minima of the potential as they
+move with temperature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.massSqMatrix">
+<tt class="descname">massSqMatrix</tt><big>(</big><em>X</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.massSqMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.massSqMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the tree-level mass matrix of the scalar field.</p>
+<p>This uses <a class="reference internal" href="helper_functions.html#helper_functions.hessianFunction" title="helper_functions.hessianFunction"><tt class="xref py py-func docutils literal"><span class="pre">helper_functions.hessianFunction()</span></tt></a> to calculate the
+matrix using finite differences, with differences
+given by <em class="xref py py-obj">self.x_eps</em>. Note that <em class="xref py py-obj">self.x_eps</em> is only used directly
+the first time this function is called, so subsequently changing it
+will not have an effect.</p>
+<p>The resulting matrix will have rank <em class="xref py py-obj">Ndim</em>. This function may be useful
+for subclasses in finding the boson particle spectrum.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.d2V">
+<tt class="descname">d2V</tt><big>(</big><em>X</em>, <em>T</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.d2V"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.d2V" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the Hessian (second derivative) matrix for the
+finite-temperature effective potential.</p>
+<p>This uses <a class="reference internal" href="helper_functions.html#helper_functions.hessianFunction" title="helper_functions.hessianFunction"><tt class="xref py py-func docutils literal"><span class="pre">helper_functions.hessianFunction()</span></tt></a> to calculate the
+matrix using finite differences, with differences
+given by <em class="xref py py-obj">self.x_eps</em>. Note that <em class="xref py py-obj">self.x_eps</em> is only used directly
+the first time this function is called, so subsequently changing it
+will not have an effect.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.energyDensity">
+<tt class="descname">energyDensity</tt><big>(</big><em>X</em>, <em>T</em>, <em>include_radiation=True</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.energyDensity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.energyDensity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.approxZeroTMin">
+<tt class="descname">approxZeroTMin</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.approxZeroTMin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.approxZeroTMin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns approximate values of the zero-temperature minima.</p>
+<p>This should be overridden by subclasses, although it is not strictly
+necessary if there is only one minimum at tree level. The precise values
+of the minima will later be found using <tt class="xref py py-func docutils literal"><span class="pre">scipy.optimize.fmin()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>minima</strong> (<em>list</em>) &#8211;
+A list of points of the approximate minima.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.findMinimum">
+<tt class="descname">findMinimum</tt><big>(</big><em>X=None</em>, <em>T=0.0</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.findMinimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.findMinimum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for finding the nearest minimum to <em class="xref py py-obj">X</em> at
+temperature <em class="xref py py-obj">T</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.findT0">
+<tt class="descname">findT0</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.findT0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.findT0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the temperature at which the high-T minimum disappears. That is,
+find lowest temperature at which Hessian matrix evaluated at the origin
+has non-negative eigenvalues.</p>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p class="last">In prior versions of CosmoTransitions, <em class="xref py py-obj">T0</em> was used to set the scale
+in <a class="reference internal" href="#generic_potential.generic_potential.getPhases" title="generic_potential.generic_potential.getPhases"><tt class="xref py py-func docutils literal"><span class="pre">getPhases()</span></tt></a>. This became problematic when <em class="xref py py-obj">T0</em> was zero, so in
+this version <em class="xref py py-obj">self.Tmax</em> is used as the scale. This function is now not
+called directly by anything in the core CosmoTransitions package, but
+is left as a convenience for subclasses.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.forbidPhaseCrit">
+<tt class="descname">forbidPhaseCrit</tt><big>(</big><em>X</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.forbidPhaseCrit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.forbidPhaseCrit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if a phase at point <em class="xref py py-obj">X</em> should be discarded,
+False otherwise.</p>
+<p>The default implementation returns False. Can be overridden by
+subclasses to ignore phases. This is useful if, for example, there is a
+Z2 symmetry in the potential and you don&#8217;t want to double-count all of
+the phases.</p>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p>In previous versions of CosmoTransitions, <a class="reference internal" href="#generic_potential.generic_potential.forbidPhaseCrit" title="generic_potential.generic_potential.forbidPhaseCrit"><tt class="xref py py-obj docutils literal"><span class="pre">forbidPhaseCrit</span></tt></a> was set to
+None in <tt class="xref py py-obj docutils literal"><span class="pre">__init__</span></tt>, and then if a subclass needed to forbid some region
+it could set <tt class="docutils literal"><span class="pre">self.forbidPhaseCrit</span> <span class="pre">=</span> <span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">...</span></tt>. Having this
+instead be a proper method makes for cleaner code.</p>
+<p class="last">The name &#8220;forbidPhaseCrit&#8221; is supposed to be short for &#8220;critera for
+forbidding a phase&#8221;. Apologies for the name mangling; I&#8217;m not sure why
+I originally decided to leave off the &#8220;eria&#8221; in &#8220;criteria&#8221;, but I should
+leave it as is for easier backwards compatability.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.getPhases">
+<tt class="descname">getPhases</tt><big>(</big><em>tracingArgs={}</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.getPhases"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.getPhases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find different phases as functions of temperature</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tracingArgs</strong> (<em>dict</em>) &#8211; Parameters to pass to <a class="reference internal" href="transitionFinder.html#transitionFinder.traceMultiMin" title="transitionFinder.traceMultiMin"><tt class="xref py py-func docutils literal"><span class="pre">transitionFinder.traceMultiMin()</span></tt></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>dict</em> &#8211;
+Each item in the returned dictionary is an instance of
+<a class="reference internal" href="transitionFinder.html#transitionFinder.Phase" title="transitionFinder.Phase"><tt class="xref py py-class docutils literal"><span class="pre">transitionFinder.Phase</span></tt></a>, and each phase is
+identified by a unique key. This value is also stored in
+<em class="xref py py-obj">self.phases</em>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.calcTcTrans">
+<tt class="descname">calcTcTrans</tt><big>(</big><em>startHigh=False</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.calcTcTrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.calcTcTrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs <a class="reference internal" href="transitionFinder.html#transitionFinder.findCriticalTemperatures" title="transitionFinder.findCriticalTemperatures"><tt class="xref py py-func docutils literal"><span class="pre">transitionFinder.findCriticalTemperatures()</span></tt></a>, storing the
+result in <em class="xref py py-obj">self.TcTrans</em>.</p>
+<p>In addition to the values output by
+<a class="reference internal" href="transitionFinder.html#transitionFinder.findCriticalTemperatures" title="transitionFinder.findCriticalTemperatures"><tt class="xref py py-func docutils literal"><span class="pre">transitionFinder.findCriticalTemperatures()</span></tt></a>, this function adds
+the following entries to each transition dictionary:</p>
+<ul class="simple">
+<li><em>Delta_rho</em> : Energy difference between the two phases. Positive
+values mean the high-T phase has more energy.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>self.TcTrans</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.findAllTransitions">
+<tt class="descname">findAllTransitions</tt><big>(</big><em>tunnelFromPhase_args={}</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.findAllTransitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.findAllTransitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all phase transitions up to <em class="xref py py-obj">self.Tmax</em>, storing the transitions
+in <em class="xref py py-obj">self.TnTrans</em>.</p>
+<p>In addition to the values output by
+<a class="reference internal" href="transitionFinder.html#transitionFinder.tunnelFromPhase" title="transitionFinder.tunnelFromPhase"><tt class="xref py py-func docutils literal"><span class="pre">transitionFinder.tunnelFromPhase()</span></tt></a>, this function adds
+the following entries to each transition dictionary:</p>
+<ul class="simple">
+<li><em>Delta_rho</em> : Energy difference between the two phases. Positive
+values mean the high-T phase has more energy.</li>
+<li><em>Delta_p</em> : Pressure difference between the two phases. Should always
+be positive.</li>
+<li><em>crit_trans</em> : The transition at the critical temperature, or None
+if no critical temperature can be found.</li>
+<li><em>dS_dT</em> : Derivative of the Euclidean action with respect to
+temperature. NOT IMPLEMENTED YET.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tunnelFromPhase_args</strong> (<em>dict</em>) &#8211; Parameters to pass to <a class="reference internal" href="transitionFinder.html#transitionFinder.tunnelFromPhase" title="transitionFinder.tunnelFromPhase"><tt class="xref py py-func docutils literal"><span class="pre">transitionFinder.tunnelFromPhase()</span></tt></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>self.TnTrans</em></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.plot2d">
+<tt class="descname">plot2d</tt><big>(</big><em>box</em>, <em>T=0</em>, <em>treelevel=False</em>, <em>offset=0</em>, <em>xaxis=0</em>, <em>yaxis=1</em>, <em>n=50</em>, <em>clevs=200</em>, <em>cfrac=0.8</em>, <em>**contourParams</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.plot2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.plot2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a countour plot of the potential.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>box</strong> (<em>tuple</em>) &#8211; The bounding box for the plot, (xlow, xhigh, ylow, yhigh).</li>
+<li><strong>T</strong> (<em>float, optional</em>) &#8211; The temperature</li>
+<li><strong>offset</strong> (<em>array_like</em>) &#8211; A constant to add to all coordinates. Especially
+helpful if Ndim &gt; 2.</li>
+<li><strong>yaxis</strong> (<em>xaxis,</em>) &#8211; The integers of the axes that we want to plot.</li>
+<li><strong>n</strong> (<em>int</em>) &#8211; Number of points evaluated in each direction.</li>
+<li><strong>clevs</strong> (<em>int</em>) &#8211; Number of contour levels to draw.</li>
+<li><strong>cfrac</strong> (<em>float</em>) &#8211; The lowest contour is always at <tt class="docutils literal"><span class="pre">min(V)</span></tt>, while the highest is
+at <tt class="docutils literal"><span class="pre">min(V)</span> <span class="pre">+</span> <span class="pre">cfrac*(max(V)-min(V))</span></tt>. If <tt class="docutils literal"><span class="pre">cfrac</span> <span class="pre">&lt;</span> <span class="pre">1</span></tt>, only part
+of the plot will be covered. Useful when the minima are more
+important to resolve than the maximum.</li>
+<li><strong>contourParams</strong> &#8211; Any extra parameters to be passed to <tt class="xref py py-func docutils literal"><span class="pre">plt.contour()</span></tt>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<div class="admonition-todo last admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Add an example plot.
+Make documentation for the other plotting functions.</p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.plot1d">
+<tt class="descname">plot1d</tt><big>(</big><em>x1</em>, <em>x2</em>, <em>T=0</em>, <em>treelevel=False</em>, <em>subtract=True</em>, <em>n=500</em>, <em>**plotParams</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.plot1d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.plot1d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.plotPhasesV">
+<tt class="descname">plotPhasesV</tt><big>(</big><em>useDV=True</em>, <em>**plotArgs</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.plotPhasesV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.plotPhasesV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="generic_potential.generic_potential.plotPhasesPhi">
+<tt class="descname">plotPhasesPhi</tt><big>(</big><em>**plotArgs</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#generic_potential.plotPhasesPhi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.generic_potential.plotPhasesPhi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="generic_potential.funcOnModels">
+<tt class="descname">funcOnModels</tt><big>(</big><em>f</em>, <em>models</em><big>)</big><a class="reference internal" href="_modules/generic_potential.html#funcOnModels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generic_potential.funcOnModels" title="Permalink to this definition">¶</a></dt>
+<dd><p>If you have a big array of models, this function allows you
+to extract big arrays of model outputs. For example, suppose
+that you have a 2x5x20 nested list of models and you want to
+find the last critical temperature of each model. Then use</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Tcrit</span> <span class="o">=</span> <span class="n">funcOnModels</span><span class="p">(</span><span class="k">lambda</span> <span class="n">A</span><span class="p">:</span> <span class="n">A</span><span class="o">.</span><span class="n">TcTrans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;Tcrit&#39;</span><span class="p">],</span> <span class="n">models</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Tcrit will be a numpy array with shape (2,5,20).</p>
+</dd></dl>
+
+<div class="section" id="example-subclass">
+<h2>Example subclass<a class="headerlink" href="#example-subclass" title="Permalink to this headline">¶</a></h2>
+<p>The following example shows typical usage for subclassing <a class="reference internal" href="#module-generic_potential" title="generic_potential"><tt class="xref py py-class docutils literal"><span class="pre">generic_potential</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cosmoTransitions</span> <span class="kn">import</span> <span class="n">generic_potential</span>
+        
+<span class="n">v2</span> <span class="o">=</span> <span class="mf">246.</span><span class="o">**</span><span class="mi">2</span>
+    
+<span class="k">class</span> <span class="nc">model1</span><span class="p">(</span><span class="n">generic_potential</span><span class="o">.</span><span class="n">generic_potential</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A sample model which makes use of the *generic_potential* class.</span>
+
+<span class="sd">    This model doesn&#39;t have any physical significance. Instead, it is chosen</span>
+<span class="sd">    to highlight some of the features of the *generic_potential* class.</span>
+<span class="sd">    It consists of two scalar fields labeled *phi1* and *phi2*, plus a mixing </span>
+<span class="sd">    term and an extra boson whose mass depends on both fields.</span>
+<span class="sd">    It has low-temperature, mid-temperature, and high-temperature phases, all</span>
+<span class="sd">    of which are found from the *getPhases()* function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">m1</span><span class="o">=</span><span class="mf">120.</span><span class="p">,</span><span class="n">m2</span><span class="o">=</span><span class="mf">50.</span><span class="p">,</span><span class="n">mu</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span><span class="n">Y1</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span><span class="n">Y2</span><span class="o">=.</span><span class="mi">15</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">          m1 - tree-level mass of first singlet when mu = 0.</span>
+<span class="sd">          m2 - tree-level mass of second singlet when mu = 0.</span>
+<span class="sd">          mu - mass coefficient for the mixing term.</span>
+<span class="sd">          Y1 - Coupling of the extra boson to the two scalars individually</span>
+<span class="sd">          Y2 - Coupling to the two scalars together: m^2 = Y2*s1*s2</span>
+<span class="sd">          n - degrees of freedom of the boson that is coupling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># The init method is called by the generic_potential class, after it </span>
+        <span class="c"># already does some of its own initialization in the default __init__() </span>
+        <span class="c"># method. This is necessary for all subclasses to implement.</span>
+
+        <span class="c"># This first line is absolutely essential in all subclasses. </span>
+        <span class="c"># It specifies the number of field-dimensions in the theory.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">=</span> <span class="mi">2</span>
+        
+        <span class="c"># self.renormScaleSq is the renormalization scale used in the </span>
+        <span class="c"># Coleman-Weinberg potential.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span> <span class="o">=</span> <span class="n">v2</span>
+        
+        <span class="c"># This next block sets all of the parameters that go into the potential </span>
+        <span class="c"># and the masses. This will obviously need to be changed for different </span>
+        <span class="c"># models.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">m1</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">v2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l2</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">m2</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">v2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mu2</span> <span class="o">=</span> <span class="n">mu</span><span class="o">**</span><span class="mi">2</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y2</span> <span class="o">=</span> <span class="n">Y1</span><span class="p">,</span> <span class="n">Y2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+                    
+    <span class="k">def</span> <span class="nf">forbidPhaseCrit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        forbidPhaseCrit is useful to set if there is, for example, a Z2 symmetry</span>
+<span class="sd">        in the theory and you don&#39;t want to double-count all of the phases. In </span>
+<span class="sd">        this case, we&#39;re throwing away all phases whose zeroth (since python </span>
+<span class="sd">        starts arrays at 0) field component of the vev goes below -5. Note that </span>
+<span class="sd">        we don&#39;t want to set this to just going below zero, since we are</span>
+<span class="sd">        interested in phases with vevs exactly at 0, and floating point numbers </span>
+<span class="sd">        will never be accurate enough to ensure that these aren&#39;t slightly </span>
+<span class="sd">        negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">X</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+        
+                        
+    <span class="k">def</span> <span class="nf">V0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method defines the tree-level potential. It should generally be </span>
+<span class="sd">        subclassed. (You could also subclass Vtot() directly, and put in all of </span>
+<span class="sd">        quantum corrections yourself).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># X is the input field array. It is helpful to ensure that it is a </span>
+        <span class="c"># numpy array before splitting it into its components.</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="c"># x and y are the two fields that make up the input. The array should </span>
+        <span class="c"># always be defined such that the very last axis contains the different </span>
+        <span class="c"># fields, hence the ellipses.</span>
+        <span class="c"># (For example, X can be an array of N two dimensional points and have </span>
+        <span class="c"># shape (N,2), but it should NOT be a series of two arrays of length N </span>
+        <span class="c"># and have shape (2,N).)</span>
+        <span class="n">phi1</span><span class="p">,</span><span class="n">phi2</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="o">.</span><span class="mi">25</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="o">*</span><span class="p">(</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi1</span><span class="o">-</span><span class="n">v2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="o">.</span><span class="mi">25</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">l2</span><span class="o">*</span><span class="p">(</span><span class="n">phi2</span><span class="o">*</span><span class="n">phi2</span><span class="o">-</span><span class="n">v2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> 
+        <span class="n">r</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu2</span><span class="o">*</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi2</span>
+        <span class="k">return</span> <span class="n">r</span>
+        
+    <span class="k">def</span> <span class="nf">boson_massSq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">phi1</span><span class="p">,</span><span class="n">phi2</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c"># We need to define the field-dependnet boson masses. This is obviously </span>
+        <span class="c"># model-dependent.</span>
+        <span class="c"># Note that these can also include temperature-dependent corrections.</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi1</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">phi2</span><span class="o">*</span><span class="n">phi2</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">.</span><span class="mi">25</span><span class="o">*</span><span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu2</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">mb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y1</span><span class="o">*</span><span class="p">(</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi1</span><span class="o">+</span><span class="n">phi2</span><span class="o">*</span><span class="n">phi2</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y2</span><span class="o">*</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi2</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">A</span><span class="o">+</span><span class="n">B</span><span class="p">,</span> <span class="n">A</span><span class="o">-</span><span class="n">B</span><span class="p">,</span> <span class="n">mb</span><span class="p">])</span>
+        
+        <span class="c"># At this point, we have an array of boson masses, but each entry might </span>
+        <span class="c"># be an array itself. This happens if the input X is an array of points.</span>
+        <span class="c"># The generic_potential class requires that the output of this function </span>
+        <span class="c"># have the different masses lie along the last axis, just like the </span>
+        <span class="c"># different fields lie along the last axis of X, so we need to reorder </span>
+        <span class="c"># the axes. The next line does this, and should probably be included in </span>
+        <span class="c"># all subclasses.</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        
+        <span class="c"># The number of degrees of freedom for the masses. This should be a </span>
+        <span class="c"># one-dimensional array with the same number of entries as there are </span>
+        <span class="c"># masses.</span>
+        <span class="n">dof</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span>   <span class="mi">1</span><span class="p">,</span>   <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">])</span>
+        
+        <span class="c"># c is a constant for each particle used in the Coleman-Weinberg </span>
+        <span class="c"># potential using MS-bar renormalization. It equals 1.5 for all scalars </span>
+        <span class="c"># and the longitudinal polarizations of the gauge bosons, and 0.5 for </span>
+        <span class="c"># transverse gauge bosons.</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">M</span><span class="p">,</span> <span class="n">dof</span><span class="p">,</span> <span class="n">c</span>
+        
+    <span class="k">def</span> <span class="nf">approxZeroTMin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># There are generically two minima at zero temperature in this model, </span>
+        <span class="c"># and we want to include both of them.</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v2</span><span class="o">**.</span><span class="mi">5</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">,</span><span class="n">v</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">,</span><span class="o">-</span><span class="n">v</span><span class="p">])]</span>
+        
+
+<span class="k">def</span> <span class="nf">makePlots</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">model1</span><span class="p">()</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">()</span>
+    <span class="c"># --</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">plotPhasesPhi</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="mi">550</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Minima as a function of temperature&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="c"># --</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">131</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">plot2d</span><span class="p">((</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">,</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">cfrac</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span><span class="n">clevs</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;$T = </span><span class="si">%0.2f</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">R&quot;$\phi_2$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">132</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]</span>
+    <span class="n">instanton</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;instanton&#39;</span><span class="p">]</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">instanton</span><span class="o">.</span><span class="n">Phi</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">plot2d</span><span class="p">((</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">,</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">cfrac</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span><span class="n">clevs</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">phi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;$T = </span><span class="si">%0.2f</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">plot2d</span><span class="p">((</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">,</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">cfrac</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span><span class="n">clevs</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;$T = </span><span class="si">%0.2f</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
+    <span class="c"># --</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">instanton</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">instanton</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;radius&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">R&quot;$\phi-\phi_{min}$ (along the path)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Tunneling profile&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Running model1 should produce following output:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">test</span> <span class="kn">import</span> <span class="n">testModels</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">testModels</span><span class="o">.</span><span class="n">model1</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">()</span>
+<span class="go">Tracing phase starting at x = [ 295.56323266  406.39105772] ; t = 0.0</span>
+<span class="go">Tracing minimum up</span>
+<span class="go">traceMinimum t0 = 0</span>
+<span class="go">....................................................................................................................</span>
+<span class="go">Tracing phase starting at x = [ 215.33138061 -149.94743491] ; t = 118.200482512</span>
+<span class="go">Tracing minimum down</span>
+<span class="go">traceMinimum t0 = 118.2</span>
+<span class="go">........................................................................................</span>
+<span class="go">Tracing minimum up</span>
+<span class="go">traceMinimum t0 = 118.2</span>
+<span class="go">......................................................................................................................................................................................................</span>
+<span class="go">Tracing phase starting at x = [ 0.0012022 -0.0009008] ; t = 223.70109097</span>
+<span class="go">Tracing minimum down</span>
+<span class="go">traceMinimum t0 = 223.701</span>
+<span class="go">...........................................</span>
+<span class="go">Tracing minimum up</span>
+<span class="go">traceMinimum t0 = 223.701</span>
+<span class="go">.....................................................</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=77.62</span>
+<span class="go">high_vev = [ 234.29584753 -111.48503794]</span>
+<span class="go">low_vev = [ 289.27692303  389.92589146]</span>
+<span class="go">Path deformation converged. 13 steps. fRatio = 6.33248e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 4.90449e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=77.62</span>
+<span class="go">high_vev = [ 234.29285578 -111.55553717]</span>
+<span class="go">low_vev = [ 289.27654927  389.9248891 ]</span>
+<span class="go">Path deformation converged. 13 steps. fRatio = 7.28449e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 5.19015e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=77.62</span>
+<span class="go">high_vev = [ 234.29000241 -111.62238024]</span>
+<span class="go">low_vev = [ 289.27617211  389.92389033]</span>
+<span class="go">Path deformation converged. 13 steps. fRatio = 8.20445e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 5.64160e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=77.62</span>
+<span class="go">high_vev = [ 234.28726641 -111.68611393]</span>
+<span class="go">low_vev = [ 289.27579573  389.92288753]</span>
+<span class="go">Path deformation converged. 13 steps. fRatio = 9.09575e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 5.51904e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=95.75</span>
+<span class="go">high_vev = [ 226.36380557 -146.61282486]</span>
+<span class="go">low_vev = [ 279.03846096  361.80201943]</span>
+<span class="go">Path deformation converged. 11 steps. fRatio = 1.64863e-02</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 1.36900e-02</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=79.42</span>
+<span class="go">high_vev = [ 233.14577417 -126.17676196]</span>
+<span class="go">low_vev = [ 288.57157228  388.04402235]</span>
+<span class="go">Path deformation converged. 11 steps. fRatio = 1.76587e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 3.71998e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=79.88</span>
+<span class="go">high_vev = [ 232.93529152 -127.75128567]</span>
+<span class="go">low_vev = [ 288.38495155  387.54485054]</span>
+<span class="go">Path deformation converged. 11 steps. fRatio = 3.17326e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 3.07541e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=79.99</span>
+<span class="go">high_vev = [ 232.88446672 -128.10659743]</span>
+<span class="go">low_vev = [ 288.3382847   387.41994228]</span>
+<span class="go">Path deformation converged. 11 steps. fRatio = 3.46447e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 2.97274e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=79.99</span>
+<span class="go">high_vev = [ 232.88288183 -128.11752535]</span>
+<span class="go">low_vev = [ 288.33682102  387.41602555]</span>
+<span class="go">Path deformation converged. 11 steps. fRatio = 3.47186e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 2.96584e-03</span>
+<span class="go">Tunneling from phase 1 to phase 0 at T=79.99</span>
+<span class="go">high_vev = [ 232.88333316 -128.11442119]</span>
+<span class="go">low_vev = [ 288.33723614  387.41713999]</span>
+<span class="go">Path deformation converged. 11 steps. fRatio = 3.46976e-03</span>
+<span class="go">Path deformation converged. 1 steps. fRatio = 2.96662e-03</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># High-T transition (second-order):</span>
+<span class="gp">... </span><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s">&#39;instanton&#39;</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">print</span> <span class="n">key</span><span class="p">,</span> <span class="s">&quot;:&quot;</span><span class="p">,</span> <span class="n">val</span>
+<span class="go">low_vev : [ 0.0666956  -0.05057576]</span>
+<span class="go">Delta_p : 0.0</span>
+<span class="go">Delta_rho : 0.0</span>
+<span class="go">high_phase : 2</span>
+<span class="go">crit_trans : {&#39;low_vev&#39;: array([ 0.0666956 , -0.05057576]), &#39;Delta_rho&#39;: 0.0, &#39;high_phase&#39;: 2, &#39;instanton&#39;: None, &#39;high_vev&#39;: array([ 0.0666956 , -0.05057576]), &#39;action&#39;: 0.0, &#39;trantype&#39;: 2, &#39;Tcrit&#39;: 222.94128038031261, &#39;low_phase&#39;: 1}</span>
+<span class="go">Tnuc : 222.94128038</span>
+<span class="go">high_vev : [ 0.0666956  -0.05057576]</span>
+<span class="go">action : 0.0</span>
+<span class="go">trantype : 2</span>
+<span class="go">low_phase : 1</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Low-T transition (first-order):</span>
+<span class="gp">... </span><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s">&#39;instanton&#39;</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">print</span> <span class="n">key</span><span class="p">,</span> <span class="s">&quot;:&quot;</span><span class="p">,</span> <span class="n">val</span>
+<span class="go">low_vev : [ 288.33723614  387.41713999]</span>
+<span class="go">Delta_p : 114484820.963</span>
+<span class="go">Delta_rho : 360332331.162</span>
+<span class="go">crit_trans : {&#39;low_vev&#39;: array([ 263.48801795,  314.65384215]), &#39;Delta_rho&#39;: 471749594.76531208, &#39;high_phase&#39;: 1, &#39;high_vev&#39;: array([ 220.02158042, -150.01483706]), &#39;low_phase&#39;: 0, &#39;Tcrit&#39;: 109.40840756819448, &#39;trantype&#39;: 1}</span>
+<span class="go">high_phase : 1</span>
+<span class="go">Tnuc : 79.9902708879</span>
+<span class="go">high_vev : [ 232.88333316 -128.11442119]</span>
+<span class="go">action : 11197.2875098</span>
+<span class="go">trantype : 1</span>
+<span class="go">low_phase : 0</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>There is a second-order transition at <em>T=222.9</em> (no units are given, but this would probably be in GeV) in which the high-temperature phase disappears and a mid-temperature phase starts in the fourth quadrant. At <em>T=117.2</em>, the low-temperature phase appears in the first quadrant, and by <em>T=109.4</em> the two phases are degenerate (they have equal pressure). There is considerable super-cooling, and by thermal tunneling does not occur until <em>T=80.0</em>. The mid-temperature phase then disappears at <em>T=77.6</em>.</p>
+<p>These next few plots can be output by <tt class="docutils literal"><span class="pre">testModel1.makePlots()</span></tt>. The first plot shows the different phases as they change with temperature:</p>
+<img alt="_images/model1_phases.png" src="_images/model1_phases.png" />
+<p>This allows one to see at a glance what the overlap between the different phases is, and how big a jump there is between the phases. This plot comes from <a class="reference internal" href="#generic_potential.generic_potential.plotPhasesPhi" title="generic_potential.generic_potential.plotPhasesPhi"><tt class="xref py py-meth docutils literal"><span class="pre">generic_potential.plotPhasesPhi()</span></tt></a>.</p>
+<p>The next figure shows contour levels at <em>T=0</em> and at the two transition temperatures. The black line in the middle plot is the tunneling direction. Each contour is produced with <a class="reference internal" href="#generic_potential.generic_potential.plot2d" title="generic_potential.generic_potential.plot2d"><tt class="xref py py-meth docutils literal"><span class="pre">generic_potential.plot2d()</span></tt></a>.</p>
+<img alt="_images/model1_contours.png" src="_images/model1_contours.png" />
+<p>The final figure shows the bubble wall profile during the first-order phase transition. It is extremely thick-walled, so the center of the bubble is far away from the absolute minimum.</p>
+<img alt="_images/model1_profile.png" src="_images/model1_profile.png" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">generic_potential.py</a><ul>
+<li><a class="reference internal" href="#example-subclass">Example subclass</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="transitionFinder.html"
+                        title="previous chapter">transitionFinder.py</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="finiteT.html"
+                        title="next chapter">finiteT.py</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/generic_potential.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="finiteT.html" title="finiteT.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="transitionFinder.html" title="transitionFinder.py"
+             >previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>

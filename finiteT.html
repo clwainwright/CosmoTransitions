@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>finiteT.py &mdash; CosmoTransitions 2.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="index.html" />
+    <link rel="next" title="helper_functions.py" href="helper_functions.html" />
+    <link rel="prev" title="generic_potential.py" href="generic_potential.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="helper_functions.html" title="helper_functions.py"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="generic_potential.html" title="generic_potential.py"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-finiteT">
+<span id="finitet-py"></span><h1>finiteT.py<a class="headerlink" href="#module-finiteT" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the functions for the one-loop finite
+temperature corrections to a potential in QFT.  The two basic
+functions are:</p>
+<blockquote>
+<div><p>Jb(x) = int[0-&gt;inf] dy +y^2 log( 1 - exp(-sqrt(x^2 + y^2)) )</p>
+<p>Jf(x) = int[0-&gt;inf] dy -y^2 log( 1 + exp(-sqrt(x^2 + y^2)) )</p>
+</div></blockquote>
+<p>Call them by:</p>
+<blockquote>
+<div>Jb(x, approx=&#8217;high&#8217;, deriv=0, n = 8)</div></blockquote>
+<p>Here, approx can either be &#8216;exact&#8217;, &#8216;spline&#8217;, &#8216;high&#8217;, or &#8216;low&#8217;.
+Exact calculates the integral numerically, while high and low
+calculate the high and low x expansions of J to order n.
+Specify the derivative with the &#8216;deriv&#8217; parameter.</p>
+<dl class="function">
+<dt id="finiteT.Jf_exact">
+<tt class="descname">Jf_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jf calculated directly from the integral.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jf_exact2">
+<tt class="descname">Jf_exact2</tt><big>(</big><em>theta</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_exact2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_exact2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jf calculated directly form the integral; input is theta = x^2.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jb_exact">
+<tt class="descname">Jb_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jb calculated directly from the integral.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jb_exact2">
+<tt class="descname">Jb_exact2</tt><big>(</big><em>theta</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_exact2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_exact2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jb calculated directly form the integral; input is theta = x^2.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.dJf_exact">
+<tt class="descname">dJf_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#dJf_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.dJf_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>dJf/dx calculated directly from the integral.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.dJb_exact">
+<tt class="descname">dJb_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#dJb_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.dJb_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>dJb/dx calculated directly from the integral.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jf_spline">
+<tt class="descname">Jf_spline</tt><big>(</big><em>X</em>, <em>n=0</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jf interpolated from a saved spline. Input is (m/T)^2.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jb_spline">
+<tt class="descname">Jb_spline</tt><big>(</big><em>X</em>, <em>n=0</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_spline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jb interpolated from a saved spline. Input is (m/T)^2.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jb_low">
+<tt class="descname">Jb_low</tt><big>(</big><em>x</em>, <em>n=20</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_low"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_low" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jb calculated using the low-x (high-T) expansion.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jf_low">
+<tt class="descname">Jf_low</tt><big>(</big><em>x</em>, <em>n=20</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_low"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_low" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jf calculated using the low-x (high-T) expansion.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jb_high">
+<tt class="descname">Jb_high</tt><big>(</big><em>x</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_high"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_high" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jb calculated using the high-x (low-T) expansion.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jf_high">
+<tt class="descname">Jf_high</tt><big>(</big><em>x</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_high"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_high" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jf calculated using the high-x (low-T) expansion.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jb">
+<tt class="descname">Jb</tt><big>(</big><em>x</em>, <em>approx='high'</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb" title="Permalink to this definition">¶</a></dt>
+<dd><p>A shorthand for calling one of the Jb functions above.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>approx</strong> (<em>str, optional</em>) &#8211; One of &#8216;exact&#8217;, &#8216;high&#8217;, &#8216;low&#8217;, or &#8216;spline&#8217;.</li>
+<li><strong>deriv</strong> (<em>int, optional</em>) &#8211; The order of the derivative (0 for no derivative).
+Must be &lt;= (1, 3, 0, 3) for approx = (exact, high, low, spline).</li>
+<li><strong>n</strong> (<em>int, optional</em>) &#8211; Number of terms to use in the low and high-T approximations.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="finiteT.Jf">
+<tt class="descname">Jf</tt><big>(</big><em>x</em>, <em>approx='high'</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf" title="Permalink to this definition">¶</a></dt>
+<dd><p>A shorthand for calling one of the Jf functions above.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>approx</strong> (<em>str, optional</em>) &#8211; One of &#8216;exact&#8217;, &#8216;high&#8217;, &#8216;low&#8217;, or &#8216;spline&#8217;.</li>
+<li><strong>deriv</strong> (<em>int, optional</em>) &#8211; The order of the derivative (0 for no derivative).
+Must be &lt;= (1, 3, 0, 3) for approx = (exact, high, low, spline).</li>
+<li><strong>n</strong> (<em>int, optional</em>) &#8211; Number of terms to use in the low and high-T approximations.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="generic_potential.html"
+                        title="previous chapter">generic_potential.py</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="helper_functions.html"
+                        title="next chapter">helper_functions.py</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/finiteT.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="helper_functions.html" title="helper_functions.py"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="generic_potential.html" title="generic_potential.py"
+             >previous</a> |</li>
+        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+    </div>
+  </body>
+</html>
