@@ -100,22 +100,22 @@ def arrayFunc(f, x, typ = float):
 
 def Jf_exact(x):
     """Jf calculated directly from the integral."""
-    return arrayFunc(Jf_exact_, x, complex)
+    return arrayFunc(_Jf_exact, x, complex)
 def Jf_exact2(theta):
     """Jf calculated directly form the integral; input is theta = x^2."""
-    return arrayFunc(Jf_exact2_, x)
+    return arrayFunc(_Jf_exact2, theta)
 def Jb_exact(x):
     """Jb calculated directly from the integral."""
-    return arrayFunc(Jb_exact_, x)
+    return arrayFunc(_Jb_exact, x)
 def Jb_exact2(theta):
     """Jb calculated directly form the integral; input is theta = x^2."""
-    return arrayFunc(Jb_exact2_, x)
+    return arrayFunc(_Jb_exact2, theta)
 def dJf_exact(x):
     """dJf/dx calculated directly from the integral."""
-    return arrayFunc(dJf_exact_, x)
+    return arrayFunc(_dJf_exact, x)
 def dJb_exact(x):
     """dJb/dx calculated directly from the integral."""
-    return arrayFunc(dJb_exact_, x)
+    return arrayFunc(_dJb_exact, x)
 
 # Spline fitting, Jf
 _xfmin = -6.82200203 #-11.2403168
