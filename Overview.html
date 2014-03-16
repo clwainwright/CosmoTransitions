@@ -56,6 +56,12 @@
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
 <p>The CosmoTransitions package is a set of python modules for calculating properties of effective potentials with one or more scalar fields. Most importantly, it can be used to find the instanton solutions which interpolate between different vacua in a given theory, allowing one to determine the probability for a vacuum transition.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>To install CosmoTransitions, simply put the &#8216;cosmoTransitions&#8217; folder somewhere in your path. Then from a python prompt one should be able to <tt class="docutils literal"><span class="pre">import</span> <span class="pre">cosmoTransitions</span></tt> and run the code. For examples, look in the <tt class="docutils literal"><span class="pre">test</span></tt> folder.</p>
+<p>CosmoTransitions makes extensive use of <a class="reference external" href="http://www.numpy.org">numpy</a> and <a class="reference external" href="http://www.scipy.org">scipy</a>, and the plotting functions use <a class="reference external" href="http://matplotlib.org">matplotlib</a>. It is recommended that users also install <a class="reference external" href="http://ipython.org">IPython</a> for easier interactive use (IPython also contains an excellent html-based python notebook, which is very handy for organizing computational and scientific work). These packages can be installed separately (using e.g. <a class="reference external" href="http://pythonhosted.org/setuptools/easy_install.html">easy_install</a>), or as part of a bundle (see the <a class="reference external" href="https://store.continuum.io/cshop/anaconda/">Anaconda</a> distribution or the <a class="reference external" href="https://www.enthought.com/products/canopy/">Enthought Canopy</a> distribution).</p>
+<p>CosmoTransitions was built and tested with Python v2.7.6, numpy v1.8.0, scipy v0.11.0, and matplotlib v1.2.0.</p>
+</div>
 <div class="section" id="module-overview">
 <h2>Module overview<a class="headerlink" href="#module-overview" title="Permalink to this headline">¶</a></h2>
 <p>There are four core modules in the package, with each subsequent module relying upon the ones that preceed it. However, the reverse is not true: lower-level modules do not rely on higher-level modules. For example, <a class="reference internal" href="tunnelling1D.html#module-tunneling1D" title="tunneling1D"><tt class="xref py py-mod docutils literal"><span class="pre">tunneling1D</span></tt></a> can be used independently of all the functions which calculate instantons in multiple field dimensions and the functions which determine finite-temperature effects. The core modules are:</p>
@@ -75,7 +81,6 @@
 <li><a class="reference internal" href="multi_field_plotting.html#module-multi_field_plotting" title="multi_field_plotting"><tt class="xref py py-mod docutils literal"><span class="pre">multi_field_plotting</span></tt></a>: Contains a class to ease visualization of potentials with three or more fields. This module is new.</li>
 </ul>
 </div></blockquote>
-<p>All modules make extensive use of <a class="reference external" href="http://www.numpy.org">numpy</a> and <a class="reference external" href="http://www.scipy.org">scipy</a>, and the plotting functions use <a class="reference external" href="http://matplotlib.org">matplotlib</a>. It is recommended that users also install <a class="reference external" href="http://ipython.org/">IPython</a> for easier interactive use (IPython also contains an excellent html-based python notebook, which is very handy for organizing computational and scientific work). These packages can be installed separately (using e.g. <a class="reference external" href="http://pythonhosted.org/setuptools/easy_install.html">easy_install</a>), or as part of a bundle (see the <a class="reference external" href="https://store.continuum.io/cshop/anaconda/">Anaconda</a> distribution or the <a class="reference external" href="https://www.enthought.com/products/canopy/">Enthought Canopy</a> distribution).</p>
 </div>
 <div class="section" id="changes-from-version-1-0">
 <h2>Changes from version 1.0<a class="headerlink" href="#changes-from-version-1-0" title="Permalink to this headline">¶</a></h2>
@@ -186,6 +191,7 @@ at one end but not the other.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Overview</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#module-overview">Module overview</a></li>
 <li><a class="reference internal" href="#changes-from-version-1-0">Changes from version 1.0</a></li>
 <li><a class="reference internal" href="#to-do-list">To-do list</a></li>
