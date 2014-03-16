@@ -252,7 +252,7 @@ class generic_potential():
         aliases for :func:`finiteT.Jf_spline` and :func:`finiteT.Jb_spline`, 
         each of which accept mass over temperature *squared* as inputs 
         (this allows for negative mass-squared values, which I take to be the
-        real part defining integrals.
+        real part of the defining integrals.
 
         .. todo::
             Implement new versions of Jf and Jb that return zero when m=0, only
