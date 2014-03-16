@@ -16,7 +16,8 @@ Note that the current version (2.0a1) should be considered a development build. 
  .. _`arXiv:1109.4189`: http://arxiv.org/abs/1109.4189
  .. _`Comput. Phys. Commun. 183 (2012)`: http://dx.doi.org/10.1016/j.cpc.2012.04.004
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
