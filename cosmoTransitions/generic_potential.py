@@ -32,6 +32,15 @@ class generic_potential():
     potential and particle spectrum are defined, the one-loop zero-temperature
     potential (using MS-bar renormalization) and finite-temperature potential
     can be used without any further modification.
+
+    If one wishes to rewrite the effective potential from scratch (that is,
+    using a different method to calculate one-loop and finite-temperature
+    corrections), this class and its various helper functions can still be used.
+    In that case, one would need to override :func:`Vtot` (used by most of the
+    helper functions) and :func:`V1T_from_X` (which should only return the 
+    temperature-dependent part of Vtot; used in temperature derivative
+    calculations), and possibly override :func:`V0` (used by
+    :func:`massSqMatrix` and for plotting at tree level).
     
     The `__init__` function performs initialization specific for this abstract
     class. Subclasses should either override this initialization *but make sure
@@ -307,8 +316,7 @@ class generic_potential():
             should be such that ``X.shape[:-1]`` and ``T.shape`` are
             broadcastable (that is, ``X[...,0]*T`` is a valid operation).
         include_radiation : bool, optional
-            Currently not used. 
-            Later, if False, this will drop all field-independent radiation
+            If False, this will drop all field-independent radiation
             terms from the effective potential. Useful for calculating
             differences or derivatives.
         """
@@ -429,14 +437,14 @@ class generic_potential():
     def energyDensity(self,X,T,include_radiation=True):
         T_eps = self.T_eps
         if self.deriv_order == 2:
-            dVdT = self.Vtot(X,T+T_eps, include_radiation) 
-            dVdT -= self.Vtot(X,T-T_eps, include_radiation)
+            dVdT = self.V1T_from_X(X,T+T_eps, include_radiation) 
+            dVdT -= self.V1T_from_X(X,T-T_eps, include_radiation)
             dVdT *= 1./(2*T_eps)
         else:
-            dVdT = self.Vtot(X,T-2*T_eps, include_radiation)
-            dVdT -= 8*self.Vtot(X,T-T_eps, include_radiation)
-            dVdT += 8*self.Vtot(X,T+T_eps, include_radiation)
-            dVdT -= self.Vtot(X,T+2*T_eps, include_radiation)
+            dVdT = self.V1T_from_X(X,T-2*T_eps, include_radiation)
+            dVdT -= 8*self.V1T_from_X(X,T-T_eps, include_radiation)
+            dVdT += 8*self.V1T_from_X(X,T+T_eps, include_radiation)
+            dVdT -= self.V1T_from_X(X,T+2*T_eps, include_radiation)
             dVdT *= 1./(12*T_eps)
         V = self.Vtot(X,T, include_radiation)
         return V - T*dVdT
@@ -747,7 +755,7 @@ def _linkTransitions(models, critTrans = True):
     lists of phase transitions such that all of the transitions
     in a single list roughly correspond to each other.
 
-    NOT UPDATED FOR NEW COSMOTRANSITIONS.
+    NOT UPDATED FOR COSMOTRANSITIONS v2.0.
     """
     allTrans = []
     for model in models:
