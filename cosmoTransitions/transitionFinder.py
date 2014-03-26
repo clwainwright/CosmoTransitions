@@ -107,7 +107,8 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
         b = -d2f_dxdt(x,t)
         eigs = linalg.eigvalsh(M)
         try:
-            dxdt = linalg.solve(M,b, overwrite_a=True, overwrite_b=True)
+            dxdt = linalg.solve(M,b, overwrite_a=False, overwrite_b=False)
+            # dxdt = linalg.solve(M,b, overwrite_a=True, overwrite_b=True)
             isneg = ((eigs<=0).any() or min(eigs)/max(eigs) < minratio)
         except:
             dxdt = None
@@ -530,12 +531,24 @@ def removeRedundantPhases(f, phases, xeps=1e-5, diftol=1e-2):
                 tmin = max(phase1.T[ 0], phase2.T[ 0])
                 if tmin > tmax: # no overlap in the phases
                     continue
-                x1 = fmin(phase1.valAt(tmax), tmax)
-                x2 = fmin(phase2.valAt(tmax), tmax)
+                if tmax == phase1.T[-1]:
+                    x1 = phase1.X[-1]
+                else:
+                    x1 = fmin(phase1.valAt(tmax), tmax)
+                if tmax == phase2.T[-1]:
+                    x2 = phase2.X[-1]
+                else:
+                    x2 = fmin(phase2.valAt(tmax), tmax)
                 dif = np.sum((x1-x2)**2)**.5
                 same_at_tmax = (dif < diftol)
-                x1 = fmin(phase1.valAt(tmin), tmin)
-                x2 = fmin(phase2.valAt(tmin), tmin)
+                if tmin == phase1.T[0]:
+                    x1 = phase1.X[0]
+                else:
+                    x1 = fmin(phase1.valAt(tmin), tmin)
+                if tmin == phase2.T[0]:
+                    x2 = phase2.X[0]
+                else:
+                    x2 = fmin(phase2.valAt(tmin), tmin)
                 dif = np.sum((x1-x2)**2)**.5
                 same_at_tmin = (dif < diftol)
                 if same_at_tmin and same_at_tmax:
