@@ -82,6 +82,15 @@
 <span class="sd">    potential and particle spectrum are defined, the one-loop zero-temperature</span>
 <span class="sd">    potential (using MS-bar renormalization) and finite-temperature potential</span>
 <span class="sd">    can be used without any further modification.</span>
+
+<span class="sd">    If one wishes to rewrite the effective potential from scratch (that is,</span>
+<span class="sd">    using a different method to calculate one-loop and finite-temperature</span>
+<span class="sd">    corrections), this class and its various helper functions can still be used.</span>
+<span class="sd">    In that case, one would need to override :func:`Vtot` (used by most of the</span>
+<span class="sd">    helper functions) and :func:`V1T_from_X` (which should only return the </span>
+<span class="sd">    temperature-dependent part of Vtot; used in temperature derivative</span>
+<span class="sd">    calculations), and possibly override :func:`V0` (used by</span>
+<span class="sd">    :func:`massSqMatrix` and for plotting at tree level).</span>
 <span class="sd">    </span>
 <span class="sd">    The `__init__` function performs initialization specific for this abstract</span>
 <span class="sd">    class. Subclasses should either override this initialization *but make sure</span>
@@ -357,8 +366,7 @@
 <span class="sd">            should be such that ``X.shape[:-1]`` and ``T.shape`` are</span>
 <span class="sd">            broadcastable (that is, ``X[...,0]*T`` is a valid operation).</span>
 <span class="sd">        include_radiation : bool, optional</span>
-<span class="sd">            Currently not used. </span>
-<span class="sd">            Later, if False, this will drop all field-independent radiation</span>
+<span class="sd">            If False, this will drop all field-independent radiation</span>
 <span class="sd">            terms from the effective potential. Useful for calculating</span>
 <span class="sd">            differences or derivatives.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -479,14 +487,14 @@
 <div class="viewcode-block" id="generic_potential.energyDensity"><a class="viewcode-back" href="../generic_potential.html#generic_potential.generic_potential.energyDensity">[docs]</a>    <span class="k">def</span> <span class="nf">energyDensity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">include_radiation</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="n">T_eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T_eps</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">dVdT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span> 
-            <span class="n">dVdT</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
+            <span class="n">dVdT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span> 
+            <span class="n">dVdT</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
             <span class="n">dVdT</span> <span class="o">*=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">dVdT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
-            <span class="n">dVdT</span> <span class="o">-=</span> <span class="mi">8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
-            <span class="n">dVdT</span> <span class="o">+=</span> <span class="mi">8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
-            <span class="n">dVdT</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
+            <span class="n">dVdT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
+            <span class="n">dVdT</span> <span class="o">-=</span> <span class="mi">8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
+            <span class="n">dVdT</span> <span class="o">+=</span> <span class="mi">8</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
+            <span class="n">dVdT</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
             <span class="n">dVdT</span> <span class="o">*=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mi">12</span><span class="o">*</span><span class="n">T_eps</span><span class="p">)</span>
         <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">V</span> <span class="o">-</span> <span class="n">T</span><span class="o">*</span><span class="n">dVdT</span>
@@ -797,7 +805,7 @@
 <span class="sd">    lists of phase transitions such that all of the transitions</span>
 <span class="sd">    in a single list roughly correspond to each other.</span>
 
-<span class="sd">    NOT UPDATED FOR NEW COSMOTRANSITIONS.</span>
+<span class="sd">    NOT UPDATED FOR COSMOTRANSITIONS v2.0.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">allTrans</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
