@@ -709,7 +709,45 @@ def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV,
     outdict[T] = lowest_tdict
     return nuclCriterion(lowest_action, T)
             
-                
+def _potentialDiffForPhase(T, start_phase, other_phases, V):
+    """
+    Returns the maximum difference between the other phases and `start_phase`.
+
+    Return value is positive/negative when `start_phase` is stable/unstable. 
+    """
+    V0 = V(start_phase.valAt(T),T)
+    delta_V = np.inf
+    for phase in other_phases:
+        V1 = V(start_phase.valAt(T),T)
+        if V1-V0 < delta_V:
+            delta_V = V1-V0
+    return delta_V
+
+def _maxTCritForPhase(phases, start_phase, V, Ttol):
+    """
+    Find the maximum temperature at which `start_phase` is degenerate with one
+    of the other phases.
+    """
+    other_phases = []
+    for phase in phases.itervalues():
+        if phase.key != start_phase.key:
+            other_phases.append(phase)
+    if len(other_phases) == 0:
+        # No other phases, just return the lowest temperature
+        return start_phase.T[0]
+    Tmin = min([phase.T[0] for phase in other_phases])
+    Tmax = max([phase.T[-1] for phase in other_phases])
+    Tmin = max(Tmin, start_phase.T[0])
+    Tmax = min(Tmax, start_phase.T[-1])
+    DV_Tmin = _potentialDiffForPhase(Tmin, start_phase, other_phases, V) 
+    DV_Tmax = _potentialDiffForPhase(Tmax, start_phase, other_phases, V) 
+    if DV_Tmin >= 0: return Tmin # stable at Tmin
+    if DV_Tmax <= 0: return Tmax # unstable at Tmax
+    return optimize.brentq(
+        _potentialDiffForPhase, Tmin, Tmax, 
+        args=(start_phase, other_phases, V),
+        xtol=Ttol, maxiter=200, disp=False)
+
 def tunnelFromPhase(phases, start_phase, V, dV, Tmax, 
                     Ttol=1e-3, maxiter=100, phitol=1e-8, overlapAngle=45.0, 
                     nuclCriterion = lambda S,T: S/(T+1e-100) - 140.0,
@@ -779,14 +817,19 @@ def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
         if nuclCriterion(outdict[Tmax]['action'], Tmax) > 0:
             if nuclCriterion(outdict[Tmin]['action'], Tmax) < 0:
                 # tunneling *may* be possible. Find the minimum.
+                # It's important to make an appropriate initial guess;
+                # otherwise the minimization routine may get get stuck in a
+                # region where the action is infinite. Modify Tmax.
+                Tmax = _maxTCritForPhase(phases, start_phase, V, Ttol)
                 def abort_fmin(T, outdict=outdict, nc=nuclCriterion):
+                    T = T[0] # T is an array of size 1
                     if nc(outdict[T]['action'], T) <= 0:
                         raise StopIteration(T)
                 try:
                     Tmin = optimize.fmin(_tunnelFromPhaseAtT, 0.5*(Tmin+Tmax),
                                          args=args, xtol=Ttol*10, ftol=1.0,
                                          maxiter=maxiter, disp=0,
-                                         callback=abort_fmin)
+                                         callback=abort_fmin)[0]
                 except StopIteration as err:
                     Tmin = err.args[0]
                 if nuclCriterion(outdict[Tmin]['action'], Tmin) > 0:
