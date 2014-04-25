@@ -2,7 +2,7 @@
 A collection of (mostly) stand alone helper functions.
 """
 
-__version__ = "2.0a1"
+__version__ = "2.0a2"
 
 import numpy as np
 from collections import namedtuple

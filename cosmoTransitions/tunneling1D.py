@@ -13,7 +13,7 @@ implemented*).
     Create and document a *CDL_Instanton* class for tunneling with gravity.
 """
 
-__version__ = "2.0a1"
+__version__ = "2.0a2"
 
 import numpy as np
 from scipy import optimize, integrate, special, interpolate

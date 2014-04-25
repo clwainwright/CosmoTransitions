@@ -20,7 +20,7 @@ from scipy import linalg, interpolate, optimize
 import pathDeformation
 import tunneling1D
 
-__version__ = "2.0a1"
+__version__ = "2.0a2"
 
 
 _traceMinimum_rval = namedtuple("traceMinimum_rval", "X T dXdT overX overT")

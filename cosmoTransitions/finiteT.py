@@ -16,7 +16,7 @@ Exact calculates the integral numerically, while high and low
 calculate the high and low x expansions of J to order n.
 Specify the derivative with the 'deriv' parameter.
 """
-__version__ = "2.0a1"
+__version__ = "2.0a2"
 
 
 import numpy

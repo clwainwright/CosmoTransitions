@@ -31,7 +31,7 @@ For more explicit details, see the original paper
 
 
 
-__version__ = "2.0a1"
+__version__ = "2.0a2"
 
 
 import numpy as np

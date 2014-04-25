@@ -10,7 +10,7 @@ simplified interface to the :mod:`transitionFinder` module, and providing
 several methods for plotting the potential and its phases.
 """
 
-__version__ = "2.0a1"
+__version__ = "2.0a2"
 
 
 import numpy as np
