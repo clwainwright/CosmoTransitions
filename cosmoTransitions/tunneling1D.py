@@ -250,8 +250,13 @@ class SingleFieldInstanton:
         phi_guess = 0.5 * (self.phi_bar + self.phi_metaMin)
         phi_tol = abs(self.phi_bar - self.phi_metaMin) * 1e-6
         phi_bar_top = optimize.fmin(negV, phi_guess, xtol=phi_tol, disp=0)[0]
-        assert (self.phi_bar < phi_bar_top < self.phi_metaMin or 
-                self.phi_bar > phi_bar_top > self.phi_metaMin)
+        if not (self.phi_bar < phi_bar_top < self.phi_metaMin or 
+                self.phi_bar > phi_bar_top > self.phi_metaMin):
+            import ipdb; ipdb.set_trace()
+            raise PotentialError("Minimization is placing the top of the "
+            "potential barrier outside of the interval defined by "
+            "phi_bar and phi_metaMin. Assume that the barrier does not exist.",
+            "no barrier")
 
         Vtop = self.V(phi_bar_top) - self.V(self.phi_metaMin)
         xtop = phi_bar_top - self.phi_metaMin
@@ -762,7 +767,7 @@ class SingleFieldInstanton:
         d = self.alpha+1 # Number of dimensions in the integration
         area = r**self.alpha * 2*np.pi**(d*.5)/special.gamma(d*.5) 
         # And integrate the profile
-        integrand = dphi**2 + self.V(phi) - self.V(self.phi_metaMin)
+        integrand = 0.5 * dphi**2 + self.V(phi) - self.V(self.phi_metaMin)
         integrand *= area
         S = integrate.simps(integrand, r)
         # Find the bulk term in the bubble interior
