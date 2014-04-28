@@ -252,7 +252,6 @@ class SingleFieldInstanton:
         phi_bar_top = optimize.fmin(negV, phi_guess, xtol=phi_tol, disp=0)[0]
         if not (self.phi_bar < phi_bar_top < self.phi_metaMin or 
                 self.phi_bar > phi_bar_top > self.phi_metaMin):
-            import ipdb; ipdb.set_trace()
             raise PotentialError("Minimization is placing the top of the "
             "potential barrier outside of the interval defined by "
             "phi_bar and phi_metaMin. Assume that the barrier does not exist.",
