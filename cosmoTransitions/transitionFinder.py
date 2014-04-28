@@ -688,8 +688,9 @@ def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV,
                   % (tdict['high_phase'], tdict['low_phase'], T))
             print "high_vev =", tdict['high_vev']
             print "low_vev =", tdict['low_vev']
-            tobj = pathDeformation.fullTunneling([x1,x0], V_, dV_, 
-                                                 **fullTunneling_params)
+            tobj = pathDeformation.fullTunneling(
+                [x1,x0], V_, dV_, callback_data=T,
+                **fullTunneling_params)
             tdict['instanton'] = tobj
             tdict['action'] = tobj.action
             tdict['trantype'] = 1
@@ -807,6 +808,10 @@ def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
             phitol, overlapAngle, nuclCriterion, 
             fullTunneling_params, verbose, outdict)
     Tmin = start_phase.T[0]
+    T_highest_other = Tmin
+    for phase in phases.itervalues():
+        T_highest_other = max(T_highest_other, phase.T[-1])
+    Tmax = min(Tmax, T_highest_other)
     assert Tmax >= Tmin
     try:
         Tnuc = optimize.brentq(_tunnelFromPhaseAtT, Tmin, Tmax, args=args,

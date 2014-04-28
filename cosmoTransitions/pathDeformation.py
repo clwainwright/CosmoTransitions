@@ -836,6 +836,7 @@ class SplinePath:
         
 def fullTunneling(path_pts, V, dV, maxiter=20, fixEndCutoff=.03, 
                   save_all_steps=False, verbose=False,
+                  callback=None, callback_data=None,
                   V_spline_samples=100,
                   tunneling_class=tunneling1D.SingleFieldInstanton,
                   tunneling_init_params={},
@@ -869,6 +870,17 @@ def fullTunneling(path_pts, V, dV, maxiter=20, fixEndCutoff=.03,
         If True, additionally output every single deformation sub-step. 
     verbose : bool, optional
         If True, print a message at the start of each step.
+    callback : callable
+        User supplied function that is evaluted just prior to deforming the
+        path. Should return True if the path should be deformed, and False if
+        the deformation should be aborted. Should accept 4 arguments: a 
+        :class:`SplinePath` instance which describes the tunneling path, a 
+        tunneling object (instance of ``tunneling_class``), the profile found
+        by the tunneling object, and extra callback data.
+    callback_data : any type
+        Extra data to pass to the callback function if there is one. If this
+        function is called from :func:`transitionFinder.findAllTransitions`,
+        the callback data is the tunneling temperature.
 
     Other Parameters
     ----------------
@@ -907,14 +919,24 @@ def fullTunneling(path_pts, V, dV, maxiter=20, fixEndCutoff=.03,
         A list of lists, with each sub-list containing the saved steps for each
         deformation. Only written to if `save_all_steps` is True.
         
-    Example
-    -------
+    Examples
+    --------
     The following code shows typical usage for :func:`fullTunneling`. Most of
     the code is in setting up the potentials and plotting; it only takes one
     line to actually calculate each instanton.
     
     .. plot:: ../test/fullTunneling_plot.py
        :include-source:
+
+    The callback function can be useful when this function is run from 
+    :func:`transitionFinder.findAllTransitions`. In that case, one doesn't need
+    to accurately calculate the tunneling path when one knows that the action is
+    already below some threshold. For example, the following callback function
+    will abort the deformation when ``action / T <= 120``::
+
+        def callback(path, tobj, profile, T):
+            action = tobj.findAction(profile)
+            return action / T > 120
     """
     assert maxiter > 0
     pts = np.asanyarray(path_pts)
@@ -940,6 +962,8 @@ def fullTunneling(path_pts, V, dV, maxiter=20, fixEndCutoff=.03,
         # 3. Deform the path.
         pts = path.pts(phi) # multi-dimensional points
         deform_obj = deformation_class(pts, dphi, dV, **deformation_init_params)
+        if callback and not callback(path, tobj, profile1D, callback_data):
+            break
         try:
             converged = deform_obj.deformPath(**deformation_deform_params)
         except DeformationError as err:
