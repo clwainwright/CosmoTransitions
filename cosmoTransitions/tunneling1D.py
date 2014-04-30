@@ -774,7 +774,7 @@ class SingleFieldInstanton:
         S += volume * (self.V(phi[0]) - self.V(self.phi_metaMin))
         return S
         
-    def evenlySpacedPhi(self, phi, dphi, npoints=100, k=3, fixAbs=True):
+    def evenlySpacedPhi(self, phi, dphi, npoints=100, k=1, fixAbs=True):
         """
         This method takes `phi` and `dphi` as input, which will probably
         come from the output of :func:`findProfile`, and returns a different
