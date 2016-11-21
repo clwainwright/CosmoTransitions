@@ -719,7 +719,7 @@ def _potentialDiffForPhase(T, start_phase, other_phases, V):
     V0 = V(start_phase.valAt(T),T)
     delta_V = np.inf
     for phase in other_phases:
-        V1 = V(start_phase.valAt(T),T)
+        V1 = V(phase.valAt(T),T)
         if V1-V0 < delta_V:
             delta_V = V1-V0
     return delta_V
