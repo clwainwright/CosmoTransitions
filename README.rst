@@ -9,7 +9,7 @@ For more info, please read the documentation_. The current version is available 
 Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To install CosmoTransitions, simply put the 'cosmoTransitions' folder somewhere in your path. Then from a python prompt one should be able to ``import cosmoTransitions`` and run the code. For examples, look in the ``test`` folder.
+To install CosmoTransitions, simply put the 'cosmoTransitions' folder somewhere in your path. Then from a python prompt one should be able to ``import cosmoTransitions`` and run the code. For examples, look in the ``examples`` folder.
 
 CosmoTransitions makes extensive use of numpy_ and scipy_, and the plotting functions use matplotlib_. It is recommended that users also install IPython_ for easier interactive use (IPython also contains an excellent html-based python notebook, which is very handy for organizing computational and scientific work). These packages can be installed separately (using e.g. easy_install_), or as part of a bundle (see the Anaconda_ distribution or the `Enthought Canopy`_ distribution).
 

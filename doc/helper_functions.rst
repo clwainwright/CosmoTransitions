@@ -1,7 +1,7 @@
 helper_functions.py
 ----------------------------------------
 
-.. automodule:: helper_functions
+.. automodule:: cosmoTransitions.helper_functions
     
 
 Miscellaneous functions

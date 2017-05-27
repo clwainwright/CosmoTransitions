@@ -1,7 +1,7 @@
 pathDeformation.py
 ----------------------------------------
 
-.. automodule:: pathDeformation
+.. automodule:: cosmoTransitions.pathDeformation
 
 Deformation classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

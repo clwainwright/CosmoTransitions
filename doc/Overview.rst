@@ -6,7 +6,7 @@ The CosmoTransitions package is a set of python modules for calculating properti
 Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To install CosmoTransitions, simply put the 'cosmoTransitions' folder somewhere in your path. Then from a python prompt one should be able to ``import cosmoTransitions`` and run the code. For examples, look in the ``test`` folder.
+To install CosmoTransitions, simply put the 'cosmoTransitions' folder somewhere in your path. Then from a python prompt one should be able to ``import cosmoTransitions`` and run the code. For examples, look in the ``examples`` folder.
 
 CosmoTransitions makes extensive use of numpy_ and scipy_, and the plotting functions use matplotlib_. It is recommended that users also install IPython_ for easier interactive use (IPython also contains an excellent html-based python notebook, which is very handy for organizing computational and scientific work). These packages can be installed separately (using e.g. easy_install_), or as part of a bundle (see the Anaconda_ distribution or the `Enthought Canopy`_ distribution).
 
@@ -25,7 +25,7 @@ Module overview
 
 There are four core modules in the package, with each subsequent module relying upon the ones that preceed it. However, the reverse is not true: lower-level modules do not rely on higher-level modules. For example, :mod:`tunneling1D` can be used independently of all the functions which calculate instantons in multiple field dimensions and the functions which determine finite-temperature effects. The core modules are:
 
-  - :mod:`tunneling1D`: Calculates instantons in a single field dimension using the overshoot / undershoot method. 
+  - :mod:`tunneling1D`: Calculates instantons in a single field dimension using the overshoot / undershoot method.
   - :mod:`pathDeformation`: Calculates instantons in multiple field dimensions by first guessing a tunneling path, solving for the one-dimensional instanton constrained to that path, and then iteratively deforming the path so that it satisfies the multi-dimensional instanton equations of motion. The algorithm used here was the core insight around which CosmoTransitions took shape.
   - :mod:`transitionFinder`: Calculates the phase structure of a potential at finite temperature (that is, the position of the minima as a function of temperature), and finds the bubble nucleation temperature(s) to transition between phases.
   - :mod:`generic_potential`: Contains an abstract class :class:`generic_potential.generic_potential` which can be easily subclassed to model potentials in physically interesting theories. Also contains convenience functions for interacting with :mod:`transitionFinder` and for plotting the potential and its phases.

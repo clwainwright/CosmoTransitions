@@ -1,7 +1,7 @@
 tunneling1D.py
 ----------------------------------------
 
-.. automodule:: tunneling1D
+.. automodule:: cosmoTransitions.tunneling1D
 
 PotentialError
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
