@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>finiteT.py &mdash; CosmoTransitions 2.0a1 documentation</title>
+    <title>finiteT.py &mdash; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.0a1',
+        VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,13 +23,13 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0a1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="index.html" />
     <link rel="next" title="helper_functions.py" href="helper_functions.html" />
     <link rel="prev" title="generic_potential.py" href="generic_potential.html" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -44,17 +44,17 @@
         <li class="right" >
           <a href="generic_potential.html" title="generic_potential.py"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
-  <div class="section" id="module-finiteT">
-<span id="finitet-py"></span><h1>finiteT.py<a class="headerlink" href="#module-finiteT" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-cosmoTransitions.finiteT">
+<span id="finitet-py"></span><h1>finiteT.py<a class="headerlink" href="#module-cosmoTransitions.finiteT" title="Permalink to this headline">¶</a></h1>
 <p>This module provides the functions for the one-loop finite
 temperature corrections to a potential in QFT.  The two basic
 functions are:</p>
@@ -70,80 +70,80 @@ Exact calculates the integral numerically, while high and low
 calculate the high and low x expansions of J to order n.
 Specify the derivative with the &#8216;deriv&#8217; parameter.</p>
 <dl class="function">
-<dt id="finiteT.Jf_exact">
-<tt class="descname">Jf_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_exact" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jf_exact">
+<code class="descname">Jf_exact</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jf_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jf_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jf calculated directly from the integral.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jf_exact2">
-<tt class="descname">Jf_exact2</tt><big>(</big><em>theta</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_exact2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_exact2" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jf_exact2">
+<code class="descname">Jf_exact2</code><span class="sig-paren">(</span><em>theta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jf_exact2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jf_exact2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jf calculated directly form the integral; input is theta = x^2.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jb_exact">
-<tt class="descname">Jb_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_exact" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jb_exact">
+<code class="descname">Jb_exact</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jb_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jb_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jb calculated directly from the integral.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jb_exact2">
-<tt class="descname">Jb_exact2</tt><big>(</big><em>theta</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_exact2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_exact2" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jb_exact2">
+<code class="descname">Jb_exact2</code><span class="sig-paren">(</span><em>theta</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jb_exact2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jb_exact2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jb calculated directly form the integral; input is theta = x^2.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.dJf_exact">
-<tt class="descname">dJf_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#dJf_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.dJf_exact" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.dJf_exact">
+<code class="descname">dJf_exact</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#dJf_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.dJf_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>dJf/dx calculated directly from the integral.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.dJb_exact">
-<tt class="descname">dJb_exact</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#dJb_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.dJb_exact" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.dJb_exact">
+<code class="descname">dJb_exact</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#dJb_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.dJb_exact" title="Permalink to this definition">¶</a></dt>
 <dd><p>dJb/dx calculated directly from the integral.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jf_spline">
-<tt class="descname">Jf_spline</tt><big>(</big><em>X</em>, <em>n=0</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_spline" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jf_spline">
+<code class="descname">Jf_spline</code><span class="sig-paren">(</span><em>X</em>, <em>n=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jf_spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jf_spline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jf interpolated from a saved spline. Input is (m/T)^2.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jb_spline">
-<tt class="descname">Jb_spline</tt><big>(</big><em>X</em>, <em>n=0</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_spline" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jb_spline">
+<code class="descname">Jb_spline</code><span class="sig-paren">(</span><em>X</em>, <em>n=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jb_spline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jb_spline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jb interpolated from a saved spline. Input is (m/T)^2.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jb_low">
-<tt class="descname">Jb_low</tt><big>(</big><em>x</em>, <em>n=20</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_low"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_low" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jb_low">
+<code class="descname">Jb_low</code><span class="sig-paren">(</span><em>x</em>, <em>n=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jb_low"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jb_low" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jb calculated using the low-x (high-T) expansion.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jf_low">
-<tt class="descname">Jf_low</tt><big>(</big><em>x</em>, <em>n=20</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_low"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_low" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jf_low">
+<code class="descname">Jf_low</code><span class="sig-paren">(</span><em>x</em>, <em>n=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jf_low"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jf_low" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jf calculated using the low-x (high-T) expansion.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jb_high">
-<tt class="descname">Jb_high</tt><big>(</big><em>x</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb_high"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb_high" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jb_high">
+<code class="descname">Jb_high</code><span class="sig-paren">(</span><em>x</em>, <em>deriv=0</em>, <em>n=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jb_high"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jb_high" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jb calculated using the high-x (low-T) expansion.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jf_high">
-<tt class="descname">Jf_high</tt><big>(</big><em>x</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf_high"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf_high" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jf_high">
+<code class="descname">Jf_high</code><span class="sig-paren">(</span><em>x</em>, <em>deriv=0</em>, <em>n=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jf_high"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jf_high" title="Permalink to this definition">¶</a></dt>
 <dd><p>Jf calculated using the high-x (low-T) expansion.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jb">
-<tt class="descname">Jb</tt><big>(</big><em>x</em>, <em>approx='high'</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jb" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jb">
+<code class="descname">Jb</code><span class="sig-paren">(</span><em>x</em>, <em>approx='high'</em>, <em>deriv=0</em>, <em>n=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jb" title="Permalink to this definition">¶</a></dt>
 <dd><p>A shorthand for calling one of the Jb functions above.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -162,8 +162,8 @@ Must be &lt;= (1, 3, 0, 3) for approx = (exact, high, low, spline).</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="finiteT.Jf">
-<tt class="descname">Jf</tt><big>(</big><em>x</em>, <em>approx='high'</em>, <em>deriv=0</em>, <em>n=8</em><big>)</big><a class="reference internal" href="_modules/finiteT.html#Jf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finiteT.Jf" title="Permalink to this definition">¶</a></dt>
+<dt id="cosmoTransitions.finiteT.Jf">
+<code class="descname">Jf</code><span class="sig-paren">(</span><em>x</em>, <em>approx='high'</em>, <em>deriv=0</em>, <em>n=8</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cosmoTransitions/finiteT.html#Jf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cosmoTransitions.finiteT.Jf" title="Permalink to this definition">¶</a></dt>
 <dd><p>A shorthand for calling one of the Jf functions above.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -187,7 +187,7 @@ Must be &lt;= (1, 3, 0, 3) for approx = (exact, high, low, spline).</li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="generic_potential.html"
@@ -195,12 +195,14 @@ Must be &lt;= (1, 3, 0, 3) for approx = (exact, high, low, spline).</li>
   <h4>Next topic</h4>
   <p class="topless"><a href="helper_functions.html"
                         title="next chapter">helper_functions.py</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/finiteT.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/finiteT.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -217,7 +219,7 @@ Must be &lt;= (1, 3, 0, 3) for approx = (exact, high, low, spline).</li>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -232,12 +234,12 @@ Must be &lt;= (1, 3, 0, 3) for approx = (exact, high, low, spline).</li>
         <li class="right" >
           <a href="generic_potential.html" title="generic_potential.py"
              >previous</a> |</li>
-        <li><a href="index.html">CosmoTransitions 2.0a1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
     </div>
   </body>
 </html>

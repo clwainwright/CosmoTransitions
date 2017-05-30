@@ -1,4 +1,4 @@
-from helper_functions import Nbspl
+from cosmoTransitions.helper_functions import Nbspl
 t = [-1,-1,-1,-1, -.5, 0, .5, 1, 1, 1, 1]
 x = np.linspace(-1,1,500)
 y = Nbspl(t,x, k=3)

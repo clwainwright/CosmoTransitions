@@ -1,7 +1,7 @@
 transitionFinder.py
 ----------------------------------------
 
-.. automodule:: transitionFinder
+.. automodule:: cosmoTransitions.transitionFinder
     
 Finding the phase structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

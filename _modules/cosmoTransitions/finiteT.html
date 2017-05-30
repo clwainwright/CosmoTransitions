@@ -6,39 +6,39 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>finiteT &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>cosmoTransitions.finiteT &mdash; CosmoTransitions 2.0.2 documentation</title>
     
-    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
+        URL_ROOT:    '../../',
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="../index.html" />
-    <link rel="up" title="Module code" href="index.html" /> 
+    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
+          <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
+          <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -47,7 +47,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <h1>Source code for finiteT</h1><div class="highlight"><pre>
+  <h1>Source code for cosmoTransitions.finiteT</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module provides the functions for the one-loop finite</span>
 <span class="sd">temperature corrections to a potential in QFT.  The two basic</span>
@@ -66,8 +66,6 @@
 <span class="sd">calculate the high and low x expansions of J to order n.</span>
 <span class="sd">Specify the derivative with the &#39;deriv&#39; parameter.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;2.0a2&quot;</span>
-
 
 <span class="kn">import</span> <span class="nn">os</span>
 
@@ -166,32 +164,32 @@
     <span class="k">return</span> <span class="n">s</span>
 
 
-<div class="viewcode-block" id="Jf_exact"><a class="viewcode-back" href="../finiteT.html#finiteT.Jf_exact">[docs]</a><span class="k">def</span> <span class="nf">Jf_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="Jf_exact"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jf_exact">[docs]</a><span class="k">def</span> <span class="nf">Jf_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jf calculated directly from the integral.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">arrayFunc</span><span class="p">(</span><span class="n">_Jf_exact</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="nb">complex</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Jf_exact2"><a class="viewcode-back" href="../finiteT.html#finiteT.Jf_exact2">[docs]</a><span class="k">def</span> <span class="nf">Jf_exact2</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+<div class="viewcode-block" id="Jf_exact2"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jf_exact2">[docs]</a><span class="k">def</span> <span class="nf">Jf_exact2</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jf calculated directly form the integral; input is theta = x^2.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">arrayFunc</span><span class="p">(</span><span class="n">_Jf_exact2</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Jb_exact"><a class="viewcode-back" href="../finiteT.html#finiteT.Jb_exact">[docs]</a><span class="k">def</span> <span class="nf">Jb_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="Jb_exact"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jb_exact">[docs]</a><span class="k">def</span> <span class="nf">Jb_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jb calculated directly from the integral.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">arrayFunc</span><span class="p">(</span><span class="n">_Jb_exact</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Jb_exact2"><a class="viewcode-back" href="../finiteT.html#finiteT.Jb_exact2">[docs]</a><span class="k">def</span> <span class="nf">Jb_exact2</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+<div class="viewcode-block" id="Jb_exact2"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jb_exact2">[docs]</a><span class="k">def</span> <span class="nf">Jb_exact2</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jb calculated directly form the integral; input is theta = x^2.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">arrayFunc</span><span class="p">(</span><span class="n">_Jb_exact2</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="dJf_exact"><a class="viewcode-back" href="../finiteT.html#finiteT.dJf_exact">[docs]</a><span class="k">def</span> <span class="nf">dJf_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="dJf_exact"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.dJf_exact">[docs]</a><span class="k">def</span> <span class="nf">dJf_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;dJf/dx calculated directly from the integral.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">arrayFunc</span><span class="p">(</span><span class="n">_dJf_exact</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="dJb_exact"><a class="viewcode-back" href="../finiteT.html#finiteT.dJb_exact">[docs]</a><span class="k">def</span> <span class="nf">dJb_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<div class="viewcode-block" id="dJb_exact"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.dJb_exact">[docs]</a><span class="k">def</span> <span class="nf">dJb_exact</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;dJb/dx calculated directly from the integral.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">arrayFunc</span><span class="p">(</span><span class="n">_dJb_exact</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
 
@@ -213,7 +211,7 @@
 
 
 <span class="n">_tckf</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">_xf</span><span class="p">,</span> <span class="n">_yf</span><span class="p">)</span>
-<div class="viewcode-block" id="Jf_spline"><a class="viewcode-back" href="../finiteT.html#finiteT.Jf_spline">[docs]</a><span class="k">def</span> <span class="nf">Jf_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="Jf_spline"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jf_spline">[docs]</a><span class="k">def</span> <span class="nf">Jf_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jf interpolated from a saved spline. Input is (m/T)^2.&quot;&quot;&quot;</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
@@ -243,7 +241,7 @@
 
 
 <span class="n">_tckb</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">_xb</span><span class="p">,</span> <span class="n">_yb</span><span class="p">)</span>
-<div class="viewcode-block" id="Jb_spline"><a class="viewcode-back" href="../finiteT.html#finiteT.Jb_spline">[docs]</a><span class="k">def</span> <span class="nf">Jb_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="Jb_spline"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jb_spline">[docs]</a><span class="k">def</span> <span class="nf">Jb_spline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jb interpolated from a saved spline. Input is (m/T)^2.&quot;&quot;&quot;</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
@@ -271,7 +269,7 @@
 <span class="k">del</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">logaf</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">g</span><span class="p">)</span>  <span class="c"># clean up name space</span>
 
 
-<div class="viewcode-block" id="Jb_low"><a class="viewcode-back" href="../finiteT.html#finiteT.Jb_low">[docs]</a><span class="k">def</span> <span class="nf">Jb_low</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<div class="viewcode-block" id="Jb_low"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jb_low">[docs]</a><span class="k">def</span> <span class="nf">Jb_low</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jb calculated using the low-x (high-T) expansion.&quot;&quot;&quot;</span>
     <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">logab</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">g</span><span class="p">)</span> <span class="o">=</span> <span class="n">lowCoef_b</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="n">b</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="n">d</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">))</span> <span class="o">-</span> <span class="n">logab</span><span class="p">)))</span>
@@ -282,7 +280,7 @@
     <span class="k">return</span> <span class="n">y</span>
 
 </div>
-<div class="viewcode-block" id="Jf_low"><a class="viewcode-back" href="../finiteT.html#finiteT.Jf_low">[docs]</a><span class="k">def</span> <span class="nf">Jf_low</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<div class="viewcode-block" id="Jf_low"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jf_low">[docs]</a><span class="k">def</span> <span class="nf">Jf_low</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jf calculated using the low-x (high-T) expansion.&quot;&quot;&quot;</span>
     <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">logaf</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">g</span><span class="p">)</span> <span class="o">=</span> <span class="n">lowCoef_f</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="n">b</span> <span class="o">+</span> <span class="n">d</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">))</span> <span class="o">-</span> <span class="n">logaf</span><span class="p">))</span>
@@ -324,7 +322,7 @@
     <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="n">y</span><span class="o">*</span><span class="n">k</span><span class="o">*</span><span class="n">special</span><span class="o">.</span><span class="n">kn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="o">*</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">special</span><span class="o">.</span><span class="n">kn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">k</span><span class="o">*</span><span class="n">y</span><span class="p">)))</span>
 
 
-<div class="viewcode-block" id="Jb_high"><a class="viewcode-back" href="../finiteT.html#finiteT.Jb_high">[docs]</a><span class="k">def</span> <span class="nf">Jb_high</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="Jb_high"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jb_high">[docs]</a><span class="k">def</span> <span class="nf">Jb_high</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jb calculated using the high-x (low-T) expansion.&quot;&quot;&quot;</span>
     <span class="n">K</span> <span class="o">=</span> <span class="p">(</span><span class="n">x2K2</span><span class="p">,</span> <span class="n">dx2K2</span><span class="p">,</span> <span class="n">d2x2K2</span><span class="p">,</span> <span class="n">d3x2K2</span><span class="p">)[</span><span class="n">deriv</span><span class="p">]</span>
     <span class="n">y</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span>
@@ -334,7 +332,7 @@
     <span class="k">return</span> <span class="n">y</span>
 
 </div>
-<div class="viewcode-block" id="Jf_high"><a class="viewcode-back" href="../finiteT.html#finiteT.Jf_high">[docs]</a><span class="k">def</span> <span class="nf">Jf_high</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="Jf_high"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jf_high">[docs]</a><span class="k">def</span> <span class="nf">Jf_high</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Jf calculated using the high-x (low-T) expansion.&quot;&quot;&quot;</span>
     <span class="n">K</span> <span class="o">=</span> <span class="p">(</span><span class="n">x2K2</span><span class="p">,</span> <span class="n">dx2K2</span><span class="p">,</span> <span class="n">d2x2K2</span><span class="p">,</span> <span class="n">d3x2K2</span><span class="p">)[</span><span class="n">deriv</span><span class="p">]</span>
     <span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
@@ -348,7 +346,7 @@
 <span class="c"># And here are the final functions:</span>
 <span class="c"># Note that if approx = &#39;spline&#39;, the function called is</span>
 <span class="c"># J(theta) (x^2 -&gt; theta so you can get negative mass squared)</span></div>
-<div class="viewcode-block" id="Jb"><a class="viewcode-back" href="../finiteT.html#finiteT.Jb">[docs]</a><span class="k">def</span> <span class="nf">Jb</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">approx</span><span class="o">=</span><span class="s">&#39;high&#39;</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="Jb"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jb">[docs]</a><span class="k">def</span> <span class="nf">Jb</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">approx</span><span class="o">=</span><span class="s">&#39;high&#39;</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A shorthand for calling one of the Jb functions above.</span>
 
@@ -386,7 +384,7 @@
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unexpected value for &#39;approx&#39;.&quot;</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Jf"><a class="viewcode-back" href="../finiteT.html#finiteT.Jf">[docs]</a><span class="k">def</span> <span class="nf">Jf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">approx</span><span class="o">=</span><span class="s">&#39;high&#39;</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="Jf"><a class="viewcode-back" href="../../finiteT.html#cosmoTransitions.finiteT.Jf">[docs]</a><span class="k">def</span> <span class="nf">Jf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">approx</span><span class="o">=</span><span class="s">&#39;high&#39;</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A shorthand for calling one of the Jf functions above.</span>
 
@@ -431,7 +429,7 @@
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
+    <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -450,13 +448,13 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
+          <a href="../../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
+          <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

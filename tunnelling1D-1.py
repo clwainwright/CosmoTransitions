@@ -1,4 +1,4 @@
-from tunneling1D import SingleFieldInstanton
+from cosmoTransitions.tunneling1D import SingleFieldInstanton
 import matplotlib.pyplot as plt
 
 # Thin-walled
