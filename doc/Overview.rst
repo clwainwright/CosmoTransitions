@@ -43,10 +43,10 @@ In addition, there a few auxiliary modules which do not rely upon any of the cor
 Change log
 ~~~~~~~~~~~~~~~~~~~~
 
-Version 2.0.1
+Version 2.0.2
 =========================
 
-Version 2.0.1 updates CosmoTransitions to work with Python 3. It also marks the first version that's been uploaded to the `Python Package Index`_, so installation can now be as easy as ``pip install cosmoTransitions``. Numerous formatting changes were made to bring the code into closer compliance with `PEP 8`_ (the official python style guide), although all of the original un-pythonic naming conventions remain as they were.
+Version 2.0.2 updates CosmoTransitions to work with Python 3. It also marks the first version that's been uploaded to the `Python Package Index`_, so installation can now be as easy as ``pip install cosmoTransitions``. Numerous formatting changes were made to bring the code into closer compliance with `PEP 8`_ (the official python style guide), although all of the original un-pythonic naming conventions remain as they were.
 
 .. _Python Package Index: https://pypi.python.org/pypi
 .. _PEP 8: https://www.python.org/dev/peps/pep-0008/
