@@ -6,7 +6,7 @@ appropiately, the potential function and its gradient. This module is not
 necessary to define a potential, but it does make the process somewhat simpler
 by automatically calculating one-loop effects from a model-specific mass
 spectrum, constructing numerical derivative functions, providing a
-simplified interface to the :mod:`transitionFinder` module, and providing
+simplified interface to the :mod:`.transitionFinder` module, and providing
 several methods for plotting the potential and its phases.
 """
 
@@ -25,8 +25,6 @@ from . import helper_functions
 import sys
 if sys.version_info >= (3,0):
     xrange = range
-
-__version__ = "2.0a2"
 
 
 class generic_potential():

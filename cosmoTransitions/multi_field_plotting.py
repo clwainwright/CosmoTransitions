@@ -9,8 +9,6 @@ import sys
 if sys.version_info >= (3,0):
     xrange = range
 
-__version__ = "2.0a2"
-
 
 class MultiFieldPlotter:
     """

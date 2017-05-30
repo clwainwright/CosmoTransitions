@@ -8,7 +8,7 @@ The basic strategy is an iterative process:
        perpendicular to the direction of travel along the path.
     3. The direction of motion parallel to the path reduces to a
        one-dimensional equation of motion, which can be solved using the
-       overshoot / undershoot techniques in :mod:`tunneling1D`. Solve it.
+       overshoot / undershoot techniques in :mod:`.tunneling1D`. Solve it.
     4. Treating the motion of the field as a classical particle moving in an
        inverted potential, calculate the normal forces that would need to act
        on the particle to keep it on the path. If this forces are (close enough
@@ -43,8 +43,6 @@ from . import helper_functions
 import sys
 if sys.version_info >= (3,0):
     xrange = range
-
-__version__ = "2.0a2"
 
 
 class DeformationError(Exception):

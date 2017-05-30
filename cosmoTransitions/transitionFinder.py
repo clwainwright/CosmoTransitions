@@ -3,7 +3,7 @@ The transitionFinder module is used to calculate finite temperature
 cosmological phase transitions: it contains functions to find the phase
 structure as a function of temperature, and functions to find the transition
 (bubble nucleation) temperature for each phase.
-In contrast, :mod:`pathDefomration` is useful for finding the tunneling
+In contrast, :mod:`.pathDefomration` is useful for finding the tunneling
 solution for a fixed potential or a potential at a fixed temperature.
 
 The most directly used functions in this module will likely be
@@ -28,8 +28,6 @@ from . import tunneling1D
 import sys
 if sys.version_info >= (3,0):
     xrange = range
-
-__version__ = "2.0a2"
 
 
 _traceMinimum_rval = namedtuple("traceMinimum_rval", "X T dXdT overX overT")

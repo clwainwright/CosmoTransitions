@@ -1,5 +1,5 @@
 """
-This module (along with a few functions in :mod:`helper_functions`) contains
+This module (along with a few functions in :mod:`.helper_functions`) contains
 everything that is needed to calculate instantons in one field dimension.
 The primary class is :class:`SingleFieldInstanton`, which can calculate the
 instanton solution in any number of spatial dimensions using the overshoot /
@@ -28,8 +28,6 @@ from .helper_functions import cubicInterpFunction
 import sys
 if sys.version_info >= (3,0):
     xrange = range
-
-__version__ = "2.0a2"
 
 
 class PotentialError(Exception):
@@ -102,7 +100,7 @@ class SingleFieldInstanton:
     .. plot::
         :include-source:
 
-        from tunneling1D import SingleFieldInstanton
+        from cosmoTransitions.tunneling1D import SingleFieldInstanton
         import matplotlib.pyplot as plt
 
         # Thin-walled
