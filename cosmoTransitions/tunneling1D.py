@@ -252,13 +252,12 @@ class SingleFieldInstanton:
             larger of the first scale and the second scale times
             `second_check`.
         """
-        def negV(phi):
-            return -self.V(clampVal(phi, self.phi_bar, self.phi_metaMin))
-        phi_guess = 0.5 * (self.phi_bar + self.phi_metaMin)
         phi_tol = abs(self.phi_bar - self.phi_metaMin) * 1e-6
-        phi_bar_top = optimize.fmin(negV, phi_guess, xtol=phi_tol, disp=0)[0]
-        if not (self.phi_bar < phi_bar_top < self.phi_metaMin or
-                self.phi_bar > phi_bar_top > self.phi_metaMin):
+        x1 = min(self.phi_bar, self.phi_metaMin)
+        x2 = max(self.phi_bar, self.phi_metaMin)
+        phi_bar_top = optimize.fminbound(
+            lambda x: -self.V(x), x1, x2, xtol=phi_tol)
+        if phi_bar_top + phi_tol > x2 or phi_bar_top - phi_tol < x1:
             raise PotentialError(
                 "Minimization is placing the top of the "
                 "potential barrier outside of the interval defined by "
