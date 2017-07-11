@@ -1,20 +1,26 @@
-__version__ = "2.0a2"
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+
+import sys
+if sys.version_info >= (3,0):
+    xrange = range
+
 
 class MultiFieldPlotter:
     """
     This class tries to make it easier to view functions of more than two
     variables.
-    
-    For each set of two variables (or 'fields', since this is part of the 
+
+    For each set of two variables (or 'fields', since this is part of the
     CosmoTransitions package), this class will display a separate subplot in a
     managed figure. Each subplot is a different slice through the
     multi-dimensional space. By clicking on the subplots, the user can
     dynamically change the offsets of the slices in the other subplots.
-    
+
     Parameters
     ----------
     bounds : array_like
@@ -47,12 +53,12 @@ class MultiFieldPlotter:
     draws_offset : bool
         Set to True if the plots should draw the offset point (as intersecting
         lines).
-        
+
     Example
     -------
     The following example will make three contour plots whose offsets can be
     changed interactively:
-    
+
     >>> from multi_field_plotting import MultiFieldPlotter
     >>> def V(X): # Some potential that looks vaguely interesting
     ...     x,y,z = X[...,0], X[...,1], X[...,2]
@@ -77,12 +83,12 @@ class MultiFieldPlotter:
         self.draws_offset = True if len(self.bounds) > 2 else False
         self.figure.canvas.mpl_connect('button_press_event', self._mouseDown)
         self.drawSubplot()
-        
+
     def calcContourLevels(self, num_levs, nx=11):
         """
-        Find the contour levels which span the bounds. Store in 
+        Find the contour levels which span the bounds. Store in
         ``self.contour_levs``.
-        
+
         Parameters
         ----------
         num_levs : int
@@ -91,7 +97,7 @@ class MultiFieldPlotter:
             The number of data points along each dimension that are used to
             find the minimum and maximum levels.
         """
-    
+
         Ndim = len(self.bounds)
         X = np.empty([nx]*Ndim + [Ndim])
         for i in xrange(Ndim):
@@ -103,15 +109,15 @@ class MultiFieldPlotter:
         fmax = np.max(Z.ravel())
         df = fmax-fmin
         self.contour_levs = np.linspace(fmin-df*.1, fmax+df*.1, num_levs*1.2)
-    
+
     def drawSubplot(self, subplot='all'):
         """
         Performs the actual drawing.
-        
+
         Parameters
         ----------
         subplot : (int, int) or 'all'
-            The subplot to redraw. If a tuple, it should be field indicies of 
+            The subplot to redraw. If a tuple, it should be field indicies of
             the x and y axes.
         """
         Ndim = len(self.bounds)
@@ -142,18 +148,21 @@ class MultiFieldPlotter:
                 ax.set_ylabel("$x_%i$" % ax.yfield)
         # Generate the data and make the plot
         if ax.xfield == ax.yfield:
-            pass # 1d_plot
+            pass  # 1d_plot
         else:
             X = np.empty((self.nx, self.nx, Ndim))
             X[:] = self.offset
-            X[:,:,ax.xfield] = np.linspace(self.bounds[ax.xfield,0], 
-                self.bounds[ax.xfield,1], self.nx)[:,np.newaxis] \
-                * np.ones((self.nx, self.nx))
-            X[:,:,ax.yfield] = np.linspace(self.bounds[ax.yfield,0], 
-                self.bounds[ax.yfield,1], self.nx)[np.newaxis,:] \
-                * np.ones((self.nx, self.nx))
+            X[:,:,ax.xfield] = np.linspace(
+                self.bounds[ax.xfield,0],
+                self.bounds[ax.xfield,1], self.nx
+            )[:,np.newaxis] * np.ones((self.nx, self.nx))
+            X[:,:,ax.yfield] = np.linspace(
+                self.bounds[ax.yfield,0],
+                self.bounds[ax.yfield,1], self.nx
+            )[np.newaxis,:] * np.ones((self.nx, self.nx))
             Z = self.f(X, *self.f_args)
-            ax.contour(X[:,:,ax.xfield], X[:,:,ax.yfield], Z,
+            ax.contour(
+                X[:,:,ax.xfield], X[:,:,ax.yfield], Z,
                 self.contour_levs, cmap=plt.cm.Spectral)
           #  ax.pcolormesh(X[:,:,ax.xfield], X[:,:,ax.yfield], Z,
           #      cmap=plt.cm.Spectral)
@@ -165,7 +174,7 @@ class MultiFieldPlotter:
                 ax.plot(xbounds, [y0,y0], 'k', lw=1.)
                 ax.plot([x0,x0], ybounds, 'k', lw=1.)
         self.figure.show()
-        
+
     def _mouseDown(self, event):
         ax = event.inaxes
         if not ax:
@@ -173,5 +182,3 @@ class MultiFieldPlotter:
         self.offset[ax.xfield] = event.xdata
         self.offset[ax.yfield] = event.ydata
         self.drawSubplot()
-        
-    

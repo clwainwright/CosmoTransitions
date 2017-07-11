@@ -1,35 +1,42 @@
 """
-The transitionFinder module is used to calculate finite temperature 
-cosmological phase transitions: it contains functions to find the phase 
-structure as a function of temperature, and functions to find the transition 
+The transitionFinder module is used to calculate finite temperature
+cosmological phase transitions: it contains functions to find the phase
+structure as a function of temperature, and functions to find the transition
 (bubble nucleation) temperature for each phase.
-In contrast, :mod:`pathDefomration` is useful for finding the tunneling
+In contrast, :mod:`.pathDefomration` is useful for finding the tunneling
 solution for a fixed potential or a potential at a fixed temperature.
 
-The most directly used functions in this module will likely be 
-:func:`traceMultiMin` for finding the phase structure, and 
+The most directly used functions in this module will likely be
+:func:`traceMultiMin` for finding the phase structure, and
 :func:`findAllTransitions` and :func:`findCriticalTemperatures` for calculating
 properties of the phase transitions.
 """
+
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 from collections import namedtuple
 
 import numpy as np
 from scipy import linalg, interpolate, optimize
 
-import pathDeformation
-import tunneling1D
+from . import pathDeformation
+from . import tunneling1D
 
-__version__ = "2.0a2"
+import sys
+if sys.version_info >= (3,0):
+    xrange = range
 
 
 _traceMinimum_rval = namedtuple("traceMinimum_rval", "X T dXdT overX overT")
 def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
-                 dtabsMax=20.0, dtfracMax=.25, dtmin=1e-3, 
+                 dtabsMax=20.0, dtfracMax=.25, dtmin=1e-3,
                  deltaX_tol=1.2, minratio=1e-2):
     """
     Trace the minimum `xmin(t)` of the function `f(x,t)`, starting at `x0, t0`.
-    
+
     Parameters
     ----------
     f : callable
@@ -54,7 +61,7 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
         stepsize in t by extrapolation from last error.
     dtabsMax : float, optional
     dtfracMax : float, optional
-        The largest stepsize in t will be the LARGEST of 
+        The largest stepsize in t will be the LARGEST of
         ``abs(dtstart)*dtabsMax`` and ``t*dtfracMax``.
     dtmin : float, optional
         The smallest stepsize we'll allow before assuming the transition ends,
@@ -66,7 +73,7 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
         The smallest ratio between smallest and largest eigenvalues in the
         Hessian matrix before treating the smallest eigenvalue as zero (and
         thus signaling a saddle point and the end of the minimum).
-    
+
     Returns
     -------
       X, T, dXdT : array_like
@@ -76,7 +83,7 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
         The point beyond which the phase seems to disappear.
       overT : float
         The t-value beyond which the phase seems to disappear.
-    
+
     Notes
     -----
     In prior versions, `d2f_dx2` was optional and called `d2f`, while `d2f_dxdt`
@@ -85,13 +92,13 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
     `f(x,t)` using finite differences. This lead to a messier calling signature,
     since additional parameters were needed to find the finite differences. By
     instead requiring that the derivatives be supplied, the task of creating the
-    derivative functions can be delegated to more general purpose routines 
-    (see e.g. :class:`helper_functions.gradientFunction` and 
+    derivative functions can be delegated to more general purpose routines
+    (see e.g. :class:`helper_functions.gradientFunction` and
     :class:`helper_functions.hessianFunction`).
-    
+
     Also new in this version, `dtmin` and `dtabsMax` are now relative to
-    `dtstart`. The idea here is that there should be some required parameter 
-    that sets the scale, and then optional parameters can set the tolerances 
+    `dtstart`. The idea here is that there should be some required parameter
+    that sets the scale, and then optional parameters can set the tolerances
     relative to this scale. `deltaX_target` is now not optional for the same
     reasoning.
     """
@@ -99,6 +106,7 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
     Ndim = len(x0)
     M0 = d2f_dx2(x0,t0)
     minratio *= min(abs(linalg.eigvalsh(M0)))/max(abs(linalg.eigvalsh(M0)))
+
     def dxmindt(x,t):
         M = d2f_dx2(x,t)
         if abs(linalg.det(M)) < (1e-3*np.max(abs(M)))**Ndim:
@@ -109,60 +117,60 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
         try:
             dxdt = linalg.solve(M,b, overwrite_a=False, overwrite_b=False)
             # dxdt = linalg.solve(M,b, overwrite_a=True, overwrite_b=True)
-            isneg = ((eigs<=0).any() or min(eigs)/max(eigs) < minratio)
+            isneg = ((eigs <= 0).any() or min(eigs)/max(eigs) < minratio)
         except:
             dxdt = None
             isneg = False
         return dxdt, isneg
     xeps = deltaX_target * 1e-2
+
     def fmin(x,t):
-        return optimize.fmin(f, x, args = (t,), xtol=xeps, ftol=np.inf, 
+        return optimize.fmin(f, x, args=(t,), xtol=xeps, ftol=np.inf,
                              disp=False)
     deltaX_tol = deltaX_tol * deltaX_target
     tscale = abs(dtstart)
     dtabsMax = dtabsMax * tscale
     dtmin = dtmin * tscale
-    
+
     x,t,dt,xerr = x0,t0,dtstart,0.0
     dxdt, negeig = dxmindt(x,t)
-    X,T,dXdT =[x],[t],[dxdt]
-    overX = overT = overdXdT = None
-    import sys
+    X,T,dXdT = [x],[t],[dxdt]
+    overX = overT = None
     while dxdt is not None:
-        sys.stdout.write('.'); sys.stdout.flush()
+        sys.stdout.write('.')
+        sys.stdout.flush()
         # Get the values at the next step
         tnext = t+dt
         xnext = fmin(x+dxdt*dt, tnext)
         dxdt_next, negeig = dxmindt(xnext,tnext)
         if dxdt_next is None or negeig == True:
-            # We got stuck on a saddle, so there must be a phase transition 
+            # We got stuck on a saddle, so there must be a phase transition
             # there.
             dt *= .5
-            overX, overT, overdXdT = xnext, tnext, dxdt_next
-            hasHitSaddle = True
+            overX, overT = xnext, tnext
         else:
-            # The step might still be too big if it's outside of our error 
+            # The step might still be too big if it's outside of our error
             # tolerance.
-            xerr = max( np.sum((x+dxdt*dt - xnext)**2), 
-                        np.sum((xnext-dxdt_next*dt - x)**2) )**.5
-            if xerr < deltaX_tol: # Normal step, error is small
+            xerr = max(np.sum((x+dxdt*dt - xnext)**2),
+                       np.sum((xnext-dxdt_next*dt - x)**2))**.5
+            if xerr < deltaX_tol:  # Normal step, error is small
                 T.append(tnext)
                 X.append(xnext)
                 dXdT.append(dxdt_next)
-                if overT == None:
-                    # change the stepsize only if the last step wasn't 
+                if overT is None:
+                    # change the stepsize only if the last step wasn't
                     # troublesome
-                    dt *= deltaX_target/(xerr+1e-100) 
+                    dt *= deltaX_target/(xerr+1e-100)
                 x,t,dxdt = xnext, tnext, dxdt_next
-                overX = overT = overdXdT = None
+                overX = overT = None
             else:
-                # Either stepsize was too big, or we hit a transition. 
+                # Either stepsize was too big, or we hit a transition.
                 # Just cut the step in half.
                 dt *= .5
-                overX, overT, overdXdT = xnext, tnext, dxdt_next
+                overX, overT = xnext, tnext
         # Now do some checks on dt.
         if abs(dt) < abs(dtmin):
-            # Found a transition! Or at least a point where the step is really 
+            # Found a transition! Or at least a point where the step is really
             # small.
             break
         if dt > 0 and t >= tstop or dt < 0 and t <= tstop:
@@ -176,19 +184,21 @@ def traceMinimum(f, d2f_dxdt, d2f_dx2, x0, t0, tstop, dtstart, deltaX_target,
         dtmax = max(t*dtfracMax, dtabsMax)
         if abs(dt) > dtmax:
             dt = np.sign(dt)*dtmax
-    if overT == None:
+    if overT is None:
         overX, overT = X[-1], T[-1]
-    sys.stdout.write('\n'); sys.stdout.flush()
+    sys.stdout.write('\n')
+    sys.stdout.flush()
     X = np.array(X)
     T = np.array(T)
     dXdT = np.array(dXdT)
     return _traceMinimum_rval(X, T, dXdT, overX, overT)
-    
+
+
 class Phase:
     """
     Describes a temperature-dependent minimum, plus second-order transitions
     to and from that minimum.
-    
+
     Attributes
     ----------
     key : hashable
@@ -206,8 +216,8 @@ class Phase:
     """
     def __init__(self, key, X, T, dXdT):
         self.key = key
-        # We shouldn't ever really need to sort the array, but there must be 
-        # some bug in the above code that makes it so that occasionally the last 
+        # We shouldn't ever really need to sort the array, but there must be
+        # some bug in the above code that makes it so that occasionally the last
         # step goes backwards. This should fix that.
         i = np.argsort(T)
         T, X, dXdT = T[i], X[i], dXdT[i]
@@ -220,17 +230,17 @@ class Phase:
         self.tck = tck
         # Make default connections
         self.low_trans = set()
-        self.high_trans = set()        
-        
+        self.high_trans = set()
+
     def valAt(self, T, deriv=0):
         """
         Find the minimum at the value `T` using a spline.
-        
+
         Parameters
         ----------
         T : float or array_like
         deriv : int
-            If deriv > 0, instead return the derivative of the minimum with 
+            If deriv > 0, instead return the derivative of the minimum with
             respect to `T`. Can return up to the third derivative for cubic
             splines (when ``len(X) > 3``) or first derivative for linear
             splines.
@@ -238,7 +248,7 @@ class Phase:
         T = np.asanyarray(T).T
         y = interpolate.splev(T, self.tck)
         return np.asanyarray(y).T
-        
+
     def addLinkFrom(self, other_phase):
         """
         Add a link from `other_phase` to this phase, checking to see if there
@@ -270,23 +280,21 @@ class Phase:
             self.key, Xstr, Tstr, dXdTstr)
         np.set_printoptions(**popts)
         return s
-                    
 
-        
-    
+
 def traceMultiMin(f, d2f_dxdt, d2f_dx2,
                   points, tLow, tHigh, deltaX_target,
-                  dtstart=1e-3, tjump=1e-3, forbidCrit = None, 
+                  dtstart=1e-3, tjump=1e-3, forbidCrit=None,
                   single_trace_args={}, local_min_args={}):
     """
     Trace multiple minima `xmin(t)` of the function `f(x,t)`.
-    
+
     This function will trace the minima starting from the initial `(x,t)` values
     given in `points`. When a phase disappears, the function will search for
     new nearby minima, and trace them as well. In this way, if each minimum
     corresponds to a different phase, this function can find the (possibly)
     complete phase structure of the potential.
-        
+
     Parameters
     ----------
     f : callable
@@ -308,7 +316,7 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
     dtstart : float, optional
         The starting stepsize, relative to ``tHigh-tLow``.
     tjump : float, optional
-        The jump in `t` from the end of one phase to the initial tracing point 
+        The jump in `t` from the end of one phase to the initial tracing point
         in another. If this is too large, intermediate phases may be skipped.
         Relative to ``tHigh-tLow``.
     forbidCrit : callable or None, optional
@@ -327,11 +335,12 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
         are integers corresponding to the order in which the phases were
         constructed.
     """
-    # We want the minimization here to be very accurate so that we don't get 
+    # We want the minimization here to be very accurate so that we don't get
     # stuck on a saddle or something. This isn't much of a bottle neck.
     xeps = deltaX_target*1e-2
+
     def fmin(x,t):
-        return optimize.fmin(f, x+xeps, args = (t,), xtol=xeps*1e-3, 
+        return optimize.fmin(f, x+xeps, args=(t,), xtol=xeps*1e-3,
                              ftol=np.inf, disp=False)
     dtstart = dtstart * (tHigh-tLow)
     tjump = tjump * (tHigh-tLow)
@@ -340,10 +349,10 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
     for p in points:
         x,t = p
         nextPoint.append([t,dtstart,fmin(x,t),None])
-    
+
     while len(nextPoint) != 0:
         t1,dt1,x1,linkedFrom = nextPoint.pop()
-        x1 = fmin(x1, t1) # make sure we start as accurately as possible.
+        x1 = fmin(x1, t1)  # make sure we start as accurately as possible.
         # Check to see if this point is outside the bounds
         if t1 < tLow or (t1 == tLow and dt1 < 0):
             continue
@@ -354,10 +363,10 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
         # Check to see if it's redudant with another phase
         for i in phases.keys():
             phase = phases[i]
-            if (t1 < min(phase.T[0], phase.T[-1]) or 
+            if (t1 < min(phase.T[0], phase.T[-1]) or
                 t1 > max(phase.T[0], phase.T[-1])):
                 continue
-            x = fmin( phase.valAt(t1), t1)
+            x = fmin(phase.valAt(t1), t1)
             if np.sum((x-x1)**2)**.5 < 2*deltaX_target:
                 # The point is already covered
                 # Skip this phase and change the linkage.
@@ -366,15 +375,15 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
                 break
         else:
             # The point is not already covered. Trace the phase.
-            print "Tracing phase starting at x =",x1,"; t =",t1
+            print("Tracing phase starting at x =", x1, "; t =", t1)
             phase_key = len(phases)
             oldNumPoints = len(nextPoint)
             if (t1 > tLow):
-                print "Tracing minimum down"
-                down_trace = traceMinimum(f, d2f_dxdt, d2f_dx2, x1, 
-                                          t1, tLow, -dt1, deltaX_target, 
+                print("Tracing minimum down")
+                down_trace = traceMinimum(f, d2f_dxdt, d2f_dx2, x1,
+                                          t1, tLow, -dt1, deltaX_target,
                                           **single_trace_args)
-                X_down, T_down, dXdT_down, nX, nT = down_trace                
+                X_down, T_down, dXdT_down, nX, nT = down_trace
                 t2,dt2 = nT-tjump, .1*tjump
                 x2 = fmin(nX,t2)
                 nextPoint.append([t2,dt2,x2,phase_key])
@@ -385,9 +394,9 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
                 T_down = T_down[::-1]
                 dXdT_down = dXdT_down[::-1]
             if (t1 < tHigh):
-                print "Tracing minimum up"
-                up_trace = traceMinimum(f, d2f_dxdt, d2f_dx2, x1, 
-                                        t1, tHigh, +dt1, deltaX_target, 
+                print("Tracing minimum up")
+                up_trace = traceMinimum(f, d2f_dxdt, d2f_dx2, x1,
+                                        t1, tHigh, +dt1, deltaX_target,
                                         **single_trace_args)
                 X_up, T_up, dXdT_up, nX, nT = up_trace
                 t2,dt2 = nT+tjump, .1*tjump
@@ -405,9 +414,9 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
                 X = np.append(X_down, X_up[1:], 0)
                 T = np.append(T_down, T_up[1:], 0)
                 dXdT = np.append(dXdT_down, dXdT_up[1:], 0)
-            if forbidCrit is not None and (forbidCrit(X[0]) or 
+            if forbidCrit is not None and (forbidCrit(X[0]) or
                                            forbidCrit(X[-1])):
-                # The phase is forbidden. 
+                # The phase is forbidden.
                 # Don't add it, and make it a dead-end.
                 nextPoint = nextPoint[:oldNumPoints]
             elif len(X) > 1:
@@ -416,20 +425,21 @@ def traceMultiMin(f, d2f_dxdt, d2f_dx2,
                     newphase.addLinkFrom(phases[linkedFrom])
                 phases[phase_key] = newphase
             else:
-                # The phase is just a single point. 
+                # The phase is just a single point.
                 # Don't add it, and make it a dead-end.
                 nextPoint = nextPoint[:oldNumPoints]
-        
+
     return phases
-    
-def findApproxLocalMin(f,x1,x2,args=(),n=100,edge=.05):
+
+
+def findApproxLocalMin(f, x1, x2, args=(), n=100, edge=.05):
     """
     Find minima on a straight line between two points.
-    
+
     When jumping between phases, we want to make sure that we
-    don't jump over an intermediate phase. This function does a rough 
+    don't jump over an intermediate phase. This function does a rough
     calculation to find any such intermediate phases.
-    
+
     Parameters
     ----------
     f : callable
@@ -445,12 +455,12 @@ def findApproxLocalMin(f,x1,x2,args=(),n=100,edge=.05):
         the minima potentially go all the way to input points. If ``edge==0.5``,
         the range of tested minima shrinks to a single point at the center of
         the two points.
-        
+
     Returns
     -------
     list
         A list of approximate minima, with each minimum having the same shape
-        as `x1` and `x2`. 
+        as `x1` and `x2`.
     """
     x1,x2 = np.array(x1), np.array(x2)
     dx = np.sum((x1-x2)**2)**.5
@@ -458,9 +468,10 @@ def findApproxLocalMin(f,x1,x2,args=(),n=100,edge=.05):
     #	return np.array([]).reshape(0,len(x1))
     x = x1 + (x2-x1)*np.linspace(edge,1-edge,n).reshape(n,1)
     y = f(x,*args)
-    i = (y[2:]>y[1:-1]) & (y[:-2]>y[1:-1])
+    i = (y[2:] > y[1:-1]) & (y[:-2] > y[1:-1])
     return x[1:-1][i]
-            
+
+
 def _removeRedundantPhase(phases, removed_phase, redundant_with_phase):
     for key in removed_phase.low_trans:
         if key != redundant_with_phase.key:
@@ -473,16 +484,17 @@ def _removeRedundantPhase(phases, removed_phase, redundant_with_phase):
             p.low_trans.discard(removed_phase.key)
             redundant_with_phase.addLinkFrom(p)
     del phases[removed_phase.key]
-            
+
+
 def removeRedundantPhases(f, phases, xeps=1e-5, diftol=1e-2):
     """
     Remove redundant phases from a dictionary output by :func:`traceMultiMin`.
-    
+
     Although :func:`traceMultiMin` attempts to only trace each phase once, there
     are still instances where a single phase gets traced twice. If a phase is
-    included twice, the routines for finding transition regions and tunneling 
+    included twice, the routines for finding transition regions and tunneling
     get very confused. This attempts to avoid that problem.
-    
+
     Parameters
     ----------
     f : callable
@@ -494,21 +506,21 @@ def removeRedundantPhases(f, phases, xeps=1e-5, diftol=1e-2):
     diftol : float, optional
         Maximum separation between two phases before they are considered to be
         coincident.
-        
+
     Returns
     -------
     None
-    
+
     Notes
     -----
     If two phases are merged to get rid of redundancy, the resulting phase has
     a key that is a string combination of the two prior keys.
 
     .. todo:: Make sure to test removeRedundantPhases().
-    .. todo:: 
+    .. todo::
         Possibly add extra logic to account for phases which coinincide
         at one end but not the other.
-    
+
     Warning
     -------
     This hasn't been thoroughly tested yet.
@@ -517,7 +529,7 @@ def removeRedundantPhases(f, phases, xeps=1e-5, diftol=1e-2):
     # same thing multiple times.
     # There's just no way this function is going to be the bottle neck.
     def fmin(x,t):
-        return np.array(optimize.fmin(f, x, args=(t,), 
+        return np.array(optimize.fmin(f, x, args=(t,),
                         xtol=xeps, ftol=np.inf, disp=False))
     has_redundant_phase = True
     while has_redundant_phase:
@@ -528,8 +540,8 @@ def removeRedundantPhases(f, phases, xeps=1e-5, diftol=1e-2):
                     continue
                 phase1, phase2 = phases[i], phases[j]
                 tmax = min(phase1.T[-1], phase2.T[-1])
-                tmin = max(phase1.T[ 0], phase2.T[ 0])
-                if tmin > tmax: # no overlap in the phases
+                tmin = max(phase1.T[0], phase2.T[0])
+                if tmin > tmax:  # no overlap in the phases
                     continue
                 if tmax == phase1.T[-1]:
                     x1 = phase1.X[-1]
@@ -587,11 +599,12 @@ def removeRedundantPhases(f, phases, xeps=1e-5, diftol=1e-2):
                     )
             if has_redundant_phase:
                 break
-                              
+
+
 def getStartPhase(phases, V=None):
     """
     Find the key for the high-T phase.
-    
+
     Parameters
     ----------
     phases : dict
@@ -608,10 +621,10 @@ def getStartPhase(phases, V=None):
         if phases[i].T[-1] == Tmax:
             # add this to the startPhases list.
             startPhases.append(i)
-        elif Tmax == None or phases[i].T[-1] > Tmax:
+        elif Tmax is None or phases[i].T[-1] > Tmax:
             startPhases = [i]
             Tmax = phases[i].T[-1]
-    if len(startPhases) == 1 or V == None:
+    if len(startPhases) == 1 or V is None:
         startPhase = startPhases[0]
     else:
         # more than one phase have the same maximum temperature
@@ -625,24 +638,27 @@ def getStartPhase(phases, V=None):
     assert startPhase in phases
     return startPhase
 
-    
-def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV, 
-                        phitol, overlapAngle, nuclCriterion, 
+
+def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV,
+                        phitol, overlapAngle, nuclCriterion,
                         fullTunneling_params, verbose, outdict):
     """
     Find the lowest action tunneling solution.
-    
+
     Return ``nuclCriterion(S,T)``, and store a dictionary describing the
     transition in outdict for key `T`.
     """
     try:
-        T = T[0] # need this when the function is run from optimize.fmin
+        T = T[0]  # need this when the function is run from optimize.fmin
     except:
         pass
     if T in outdict:
         return nuclCriterion(outdict[T]['action'], T)
-    def fmin(x): return optimize.fmin(V, x, args = (T,), xtol=phitol, 
-        ftol=np.inf, disp=False)
+
+    def fmin(x):
+        return optimize.fmin(V, x, args=(T,),
+                             xtol=phitol, ftol=np.inf, disp=False)
+
     # Loop through all the phases, adding acceptable minima
     x0 = fmin(start_phase.valAt(T))
     V0 = V(x0, T)
@@ -657,8 +673,8 @@ def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV,
         V1 = V(x1, T)
         if V1 >= V0:
             continue
-        tdict = dict(low_vev=x1, high_vev=x0, Tnuc=T, 
-                 low_phase=key, high_phase=start_phase.key)
+        tdict = dict(low_vev=x1, high_vev=x0, Tnuc=T,
+                     low_phase=key, high_phase=start_phase.key)
         tunnel_list.append(tdict)
     # Check for overlap
     if overlapAngle > 0:
@@ -686,8 +702,8 @@ def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV,
         try:
             print("Tunneling from phase %s to phase %s at T=%0.4g"
                   % (tdict['high_phase'], tdict['low_phase'], T))
-            print "high_vev =", tdict['high_vev']
-            print "low_vev =", tdict['low_vev']
+            print("high_vev =", tdict['high_vev'])
+            print("low_vev =", tdict['low_vev'])
             tobj = pathDeformation.fullTunneling(
                 [x1,x0], V_, dV_, callback_data=T,
                 **fullTunneling_params)
@@ -702,27 +718,29 @@ def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV,
                 tdict['trantype'] = 0
                 tdict['action'] = np.inf
             else:
-                print "Unexpected error message."
+                print("Unexpected error message.")
                 raise
         if tdict['action'] <= lowest_action:
             lowest_action = tdict['action']
             lowest_tdict = tdict
     outdict[T] = lowest_tdict
     return nuclCriterion(lowest_action, T)
-            
+
+
 def _potentialDiffForPhase(T, start_phase, other_phases, V):
     """
     Returns the maximum difference between the other phases and `start_phase`.
 
-    Return value is positive/negative when `start_phase` is stable/unstable. 
+    Return value is positive/negative when `start_phase` is stable/unstable.
     """
     V0 = V(start_phase.valAt(T),T)
     delta_V = np.inf
     for phase in other_phases:
-        V1 = V(start_phase.valAt(T),T)
+        V1 = V(phase.valAt(T),T)
         if V1-V0 < delta_V:
             delta_V = V1-V0
     return delta_V
+
 
 def _maxTCritForPhase(phases, start_phase, V, Ttol):
     """
@@ -730,7 +748,7 @@ def _maxTCritForPhase(phases, start_phase, V, Ttol):
     of the other phases.
     """
     other_phases = []
-    for phase in phases.itervalues():
+    for phase in phases.values():
         if phase.key != start_phase.key:
             other_phases.append(phase)
     if len(other_phases) == 0:
@@ -740,22 +758,23 @@ def _maxTCritForPhase(phases, start_phase, V, Ttol):
     Tmax = max([phase.T[-1] for phase in other_phases])
     Tmin = max(Tmin, start_phase.T[0])
     Tmax = min(Tmax, start_phase.T[-1])
-    DV_Tmin = _potentialDiffForPhase(Tmin, start_phase, other_phases, V) 
-    DV_Tmax = _potentialDiffForPhase(Tmax, start_phase, other_phases, V) 
-    if DV_Tmin >= 0: return Tmin # stable at Tmin
-    if DV_Tmax <= 0: return Tmax # unstable at Tmax
+    DV_Tmin = _potentialDiffForPhase(Tmin, start_phase, other_phases, V)
+    DV_Tmax = _potentialDiffForPhase(Tmax, start_phase, other_phases, V)
+    if DV_Tmin >= 0: return Tmin  # stable at Tmin
+    if DV_Tmax <= 0: return Tmax  # unstable at Tmax
     return optimize.brentq(
-        _potentialDiffForPhase, Tmin, Tmax, 
+        _potentialDiffForPhase, Tmin, Tmax,
         args=(start_phase, other_phases, V),
         xtol=Ttol, maxiter=200, disp=False)
 
-def tunnelFromPhase(phases, start_phase, V, dV, Tmax, 
-                    Ttol=1e-3, maxiter=100, phitol=1e-8, overlapAngle=45.0, 
-                    nuclCriterion = lambda S,T: S/(T+1e-100) - 140.0,
-                    verbose = True,
+
+def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
+                    Ttol=1e-3, maxiter=100, phitol=1e-8, overlapAngle=45.0,
+                    nuclCriterion=lambda S,T: S/(T+1e-100) - 140.0,
+                    verbose=True,
                     fullTunneling_params={}):
     """
-    Find the instanton and nucleation temeprature for tunneling from 
+    Find the instanton and nucleation temeprature for tunneling from
     `start_phase`.
 
     Parameters
@@ -765,7 +784,7 @@ def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
     start_phase : Phase object
         The metastable phase from which tunneling occurs.
     V, dV : callable
-        The potential V(x,T) and its gradient. 
+        The potential V(x,T) and its gradient.
     Tmax : float
         The highest temperature at which to try tunneling.
     Ttol : float, optional
@@ -803,21 +822,21 @@ def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
           None for a second-order transition.
         - *trantype* : 1 or 2 for first or second-order transitions.
     """
-    outdict = {} # keys are T values
-    args = (phases, start_phase, V, dV, 
-            phitol, overlapAngle, nuclCriterion, 
+    outdict = {}  # keys are T values
+    args = (phases, start_phase, V, dV,
+            phitol, overlapAngle, nuclCriterion,
             fullTunneling_params, verbose, outdict)
     Tmin = start_phase.T[0]
     T_highest_other = Tmin
-    for phase in phases.itervalues():
+    for phase in phases.values():
         T_highest_other = max(T_highest_other, phase.T[-1])
     Tmax = min(Tmax, T_highest_other)
     assert Tmax >= Tmin
     try:
         Tnuc = optimize.brentq(_tunnelFromPhaseAtT, Tmin, Tmax, args=args,
                                xtol=Ttol, maxiter=maxiter, disp=False)
-    except ValueError as err:                
-        if err.message != "f(a) and f(b) must have different signs":
+    except ValueError as err:
+        if err.args[0] != "f(a) and f(b) must have different signs":
             raise
         if nuclCriterion(outdict[Tmax]['action'], Tmax) > 0:
             if nuclCriterion(outdict[Tmin]['action'], Tmax) < 0:
@@ -826,10 +845,12 @@ def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
                 # otherwise the minimization routine may get get stuck in a
                 # region where the action is infinite. Modify Tmax.
                 Tmax = _maxTCritForPhase(phases, start_phase, V, Ttol)
+
                 def abort_fmin(T, outdict=outdict, nc=nuclCriterion):
-                    T = T[0] # T is an array of size 1
+                    T = T[0]  # T is an array of size 1
                     if nc(outdict[T]['action'], T) <= 0:
                         raise StopIteration(T)
+
                 try:
                     Tmin = optimize.fmin(_tunnelFromPhaseAtT, 0.5*(Tmin+Tmax),
                                          args=args, xtol=Ttol*10, ftol=1.0,
@@ -840,8 +861,9 @@ def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
                 if nuclCriterion(outdict[Tmin]['action'], Tmin) > 0:
                     # no tunneling possible
                     return None
-                Tnuc = optimize.brentq(_tunnelFromPhaseAtT, Tmin, Tmax, 
-                         args=args, xtol=Ttol, maxiter=maxiter, disp=False)
+                Tnuc = optimize.brentq(
+                    _tunnelFromPhaseAtT, Tmin, Tmax,
+                    args=args, xtol=Ttol, maxiter=maxiter, disp=False)
             else:
                 # no tunneling possible
                 return None
@@ -851,7 +873,8 @@ def tunnelFromPhase(phases, start_phase, V, dV, Tmax,
     rdict = outdict[Tnuc]
     return rdict if rdict['trantype'] > 0 else None
 
-def secondOrderTrans(high_phase, low_phase, Tstr = 'Tnuc'):
+
+def secondOrderTrans(high_phase, low_phase, Tstr='Tnuc'):
     """
     Assemble a dictionary describing a second-order phase transition.
     """
@@ -890,7 +913,7 @@ def findAllTransitions(phases, V, dV, tunnelFromPhase_args={}):
     Returns
     -------
     list of transitions
-        Each item is a dictionary describing the transition (see 
+        Each item is a dictionary describing the transition (see
         :func:`tunnelFromPhase` for keys). The first transition is the one at
         the highest temperature.
     """
@@ -900,7 +923,7 @@ def findAllTransitions(phases, V, dV, tunnelFromPhase_args={}):
     transitions = []
     while start_phase is not None:
         del phases[start_phase.key]
-        trans = tunnelFromPhase(phases, start_phase, V, dV, Tmax, 
+        trans = tunnelFromPhase(phases, start_phase, V, dV, Tmax,
                                 **tunnelFromPhase_args)
         if trans is None and not start_phase.low_trans:
             start_phase = None
@@ -922,7 +945,8 @@ def findAllTransitions(phases, V, dV, tunnelFromPhase_args={}):
             start_phase = phases[trans['low_phase']]
             Tmax = trans['Tnuc']
     return transitions
-       
+
+
 def findCriticalTemperatures(phases, V, start_high=False):
     """
     Find all temperatures `Tcrit` such that there is degeneracy between any
@@ -933,16 +957,16 @@ def findCriticalTemperatures(phases, V, start_high=False):
     phases : dict
         Output from :func:`traceMultiMin`.
     V : callable
-        The potential function `V(x,T)`, where `x` is the field value (which 
-        should be an array, not a scalar) and `T` is the temperature.  
+        The potential function `V(x,T)`, where `x` is the field value (which
+        should be an array, not a scalar) and `T` is the temperature.
     start_high : bool, optional
         If True, only include those transitions which could be reached starting
-        from the high-T phase. NOT IMPLEMENTED YET.  
+        from the high-T phase. NOT IMPLEMENTED YET.
 
     Returns
     -------
     list of transitions
-        Transitions are sorted in decreasing temperature. Each transition is a 
+        Transitions are sorted in decreasing temperature. Each transition is a
         dictionary with the following keys:
 
         - *Tcrit* : the critical temperature
@@ -951,7 +975,7 @@ def findCriticalTemperatures(phases, V, start_high=False):
           transitions from).
         - *low_phase, high_phase* : identifier keys for the low-T and high-T
           phases.
-        - *trantype* : 1 or 2 for first or second-order transitions.        
+        - *trantype* : 1 or 2 for first or second-order transitions.
     """
     transitions = []
     for i in phases.keys():
@@ -961,15 +985,17 @@ def findCriticalTemperatures(phases, V, start_high=False):
             # Try going from i to j (phase1 -> phase2)
             phase1, phase2 = phases[i], phases[j]
             tmax = min(phase1.T[-1], phase2.T[-1])
-            tmin = max(phase1.T[ 0], phase2.T[ 0])
+            tmin = max(phase1.T[0], phase2.T[0])
             if tmin >= tmax:
                 # No overlap. Try for second-order.
                 if phase2.key in phase1.low_trans:
                     transitions.append(
                         secondOrderTrans(phase1, phase2, 'Tcrit'))
                 continue
+
             def DV(T):
                 return V(phase1.valAt(T), T) - V(phase2.valAt(T), T)
+
             if DV(tmin) < 0:
                 # phase1 is lower at tmin, no tunneling
                 continue
@@ -989,6 +1015,7 @@ def findCriticalTemperatures(phases, V, start_high=False):
         return sorted(transitions, key=lambda x: x['Tcrit'])[::-1]
     start_phase = getStartPhase(phases, V)
     raise NotImplementedError("start_high=True not yet supported")
+
 
 def addCritTempsForFullTransitions(phases, crit_trans, full_trans):
     """
@@ -1024,21 +1051,20 @@ def addCritTempsForFullTransitions(phases, crit_trans, full_trans):
             set(low_parents), set(high_parents))
         for p in common_parents:
             # exclude the common parents
-            try: 
+            try:
                 k = low_parents.index(p)
                 low_parents = low_parents[:k]
             except: pass
-            try: 
+            try:
                 k = high_parents.index(p)
                 high_parents = high_parents[:k+1]
             except: pass
-        for tcdict in crit_trans[::-1]: # start at low-T
+        for tcdict in crit_trans[::-1]:  # start at low-T
             if tcdict['Tcrit'] < tdict['Tnuc']:
                 continue
-            if (tcdict['low_phase'] in low_parents 
-                         and tcdict['high_phase'] in high_parents):
+            if (tcdict['low_phase'] in low_parents
+                    and tcdict['high_phase'] in high_parents):
                 tdict['crit_trans'] = tcdict
                 break
         else:
             tdict['crit_trans'] = None
-        

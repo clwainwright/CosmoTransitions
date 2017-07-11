@@ -71,7 +71,7 @@ Path deformation converged. 11 steps. fRatio = 3.46976e-03
 Path deformation converged. 1 steps. fRatio = 2.96662e-03
 
 >>> # High-T transition (second-order):
-... for key, val in m.TnTrans[0].iteritems():
+... for key, val in m.TnTrans[0].items():
 ...     if key is not 'instanton':
 ...         print key, ":", val
 low_vev : [ 0.0666956  -0.05057576]
@@ -86,7 +86,7 @@ trantype : 2
 low_phase : 1
 
 >>> # Low-T transition (first-order):
-... for key, val in m.TnTrans[1].iteritems():
+... for key, val in m.TnTrans[1].items():
 ...     if key is not 'instanton':
 ...         print key, ":", val
 low_vev : [ 288.33723614  387.41713999]

@@ -1,5 +1,5 @@
 finiteT.py
 ----------------------------------------
 
-.. automodule:: finiteT
+.. automodule:: cosmoTransitions.finiteT
     :members:
