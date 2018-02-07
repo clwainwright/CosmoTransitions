@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>cosmoTransitions.tunneling1D &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>cosmoTransitions.tunneling1D &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -17,15 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" /> 
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,8 +38,8 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,7 +49,7 @@
           <div class="body" role="main">
             
   <h1>Source code for cosmoTransitions.tunneling1D</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module (along with a few functions in :mod:`.helper_functions`) contains</span>
 <span class="sd">everything that is needed to calculate instantons in one field dimension.</span>
 <span class="sd">The primary class is :class:`SingleFieldInstanton`, which can calculate the</span>
@@ -63,21 +64,21 @@
 <span class="sd">    Create and document a *CDL_Instanton* class for tunneling with gravity.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span><span class="p">,</span> <span class="n">integrate</span><span class="p">,</span> <span class="n">special</span><span class="p">,</span> <span class="n">interpolate</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">optimize</span><span class="p">,</span> <span class="n">integrate</span><span class="p">,</span> <span class="n">special</span><span class="p">,</span> <span class="n">interpolate</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">helper_functions</span>
-<span class="kn">from</span> <span class="nn">.helper_functions</span> <span class="kn">import</span> <span class="n">rkqs</span><span class="p">,</span> <span class="n">IntegrationError</span><span class="p">,</span> <span class="n">clampVal</span>
-<span class="kn">from</span> <span class="nn">.helper_functions</span> <span class="kn">import</span> <span class="n">cubicInterpFunction</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">helper_functions</span>
+<span class="kn">from</span> <span class="nn">.helper_functions</span> <span class="k">import</span> <span class="n">rkqs</span><span class="p">,</span> <span class="n">IntegrationError</span><span class="p">,</span> <span class="n">clampVal</span>
+<span class="kn">from</span> <span class="nn">.helper_functions</span> <span class="k">import</span> <span class="n">cubicInterpFunction</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">):</span>
-    <span class="nb">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
 
 
 <div class="viewcode-block" id="PotentialError"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.PotentialError">[docs]</a><span class="k">class</span> <span class="nc">PotentialError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -87,9 +88,9 @@
 <span class="sd">    The error messages should be tuples, with the second item being one of</span>
 <span class="sd">    ``(&quot;no barrier&quot;, &quot;stable, not metastable&quot;)``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
+
 <div class="viewcode-block" id="SingleFieldInstanton"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton">[docs]</a><span class="k">class</span> <span class="nc">SingleFieldInstanton</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class will calculate properties of an instanton with a single scalar</span>
@@ -170,22 +171,22 @@
 <span class="sd">        plt.show()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi_absMin</span><span class="p">,</span> <span class="n">phi_metaMin</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span>
-                 <span class="n">dV</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">d2V</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">phi_eps</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                 <span class="n">phi_bar</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rscale</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">dV</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">d2V</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phi_eps</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">phi_bar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span> <span class="o">=</span> <span class="n">phi_absMin</span><span class="p">,</span> <span class="n">phi_metaMin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">V</span>
         <span class="k">if</span> <span class="n">V</span><span class="p">(</span><span class="n">phi_metaMin</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">V</span><span class="p">(</span><span class="n">phi_absMin</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">PotentialError</span><span class="p">(</span><span class="s">&quot;V(phi_metaMin) &lt;= V(phi_absMin); &quot;</span>
-                                 <span class="s">&quot;tunneling cannot occur.&quot;</span><span class="p">,</span> <span class="s">&quot;stable, not metastable&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dV</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PotentialError</span><span class="p">(</span><span class="s2">&quot;V(phi_metaMin) &lt;= V(phi_absMin); &quot;</span>
+                                 <span class="s2">&quot;tunneling cannot occur.&quot;</span><span class="p">,</span> <span class="s2">&quot;stable, not metastable&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dV</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dV</span> <span class="o">=</span> <span class="n">dV</span>
-        <span class="k">if</span> <span class="n">d2V</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">d2V</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">d2V</span> <span class="o">=</span> <span class="n">d2V</span>
-        <span class="k">if</span> <span class="n">phi_bar</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">phi_bar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findBarrierLocation</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span> <span class="o">=</span> <span class="n">phi_bar</span>
-        <span class="k">if</span> <span class="n">rscale</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rscale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rscale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findRScale</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rscale</span> <span class="o">=</span> <span class="n">rscale</span>
@@ -202,8 +203,8 @@
         <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_eps</span>
         <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">8</span><span class="o">*</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="n">eps</span><span class="p">)</span> <span class="o">+</span> <span class="mi">8</span><span class="o">*</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">+</span><span class="n">eps</span><span class="p">)</span> <span class="o">-</span> <span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span>
-                <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span>
-</div>
+                <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SingleFieldInstanton.dV_from_absMin"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.dV_from_absMin">[docs]</a>    <span class="k">def</span> <span class="nf">dV_from_absMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_phi</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Calculates `dV/dphi` at ``phi = phi_absMin + delta_phi``.</span>
@@ -222,16 +223,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span> <span class="o">+</span> <span class="n">delta_phi</span>
         <span class="n">dV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-        <span class="c"># If phi is very close to phi_absMin, it should be safer to assume</span>
-        <span class="c"># that dV is zero exactly at phi_absMin and instead calculate dV from</span>
-        <span class="c"># d2V.</span>
+        <span class="c1"># If phi is very close to phi_absMin, it should be safer to assume</span>
+        <span class="c1"># that dV is zero exactly at phi_absMin and instead calculate dV from</span>
+        <span class="c1"># d2V.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_eps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">dV_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d2V</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_phi</span>
-            <span class="c"># blend the two together so that there are no discontinuites</span>
+            <span class="c1"># blend the two together so that there are no discontinuites</span>
             <span class="n">blend_factor</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">delta_phi</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_eps</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">dV</span> <span class="o">=</span> <span class="n">dV_</span><span class="o">*</span><span class="n">blend_factor</span> <span class="o">+</span> <span class="n">dV</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">blend_factor</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">dV</span>
-</div>
+        <span class="k">return</span> <span class="n">dV</span></div>
+
 <div class="viewcode-block" id="SingleFieldInstanton.d2V"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.d2V">[docs]</a>    <span class="k">def</span> <span class="nf">d2V</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Calculates `d^2V/dphi^2` using finite differences.</span>
@@ -242,8 +243,8 @@
         <span class="n">eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_eps</span>
         <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">-</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span> <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="n">eps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">30</span><span class="o">*</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-                <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">+</span><span class="n">eps</span><span class="p">)</span> <span class="o">-</span> <span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">eps</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.</span><span class="o">*</span><span class="n">eps</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span>
-</div>
+                <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">+</span><span class="n">eps</span><span class="p">)</span> <span class="o">-</span> <span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">eps</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.</span><span class="o">*</span><span class="n">eps</span><span class="o">*</span><span class="n">eps</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SingleFieldInstanton.findBarrierLocation"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.findBarrierLocation">[docs]</a>    <span class="k">def</span> <span class="nf">findBarrierLocation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Find edge of the potential barrier.</span>
@@ -253,13 +254,13 @@
 <span class="sd">        phi_barrier : float</span>
 <span class="sd">            The value such that `V(phi_barrier) = V(phi_metaMin)`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">phi_tol</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-12</span>
+        <span class="n">phi_tol</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">12</span>
         <span class="n">V_phimeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
         <span class="n">phi1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span>
         <span class="n">phi2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span>
         <span class="n">phi0</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">phi1</span><span class="o">+</span><span class="n">phi2</span><span class="p">)</span>
 
-        <span class="c"># Do a very simple binary search to narrow down on the right answer.</span>
+        <span class="c1"># Do a very simple binary search to narrow down on the right answer.</span>
         <span class="k">while</span> <span class="nb">abs</span><span class="p">(</span><span class="n">phi1</span><span class="o">-</span><span class="n">phi2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">phi_tol</span><span class="p">:</span>
             <span class="n">V0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">phi0</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">V0</span> <span class="o">&gt;</span> <span class="n">V_phimeta</span><span class="p">:</span>
@@ -267,8 +268,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">phi2</span> <span class="o">=</span> <span class="n">phi0</span>
             <span class="n">phi0</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">phi1</span><span class="o">+</span><span class="n">phi2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">phi0</span>
-</div>
+        <span class="k">return</span> <span class="n">phi0</span></div>
+
 <div class="viewcode-block" id="SingleFieldInstanton.findRScale"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.findRScale">[docs]</a>    <span class="k">def</span> <span class="nf">findRScale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Find the characteristic length scale for tunneling over the potential</span>
@@ -302,40 +303,39 @@
 <span class="sd">            larger of the first scale and the second scale times</span>
 <span class="sd">            `second_check`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">negV</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span>
-            <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">clampVal</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">))</span>
-        <span class="n">phi_guess</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
-        <span class="n">phi_tol</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-6</span>
-        <span class="n">phi_bar_top</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="n">negV</span><span class="p">,</span> <span class="n">phi_guess</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="n">phi_tol</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span> <span class="o">&lt;</span> <span class="n">phi_bar_top</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span> <span class="ow">or</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span> <span class="o">&gt;</span> <span class="n">phi_bar_top</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">):</span>
+        <span class="n">phi_tol</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
+        <span class="n">x2</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
+        <span class="n">phi_bar_top</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fminbound</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="n">phi_tol</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">phi_bar_top</span> <span class="o">+</span> <span class="n">phi_tol</span> <span class="o">&gt;</span> <span class="n">x2</span> <span class="ow">or</span> <span class="n">phi_bar_top</span> <span class="o">-</span> <span class="n">phi_tol</span> <span class="o">&lt;</span> <span class="n">x1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PotentialError</span><span class="p">(</span>
-                <span class="s">&quot;Minimization is placing the top of the &quot;</span>
-                <span class="s">&quot;potential barrier outside of the interval defined by &quot;</span>
-                <span class="s">&quot;phi_bar and phi_metaMin. Assume that the barrier does not exist.&quot;</span><span class="p">,</span>
-                <span class="s">&quot;no barrier&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;Minimization is placing the top of the &quot;</span>
+                <span class="s2">&quot;potential barrier outside of the interval defined by &quot;</span>
+                <span class="s2">&quot;phi_bar and phi_metaMin. Assume that the barrier does not exist.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;no barrier&quot;</span><span class="p">)</span>
 
         <span class="n">Vtop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">phi_bar_top</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
         <span class="n">xtop</span> <span class="o">=</span> <span class="n">phi_bar_top</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span>
-        <span class="c"># Cubic function given by (ignoring linear and constant terms):</span>
-        <span class="c"># f(x) = C [(-1/3)x^3 + (1/2)x^2 xtop]</span>
-        <span class="c"># C = 6 Vtop / xtop^3</span>
-        <span class="c"># f&#39;&#39;(xtop) = - C xtop</span>
-        <span class="c"># d2V = -6*Vtop / xtop**2</span>
-        <span class="c"># rscale = 1 / sqrt(d2V)</span>
+        <span class="c1"># Cubic function given by (ignoring linear and constant terms):</span>
+        <span class="c1"># f(x) = C [(-1/3)x^3 + (1/2)x^2 xtop]</span>
+        <span class="c1"># C = 6 Vtop / xtop^3</span>
+        <span class="c1"># f&#39;&#39;(xtop) = - C xtop</span>
+        <span class="c1"># d2V = -6*Vtop / xtop**2</span>
+        <span class="c1"># rscale = 1 / sqrt(d2V)</span>
         <span class="k">if</span> <span class="n">Vtop</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PotentialError</span><span class="p">(</span><span class="s">&quot;Barrier height is not positive, &quot;</span>
-                                 <span class="s">&quot;does not exist.&quot;</span><span class="p">,</span> <span class="s">&quot;no barrier&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PotentialError</span><span class="p">(</span><span class="s2">&quot;Barrier height is not positive, &quot;</span>
+                                 <span class="s2">&quot;does not exist.&quot;</span><span class="p">,</span> <span class="s2">&quot;no barrier&quot;</span><span class="p">)</span>
         <span class="n">rscale1</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">xtop</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mi">6</span><span class="o">*</span><span class="n">Vtop</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">rscale1</span>
-        <span class="c"># The following would calculate it a separate way, but this goes</span>
-        <span class="c"># to infinity when delta_V goes to zero, so it&#39;s a bad way of doing it</span>
+        <span class="c1"># The following would calculate it a separate way, but this goes</span>
+        <span class="c1"># to infinity when delta_V goes to zero, so it&#39;s a bad way of doing it</span>
         <span class="n">delta_phi</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
         <span class="n">delta_V</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">))</span>
-        <span class="n">rscale2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">delta_phi</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta_V</span><span class="o">+</span><span class="mf">1e-100</span><span class="p">))</span>
-        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">rscale1</span><span class="p">,</span> <span class="n">rscale2</span><span class="p">)</span>
-</div>
-    <span class="n">_exactSolution_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;exactSolution_rval&quot;</span><span class="p">,</span> <span class="s">&quot;phi dphi&quot;</span><span class="p">)</span>
+        <span class="n">rscale2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">delta_phi</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta_V</span><span class="o">+</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">100</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">rscale1</span><span class="p">,</span> <span class="n">rscale2</span><span class="p">)</span></div>
+
+    <span class="n">_exactSolution_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;exactSolution_rval&quot;</span><span class="p">,</span> <span class="s2">&quot;phi dphi&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="SingleFieldInstanton.exactSolution"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.exactSolution">[docs]</a>    <span class="k">def</span> <span class="nf">exactSolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">d2V</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Find `phi(r)` given `phi(r=0)`, assuming a quadratic potential.</span>
@@ -381,14 +381,14 @@
         <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">d2V</span><span class="p">))</span>
         <span class="n">beta_r</span> <span class="o">=</span> <span class="n">beta</span><span class="o">*</span><span class="n">r</span>
         <span class="n">nu</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">gamma</span> <span class="o">=</span> <span class="n">special</span><span class="o">.</span><span class="n">gamma</span>  <span class="c"># Gamma function</span>
-        <span class="n">iv</span><span class="p">,</span> <span class="n">jv</span> <span class="o">=</span> <span class="n">special</span><span class="o">.</span><span class="n">iv</span><span class="p">,</span> <span class="n">special</span><span class="o">.</span><span class="n">jv</span>  <span class="c"># (modified) Bessel function</span>
-        <span class="k">if</span> <span class="n">beta_r</span> <span class="o">&lt;</span> <span class="mf">1e-2</span><span class="p">:</span>
-            <span class="c"># Use a small-r approximation for the Bessel function.</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="n">special</span><span class="o">.</span><span class="n">gamma</span>  <span class="c1"># Gamma function</span>
+        <span class="n">iv</span><span class="p">,</span> <span class="n">jv</span> <span class="o">=</span> <span class="n">special</span><span class="o">.</span><span class="n">iv</span><span class="p">,</span> <span class="n">special</span><span class="o">.</span><span class="n">jv</span>  <span class="c1"># (modified) Bessel function</span>
+        <span class="k">if</span> <span class="n">beta_r</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Use a small-r approximation for the Bessel function.</span>
             <span class="n">s</span> <span class="o">=</span> <span class="o">+</span><span class="mi">1</span> <span class="k">if</span> <span class="n">d2V</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">phi</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="n">dphi</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
                 <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">beta_r</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">k</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="o">**</span><span class="n">k</span> <span class="o">/</span> <span class="p">(</span><span class="n">gamma</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">gamma</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="n">nu</span><span class="p">))</span>
                 <span class="n">phi</span> <span class="o">+=</span> <span class="n">_</span>
                 <span class="n">dphi</span> <span class="o">+=</span> <span class="n">_</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">k</span><span class="p">)</span>
@@ -397,11 +397,11 @@
             <span class="n">phi</span> <span class="o">+=</span> <span class="n">phi0</span>
         <span class="k">elif</span> <span class="n">d2V</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">warnings</span>
-            <span class="c"># If beta_r is very large, this will throw off overflow and divide</span>
-            <span class="c"># by zero errors in iv(). It will return np.inf though, which is</span>
-            <span class="c"># what we want. Just ignore the warnings.</span>
+            <span class="c1"># If beta_r is very large, this will throw off overflow and divide</span>
+            <span class="c1"># by zero errors in iv(). It will return np.inf though, which is</span>
+            <span class="c1"># what we want. Just ignore the warnings.</span>
             <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">&quot;ignore&quot;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
                 <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">beta_r</span><span class="p">)</span><span class="o">**-</span><span class="n">nu</span> <span class="o">*</span> <span class="n">iv</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">beta_r</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dV</span><span class="o">/</span><span class="n">d2V</span>
                 <span class="n">dphi</span> <span class="o">=</span> <span class="o">-</span><span class="n">nu</span><span class="o">*</span><span class="p">((</span><span class="mf">0.5</span><span class="o">*</span><span class="n">beta_r</span><span class="p">)</span><span class="o">**-</span><span class="n">nu</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">iv</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">beta_r</span><span class="p">)</span>
                 <span class="n">dphi</span> <span class="o">+=</span> <span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="n">beta_r</span><span class="p">)</span><span class="o">**-</span><span class="n">nu</span> <span class="o">*</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">beta</span> \
@@ -415,10 +415,10 @@
                     <span class="o">*</span> <span class="p">(</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">beta_r</span><span class="p">)</span><span class="o">-</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">beta_r</span><span class="p">))</span>
             <span class="n">dphi</span> <span class="o">*=</span> <span class="n">gamma</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">dV</span><span class="o">/</span><span class="n">d2V</span>
             <span class="n">phi</span> <span class="o">+=</span> <span class="n">phi0</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exactSolution_rval</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exactSolution_rval</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span><span class="p">)</span></div>
+
     <span class="n">_initialConditions_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
-        <span class="s">&quot;initialConditions_rval&quot;</span><span class="p">,</span> <span class="s">&quot;r0 phi dphi&quot;</span><span class="p">)</span>
+        <span class="s2">&quot;initialConditions_rval&quot;</span><span class="p">,</span> <span class="s2">&quot;r0 phi dphi&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="SingleFieldInstanton.initialConditions"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.initialConditions">[docs]</a>    <span class="k">def</span> <span class="nf">initialConditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_phi0</span><span class="p">,</span> <span class="n">rmin</span><span class="p">,</span> <span class="n">delta_phi_cutoff</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Finds the initial conditions for integration.</span>
@@ -452,14 +452,14 @@
         <span class="n">d2V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d2V</span><span class="p">(</span><span class="n">phi0</span><span class="p">)</span>
         <span class="n">phi_r0</span><span class="p">,</span> <span class="n">dphi_r0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">d2V</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">phi_r0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_phi_cutoff</span><span class="p">):</span>
-            <span class="c"># The initial conditions at rmin work. Stop here.</span>
+            <span class="c1"># The initial conditions at rmin work. Stop here.</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialConditions_rval</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">phi_r0</span><span class="p">,</span> <span class="n">dphi_r0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">dphi_r0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">delta_phi0</span><span class="p">):</span>
-            <span class="c"># The field is evolving in the wrong direction.</span>
-            <span class="c"># Increasing r0 won&#39;t increase |delta_phi_r0|/</span>
+            <span class="c1"># The field is evolving in the wrong direction.</span>
+            <span class="c1"># Increasing r0 won&#39;t increase |delta_phi_r0|/</span>
             <span class="k">return</span> <span class="n">rmin</span><span class="p">,</span> <span class="n">phi_r0</span><span class="p">,</span> <span class="n">dphi_r0</span>
 
-        <span class="c"># Find the smallest r0 such that delta_phi_r0 &gt; delta_phi_cutoff</span>
+        <span class="c1"># Find the smallest r0 such that delta_phi_r0 &gt; delta_phi_cutoff</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">rmin</span>
         <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
             <span class="n">rlast</span> <span class="o">=</span> <span class="n">r</span>
@@ -468,24 +468,24 @@
             <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">phi</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_phi_cutoff</span><span class="p">):</span>
                 <span class="k">break</span>
 
-        <span class="c"># Now find where phi - self.phi_absMin = delta_phi_cutoff exactly</span>
+        <span class="c1"># Now find where phi - self.phi_absMin = delta_phi_cutoff exactly</span>
 
         <span class="k">def</span> <span class="nf">deltaPhiDiff</span><span class="p">(</span><span class="n">r_</span><span class="p">):</span>
             <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">(</span><span class="n">r_</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">d2V</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta_phi_cutoff</span><span class="p">)</span>
 
-        <span class="n">r0</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="n">deltaPhiDiff</span><span class="p">,</span> <span class="n">rlast</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">r0</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="n">deltaPhiDiff</span><span class="p">,</span> <span class="n">rlast</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">phi_r0</span><span class="p">,</span> <span class="n">dphi_r0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dV</span><span class="p">,</span> <span class="n">d2V</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialConditions_rval</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">phi_r0</span><span class="p">,</span> <span class="n">dphi_r0</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialConditions_rval</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">phi_r0</span><span class="p">,</span> <span class="n">dphi_r0</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="SingleFieldInstanton.equationOfMotion"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.equationOfMotion">[docs]</a>    <span class="k">def</span> <span class="nf">equationOfMotion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Used to integrate the bubble wall.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">])</span>
-</div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">r</span><span class="p">])</span></div>
+
     <span class="n">_integrateProfile_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
-        <span class="s">&quot;integrateProfile_rval&quot;</span><span class="p">,</span> <span class="s">&quot;r y convergence_type&quot;</span><span class="p">)</span>
+        <span class="s2">&quot;integrateProfile_rval&quot;</span><span class="p">,</span> <span class="s2">&quot;r y convergence_type&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="SingleFieldInstanton.integrateProfile"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.integrateProfile">[docs]</a>    <span class="k">def</span> <span class="nf">integrateProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dr0</span><span class="p">,</span>
                          <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span> <span class="n">drmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="o">*</span><span class="n">eqn_args</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
@@ -532,55 +532,55 @@
 <span class="sd">        helper_functions.IntegrationError</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dr</span> <span class="o">=</span> <span class="n">dr0</span>
-        <span class="c"># dY is the ODE that we use</span>
+        <span class="c1"># dY is the ODE that we use</span>
         <span class="k">def</span> <span class="nf">dY</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="n">eqn_args</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equationOfMotion</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
         <span class="n">dydr0</span> <span class="o">=</span> <span class="n">dY</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">r0</span><span class="p">)</span>
         <span class="n">ysign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">y0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
-            <span class="c"># positive means we&#39;re heading down, negative means heading up.</span>
+            <span class="c1"># positive means we&#39;re heading down, negative means heading up.</span>
         <span class="n">rmax</span> <span class="o">+=</span> <span class="n">r0</span>
 
-        <span class="n">convergence_type</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">convergence_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">dy</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">drnext</span> <span class="o">=</span> <span class="n">rkqs</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">dydr0</span><span class="p">,</span> <span class="n">r0</span><span class="p">,</span> <span class="n">dY</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">)</span>
             <span class="n">r1</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">+</span> <span class="n">dr</span>
             <span class="n">y1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dy</span>
             <span class="n">dydr1</span> <span class="o">=</span> <span class="n">dY</span><span class="p">(</span><span class="n">y1</span><span class="p">,</span><span class="n">r1</span><span class="p">)</span>
 
-            <span class="c"># Check for completion</span>
+            <span class="c1"># Check for completion</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">r1</span> <span class="o">&gt;</span> <span class="n">rmax</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s">&quot;r &gt; rmax&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s2">&quot;r &gt; rmax&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="p">(</span><span class="n">dr</span> <span class="o">&lt;</span> <span class="n">drmin</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s">&quot;dr &lt; drmin&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s2">&quot;dr &lt; drmin&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">*</span><span class="n">epsabs</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
                 <span class="n">r</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">r1</span><span class="p">,</span><span class="n">y1</span>
-                <span class="n">convergence_type</span> <span class="o">=</span> <span class="s">&quot;converged&quot;</span>
+                <span class="n">convergence_type</span> <span class="o">=</span> <span class="s2">&quot;converged&quot;</span>
                 <span class="k">break</span>
 
             <span class="k">elif</span> <span class="n">y1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ysign</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">y1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span><span class="o">*</span><span class="n">ysign</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">f</span> <span class="o">=</span> <span class="n">cubicInterpFunction</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">dr</span><span class="o">*</span><span class="n">dydr0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">dr</span><span class="o">*</span><span class="n">dydr1</span><span class="p">)</span>
                 <span class="k">if</span><span class="p">(</span><span class="n">y1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">ysign</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="c"># Extrapolate to where dphi(r) = 0</span>
+                    <span class="c1"># Extrapolate to where dphi(r) = 0</span>
                     <span class="n">x</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="n">convergence_type</span> <span class="o">=</span> <span class="s">&quot;undershoot&quot;</span>
+                    <span class="n">convergence_type</span> <span class="o">=</span> <span class="s2">&quot;undershoot&quot;</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="c"># Extrapolate to where phi(r) = phi_metaMin</span>
+                    <span class="c1"># Extrapolate to where phi(r) = phi_metaMin</span>
                     <span class="n">x</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-                    <span class="n">convergence_type</span> <span class="o">=</span> <span class="s">&quot;overshoot&quot;</span>
+                    <span class="n">convergence_type</span> <span class="o">=</span> <span class="s2">&quot;overshoot&quot;</span>
                 <span class="n">r</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">+</span> <span class="n">dr</span><span class="o">*</span><span class="n">x</span>
                 <span class="n">y</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                 <span class="k">break</span>
-            <span class="c"># Advance the integration variables</span>
+            <span class="c1"># Advance the integration variables</span>
             <span class="n">r0</span><span class="p">,</span><span class="n">y0</span><span class="p">,</span><span class="n">dydr0</span> <span class="o">=</span> <span class="n">r1</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">dydr1</span>
             <span class="n">dr</span> <span class="o">=</span> <span class="n">drnext</span>
-        <span class="c"># Check convergence for a second time.</span>
-        <span class="c"># The extrapolation in overshoot/undershoot might have gotten us within</span>
-        <span class="c"># the acceptable error.</span>
+        <span class="c1"># Check convergence for a second time.</span>
+        <span class="c1"># The extrapolation in overshoot/undershoot might have gotten us within</span>
+        <span class="c1"># the acceptable error.</span>
         <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">*</span><span class="n">epsabs</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-            <span class="n">convergence_type</span> <span class="o">=</span> <span class="s">&quot;converged&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_integrateProfile_rval</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">convergence_type</span><span class="p">)</span>
-</div>
-    <span class="n">profile_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;Profile1D&quot;</span><span class="p">,</span> <span class="s">&quot;R Phi dPhi Rerr&quot;</span><span class="p">)</span>
+            <span class="n">convergence_type</span> <span class="o">=</span> <span class="s2">&quot;converged&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_integrateProfile_rval</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">convergence_type</span><span class="p">)</span></div>
+
+    <span class="n">profile_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Profile1D&quot;</span><span class="p">,</span> <span class="s2">&quot;R Phi dPhi Rerr&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="SingleFieldInstanton.integrateAndSaveProfile"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.integrateAndSaveProfile">[docs]</a>    <span class="k">def</span> <span class="nf">integrateAndSaveProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span>
                                 <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span><span class="n">drmin</span><span class="p">,</span> <span class="o">*</span><span class="n">eqn_args</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -624,11 +624,11 @@
         <span class="n">R</span><span class="p">,</span> <span class="n">r0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">R</span><span class="p">),</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">Yout</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">y0</span><span class="p">)))</span>
         <span class="n">Yout</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">y0</span>
-        <span class="c"># dY is the ODE that we use</span>
+        <span class="c1"># dY is the ODE that we use</span>
         <span class="k">def</span> <span class="nf">dY</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="n">eqn_args</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equationOfMotion</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
         <span class="n">dydr0</span> <span class="o">=</span> <span class="n">dY</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">r0</span><span class="p">)</span>
-        <span class="n">Rerr</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">Rerr</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">:</span>
@@ -640,9 +640,9 @@
                 <span class="n">y1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dy</span><span class="o">*</span><span class="n">drmin</span><span class="o">/</span><span class="n">dr</span>
                 <span class="n">dr</span> <span class="o">=</span> <span class="n">drnext</span> <span class="o">=</span> <span class="n">drmin</span>
                 <span class="n">r1</span> <span class="o">=</span> <span class="n">r0</span> <span class="o">+</span> <span class="n">dr</span>
-                <span class="k">if</span> <span class="n">Rerr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="n">Rerr</span> <span class="o">=</span> <span class="n">r1</span>
+                <span class="k">if</span> <span class="n">Rerr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="n">Rerr</span> <span class="o">=</span> <span class="n">r1</span>
             <span class="n">dydr1</span> <span class="o">=</span> <span class="n">dY</span><span class="p">(</span><span class="n">y1</span><span class="p">,</span><span class="n">r1</span><span class="p">)</span>
-            <span class="c"># Fill the arrays, if necessary</span>
+            <span class="c1"># Fill the arrays, if necessary</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">r0</span> <span class="o">&lt;</span> <span class="n">R</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">r1</span><span class="p">):</span>
                 <span class="n">f</span> <span class="o">=</span> <span class="n">cubicInterpFunction</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">dr</span><span class="o">*</span><span class="n">dydr0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">dr</span><span class="o">*</span><span class="n">dydr1</span><span class="p">)</span>
                 <span class="k">while</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="ow">and</span> <span class="n">r0</span> <span class="o">&lt;</span> <span class="n">R</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">r1</span><span class="p">):</span>
@@ -650,16 +650,16 @@
                     <span class="n">Yout</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
                     <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-            <span class="c"># Advance the integration variables</span>
+            <span class="c1"># Advance the integration variables</span>
             <span class="n">r0</span><span class="p">,</span><span class="n">y0</span><span class="p">,</span><span class="n">dydr0</span> <span class="o">=</span> <span class="n">r1</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">dydr1</span>
             <span class="n">dr</span> <span class="o">=</span> <span class="n">drnext</span>
 
         <span class="n">rval</span> <span class="o">=</span> <span class="p">(</span><span class="n">R</span><span class="p">,)</span><span class="o">+</span><span class="nb">tuple</span><span class="p">(</span><span class="n">Yout</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">+</span><span class="n">eqn_args</span><span class="o">+</span><span class="p">(</span><span class="n">Rerr</span><span class="p">,)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_rval</span><span class="p">(</span><span class="o">*</span><span class="n">rval</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="SingleFieldInstanton.findProfile"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.findProfile">[docs]</a>    <span class="k">def</span> <span class="nf">findProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xguess</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">phitol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
-                    <span class="n">thinCutoff</span><span class="o">=.</span><span class="mo">01</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">rmin</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">1e4</span><span class="p">,</span>
-                    <span class="n">max_interior_pts</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_rval</span><span class="p">(</span><span class="o">*</span><span class="n">rval</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SingleFieldInstanton.findProfile"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.findProfile">[docs]</a>    <span class="k">def</span> <span class="nf">findProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xguess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xtol</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="n">phitol</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span>
+                    <span class="n">thinCutoff</span><span class="o">=.</span><span class="mi">01</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">rmin</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">1</span><span class="n">e4</span><span class="p">,</span>
+                    <span class="n">max_interior_pts</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the bubble profile by iteratively over/undershooting.</span>
 
@@ -718,65 +718,65 @@
 <span class="sd">        This way, `phi = phi_metaMin` when `x` is zero and</span>
 <span class="sd">        `phi = phi_absMin` when `x` is  infinity.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Set x parameters</span>
+        <span class="c1"># Set x parameters</span>
         <span class="n">xmin</span> <span class="o">=</span> <span class="n">xtol</span><span class="o">*</span><span class="mi">10</span>
         <span class="n">xmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-        <span class="k">if</span> <span class="n">xguess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">xguess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">xguess</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="nb">abs</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_bar</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span> <span class="o">/</span>
                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)))</span>
         <span class="n">xincrease</span> <span class="o">=</span> <span class="mf">5.0</span>
-            <span class="c"># The relative amount to increase x by if there is no upper bound.</span>
-        <span class="c"># --</span>
-        <span class="c"># Set r parameters</span>
+            <span class="c1"># The relative amount to increase x by if there is no upper bound.</span>
+        <span class="c1"># --</span>
+        <span class="c1"># Set r parameters</span>
         <span class="n">rmin</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rscale</span>
         <span class="n">dr0</span> <span class="o">=</span> <span class="n">rmin</span>
         <span class="n">drmin</span> <span class="o">=</span> <span class="mf">0.01</span><span class="o">*</span><span class="n">rmin</span>
         <span class="n">rmax</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rscale</span>
-        <span class="c"># --</span>
-        <span class="c"># Set the phi parameters</span>
+        <span class="c1"># --</span>
+        <span class="c1"># Set the phi parameters</span>
         <span class="n">delta_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span>
         <span class="n">epsabs</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">delta_phi</span><span class="p">,</span> <span class="n">delta_phi</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rscale</span><span class="p">])</span><span class="o">*</span><span class="n">phitol</span><span class="p">)</span>
         <span class="n">epsfrac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">phitol</span>
         <span class="n">delta_phi_cutoff</span> <span class="o">=</span> <span class="n">thinCutoff</span> <span class="o">*</span> <span class="n">delta_phi</span>
-            <span class="c"># The sign for delta_phi_cutoff doesn&#39;t matter</span>
-        <span class="c"># --</span>
+            <span class="c1"># The sign for delta_phi_cutoff doesn&#39;t matter</span>
+        <span class="c1"># --</span>
         <span class="n">integration_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">dr0</span><span class="p">,</span> <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span> <span class="n">drmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">)</span>
-        <span class="n">rf</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">rf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">delta_phi0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">delta_phi</span>
-            <span class="c"># r0, phi0, dphi0 = self.initialConditions(x, rmin, thinCutoff)</span>
+            <span class="c1"># r0, phi0, dphi0 = self.initialConditions(x, rmin, thinCutoff)</span>
             <span class="n">r0_</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dphi0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialConditions</span><span class="p">(</span>
                 <span class="n">delta_phi0</span><span class="p">,</span> <span class="n">rmin</span><span class="p">,</span> <span class="n">delta_phi_cutoff</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">r0_</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-                <span class="c"># Use the last finite values instead</span>
-                <span class="c"># (assuming there are such values)</span>
-                <span class="k">assert</span> <span class="n">rf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;Failed to retrieve initial &quot;</span>\
-                    <span class="s">&quot;conditions on the first try.&quot;</span>
+                <span class="c1"># Use the last finite values instead</span>
+                <span class="c1"># (assuming there are such values)</span>
+                <span class="k">assert</span> <span class="n">rf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Failed to retrieve initial &quot;</span>\
+                    <span class="s2">&quot;conditions on the first try.&quot;</span>
                 <span class="k">break</span>
             <span class="n">r0</span> <span class="o">=</span> <span class="n">r0_</span>
             <span class="n">y0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">phi0</span><span class="p">,</span> <span class="n">dphi0</span><span class="p">])</span>
             <span class="n">rf</span><span class="p">,</span> <span class="n">yf</span><span class="p">,</span> <span class="n">ctype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrateProfile</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="o">*</span><span class="n">integration_args</span><span class="p">)</span>
-            <span class="c"># Check for overshoot, undershoot</span>
-            <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s">&quot;converged&quot;</span><span class="p">:</span>
+            <span class="c1"># Check for overshoot, undershoot</span>
+            <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s2">&quot;converged&quot;</span><span class="p">:</span>
                 <span class="k">break</span>
-            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s">&quot;undershoot&quot;</span><span class="p">:</span>  <span class="c"># x is too low</span>
+            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s2">&quot;undershoot&quot;</span><span class="p">:</span>  <span class="c1"># x is too low</span>
                 <span class="n">xmin</span> <span class="o">=</span> <span class="n">x</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="n">xincrease</span> <span class="k">if</span> <span class="n">xmax</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="k">else</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">xmin</span><span class="o">+</span><span class="n">xmax</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s">&quot;overshoot&quot;</span><span class="p">:</span>  <span class="c"># x is too high</span>
+            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s2">&quot;overshoot&quot;</span><span class="p">:</span>  <span class="c1"># x is too high</span>
                 <span class="n">xmax</span> <span class="o">=</span> <span class="n">x</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">xmin</span><span class="o">+</span><span class="n">xmax</span><span class="p">)</span>
-            <span class="c"># Check if we&#39;ve reached xtol</span>
+            <span class="c1"># Check if we&#39;ve reached xtol</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">xmax</span><span class="o">-</span><span class="n">xmin</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">xtol</span><span class="p">:</span>
                 <span class="k">break</span>
 
-        <span class="c"># Integrate a second time, this time getting the points along the way</span>
+        <span class="c1"># Integrate a second time, this time getting the points along the way</span>
         <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">rf</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrateAndSaveProfile</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dr0</span><span class="p">,</span>
                                                <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span> <span class="n">drmin</span><span class="p">)</span>
-        <span class="c"># Make points interior to the bubble.</span>
-        <span class="k">if</span> <span class="n">max_interior_pts</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c1"># Make points interior to the bubble.</span>
+        <span class="k">if</span> <span class="n">max_interior_pts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">max_interior_pts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="k">if</span> <span class="n">max_interior_pts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">dx0</span> <span class="o">=</span> <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -785,26 +785,26 @@
                 <span class="n">R_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">n</span> <span class="o">=</span> <span class="n">max_interior_pts</span>
-                <span class="c"># R[0] = dx0 * (n + a*n*(n+1)/2)</span>
+                <span class="c1"># R[0] = dx0 * (n + a*n*(n+1)/2)</span>
                 <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">dx0</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
                 <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">R_int</span> <span class="o">=</span> <span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">dx0</span><span class="o">*</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">N</span><span class="o">*</span><span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-                <span class="n">R_int</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c"># enforce this exactly</span>
+                <span class="n">R_int</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># enforce this exactly</span>
             <span class="n">Phi_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">R_int</span><span class="p">)</span>
             <span class="n">dPhi_int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">R_int</span><span class="p">)</span>
             <span class="n">Phi_int</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span> <span class="o">+</span> <span class="n">delta_phi0</span>
             <span class="n">dPhi_int</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="n">dV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV_from_absMin</span><span class="p">(</span><span class="n">delta_phi0</span><span class="p">)</span>
             <span class="n">d2V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d2V</span><span class="p">(</span><span class="n">Phi_int</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">R_int</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">R_int</span><span class="p">)):</span>
                 <span class="n">Phi_int</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dPhi_int</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">(</span>
                     <span class="n">R_int</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Phi_int</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dV</span><span class="p">,</span> <span class="n">d2V</span><span class="p">)</span>
             <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">R_int</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">R</span><span class="p">)</span>
             <span class="n">Phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Phi_int</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
             <span class="n">dPhi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dPhi_int</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">dPhi</span><span class="p">)</span>
             <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_rval</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="n">Phi</span><span class="p">,</span><span class="n">dPhi</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">Rerr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">profile</span>
-</div>
+        <span class="k">return</span> <span class="n">profile</span></div>
+
 <div class="viewcode-block" id="SingleFieldInstanton.findAction"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.findAction">[docs]</a>    <span class="k">def</span> <span class="nf">findAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the Euclidean action for the instanton:</span>
@@ -823,19 +823,19 @@
 <span class="sd">            The Euclidean action.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">r</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">Phi</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">dPhi</span>
-        <span class="c"># Find the area of an n-sphere (alpha=n):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">+</span><span class="mi">1</span>  <span class="c"># Number of dimensions in the integration</span>
+        <span class="c1"># Find the area of an n-sphere (alpha=n):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">+</span><span class="mi">1</span>  <span class="c1"># Number of dimensions in the integration</span>
         <span class="n">area</span> <span class="o">=</span> <span class="n">r</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="p">(</span><span class="n">d</span><span class="o">*.</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="n">special</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">d</span><span class="o">*.</span><span class="mi">5</span><span class="p">)</span>
-        <span class="c"># And integrate the profile</span>
+        <span class="c1"># And integrate the profile</span>
         <span class="n">integrand</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">dphi</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
         <span class="n">integrand</span> <span class="o">*=</span> <span class="n">area</span>
         <span class="n">S</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">simps</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
-        <span class="c"># Find the bulk term in the bubble interior</span>
+        <span class="c1"># Find the bulk term in the bubble interior</span>
         <span class="n">volume</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="n">d</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="p">(</span><span class="n">d</span><span class="o">*.</span><span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="n">special</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">d</span><span class="o">*.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">S</span> <span class="o">+=</span> <span class="n">volume</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">S</span>
-</div>
-<div class="viewcode-block" id="SingleFieldInstanton.evenlySpacedPhi"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.evenlySpacedPhi">[docs]</a>    <span class="k">def</span> <span class="nf">evenlySpacedPhi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fixAbs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">S</span></div>
+
+<div class="viewcode-block" id="SingleFieldInstanton.evenlySpacedPhi"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.evenlySpacedPhi">[docs]</a>    <span class="k">def</span> <span class="nf">evenlySpacedPhi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">dphi</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fixAbs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This method takes `phi` and `dphi` as input, which will probably</span>
 <span class="sd">        come from the output of :func:`findProfile`, and returns a different</span>
@@ -852,25 +852,25 @@
 <span class="sd">        fixAbs : bool</span>
 <span class="sd">            If true, make phi go all the way to `phi_absMin`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">fixAbs</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fixAbs</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">))</span>
             <span class="n">dphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dphi</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span>
             <span class="n">dphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dphi</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="c"># Make sure that phi is increasing everywhere</span>
-        <span class="c"># (this is uglier than it ought to be)</span>
+        <span class="c1"># Make sure that phi is increasing everywhere</span>
+        <span class="c1"># (this is uglier than it ought to be)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">monotonicIndices</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
-        <span class="c"># Now do the interpolation</span>
+        <span class="c1"># Now do the interpolation</span>
         <span class="n">tck</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splrep</span><span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dphi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fixAbs</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
         <span class="n">dp</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">splev</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">tck</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">dp</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="WallWithConstFriction"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.WallWithConstFriction">[docs]</a><span class="k">class</span> <span class="nc">WallWithConstFriction</span><span class="p">(</span><span class="n">SingleFieldInstanton</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class solves a modified version of the instanton equations of motion</span>
@@ -901,15 +901,15 @@
         <span class="n">yA</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">pA</span><span class="p">)</span>
         <span class="n">yB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">pB</span><span class="p">)</span>
         <span class="n">yC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="n">pC</span><span class="p">)</span>
-        <span class="c"># Let lmda be the quadratic coefficient that will fit these 3 points</span>
+        <span class="c1"># Let lmda be the quadratic coefficient that will fit these 3 points</span>
         <span class="n">lmda</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="p">((</span><span class="n">yA</span><span class="o">-</span><span class="n">yB</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">pA</span><span class="o">-</span><span class="n">pB</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">yB</span><span class="o">-</span><span class="n">yC</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">pB</span><span class="o">-</span><span class="n">pC</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">pC</span><span class="o">-</span><span class="n">pA</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">lmda</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PotentialError</span><span class="p">(</span><span class="s">&quot;Cannot fit the potential to a negative &quot;</span>
-                                 <span class="s">&quot;quadratic.&quot;</span><span class="p">,</span> <span class="s">&quot;no barrier&quot;</span><span class="p">)</span>
-        <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lmda</span><span class="p">)</span>  <span class="c"># frequency of oscillations</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">omega</span>
-</div>
-<div class="viewcode-block" id="WallWithConstFriction.initialConditions"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.WallWithConstFriction.initialConditions">[docs]</a>    <span class="k">def</span> <span class="nf">initialConditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">phi0_rel</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PotentialError</span><span class="p">(</span><span class="s2">&quot;Cannot fit the potential to a negative &quot;</span>
+                                 <span class="s2">&quot;quadratic.&quot;</span><span class="p">,</span> <span class="s2">&quot;no barrier&quot;</span><span class="p">)</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lmda</span><span class="p">)</span>  <span class="c1"># frequency of oscillations</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">omega</span></div>
+
+<div class="viewcode-block" id="WallWithConstFriction.initialConditions"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.WallWithConstFriction.initialConditions">[docs]</a>    <span class="k">def</span> <span class="nf">initialConditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">phi0_rel</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Get the initial conditions for integration.</span>
 
@@ -947,18 +947,18 @@
         <span class="n">r0</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">phi0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span> <span class="o">+</span> <span class="n">phi0_rel</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span>
         <span class="n">dphi0</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="p">(</span><span class="n">phi0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialConditions_rval</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dphi0</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialConditions_rval</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dphi0</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="WallWithConstFriction.equationOfMotion"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.WallWithConstFriction.equationOfMotion">[docs]</a>    <span class="k">def</span> <span class="nf">equationOfMotion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">F</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Used to integrate the bubble wall.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="n">F</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-</div>
-    <span class="n">profile_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;Profile1D&quot;</span><span class="p">,</span> <span class="s">&quot;R Phi dPhi F Rerr&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dV</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">-</span><span class="n">F</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span></div>
 
-<div class="viewcode-block" id="WallWithConstFriction.findProfile"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.WallWithConstFriction.findProfile">[docs]</a>    <span class="k">def</span> <span class="nf">findProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Fguess</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">Ftol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">phitol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
-                    <span class="n">npoints</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">rmin</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">1e4</span><span class="p">,</span> <span class="n">phi0_rel</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+    <span class="n">profile_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Profile1D&quot;</span><span class="p">,</span> <span class="s2">&quot;R Phi dPhi F Rerr&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WallWithConstFriction.findProfile"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.WallWithConstFriction.findProfile">[docs]</a>    <span class="k">def</span> <span class="nf">findProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Fguess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Ftol</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="n">phitol</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span>
+                    <span class="n">npoints</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">rmin</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">1</span><span class="n">e4</span><span class="p">,</span> <span class="n">phi0_rel</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the bubble profile by iteratively over/undershooting.</span>
 
@@ -992,57 +992,57 @@
 <span class="sd">            The first value of `r` at which ``dr &lt; drmin``, or `None` if</span>
 <span class="sd">            ``dr &gt;= drmin`` always.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Set r parameters</span>
+        <span class="c1"># Set r parameters</span>
         <span class="n">rmin</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rscale</span>
         <span class="n">dr0</span> <span class="o">=</span> <span class="n">rmin</span>
         <span class="n">drmin</span> <span class="o">=</span> <span class="mf">0.01</span><span class="o">*</span><span class="n">rmin</span>
         <span class="n">rmax</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rscale</span>
-        <span class="c"># --</span>
-        <span class="c"># Set the phi parameters</span>
+        <span class="c1"># --</span>
+        <span class="c1"># Set the phi parameters</span>
         <span class="n">delta_phi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span>
         <span class="n">epsabs</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">delta_phi</span><span class="p">,</span> <span class="n">delta_phi</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">rscale</span><span class="p">])</span><span class="o">*</span><span class="n">phitol</span><span class="p">)</span>
         <span class="n">epsfrac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">phitol</span>
-        <span class="c"># --</span>
-        <span class="c"># Set F parameters</span>
+        <span class="c1"># --</span>
+        <span class="c1"># Set F parameters</span>
         <span class="n">Fmin</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">Fmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-        <span class="k">if</span> <span class="n">Fguess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">Fguess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">F</span> <span class="o">=</span> <span class="n">Fguess</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># Find F from conservation of energy</span>
-            <span class="c"># (total work done to slow down the field)</span>
+            <span class="c1"># Find F from conservation of energy</span>
+            <span class="c1"># (total work done to slow down the field)</span>
             <span class="n">Delta_V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_metaMin</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi_absMin</span><span class="p">)</span>
             <span class="n">F</span> <span class="o">=</span> <span class="n">Delta_V</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rscale</span> <span class="o">/</span> <span class="n">delta_phi</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">Ftol</span> <span class="o">*=</span> <span class="n">F</span>
         <span class="n">Fincrease</span> <span class="o">=</span> <span class="mf">5.0</span>
-            <span class="c"># The relative amount to increase F by if there is no upper bound.</span>
-        <span class="c"># --</span>
+            <span class="c1"># The relative amount to increase F by if there is no upper bound.</span>
+        <span class="c1"># --</span>
         <span class="n">integration_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">dr0</span><span class="p">,</span> <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span> <span class="n">drmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">F</span><span class="p">]</span>
-        <span class="n">rf</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">rf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">r0</span><span class="p">,</span> <span class="n">phi0</span><span class="p">,</span> <span class="n">dphi0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialConditions</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">phi0_rel</span><span class="p">)</span>
             <span class="n">y0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">phi0</span><span class="p">,</span> <span class="n">dphi0</span><span class="p">])</span>
             <span class="n">integration_args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">F</span>
             <span class="n">rf</span><span class="p">,</span> <span class="n">yf</span><span class="p">,</span> <span class="n">ctype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrateProfile</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="o">*</span><span class="n">integration_args</span><span class="p">)</span>
-            <span class="c"># Check for overshoot, undershoot</span>
-            <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s">&quot;converged&quot;</span><span class="p">:</span>
+            <span class="c1"># Check for overshoot, undershoot</span>
+            <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s2">&quot;converged&quot;</span><span class="p">:</span>
                 <span class="k">break</span>
-            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s">&quot;undershoot&quot;</span><span class="p">:</span>  <span class="c"># F is too high</span>
+            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s2">&quot;undershoot&quot;</span><span class="p">:</span>  <span class="c1"># F is too high</span>
                 <span class="n">Fmax</span> <span class="o">=</span> <span class="n">F</span>
                 <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">/</span><span class="n">Fincrease</span> <span class="k">if</span> <span class="n">Fmin</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">Fmin</span><span class="o">+</span><span class="n">Fmax</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s">&quot;overshoot&quot;</span><span class="p">:</span>  <span class="c"># F is too low</span>
+            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="s2">&quot;overshoot&quot;</span><span class="p">:</span>  <span class="c1"># F is too low</span>
                 <span class="n">Fmin</span> <span class="o">=</span> <span class="n">F</span>
                 <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">*</span><span class="n">Fincrease</span> <span class="k">if</span> <span class="n">Fmax</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="k">else</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">Fmin</span><span class="o">+</span><span class="n">Fmax</span><span class="p">)</span>
-            <span class="c"># Check if we&#39;ve reached xtol</span>
+            <span class="c1"># Check if we&#39;ve reached xtol</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">Fmax</span><span class="o">-</span><span class="n">Fmin</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">Ftol</span><span class="p">:</span>
                 <span class="k">break</span>
 
-        <span class="c"># Integrate a second time, this time getting the points along the way</span>
+        <span class="c1"># Integrate a second time, this time getting the points along the way</span>
         <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">rf</span><span class="p">,</span> <span class="n">npoints</span><span class="p">)</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrateAndSaveProfile</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dr0</span><span class="p">,</span>
                                                <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span> <span class="n">drmin</span><span class="p">,</span> <span class="n">F</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">profile</span>
-</div>
+        <span class="k">return</span> <span class="n">profile</span></div>
+
 <div class="viewcode-block" id="WallWithConstFriction.findAction"><a class="viewcode-back" href="../../tunnelling1D.html#cosmoTransitions.tunneling1D.WallWithConstFriction.findAction">[docs]</a>    <span class="k">def</span> <span class="nf">findAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Always returns `np.inf`.</span>
@@ -1058,14 +1058,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1081,13 +1078,13 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>tunneling1D.py &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>tunneling1D.py &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,14 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pathDeformation.py" href="pathDeformation.html" />
     <link rel="prev" title="Overview" href="Overview.html" /> 
   </head>
@@ -44,7 +46,7 @@
         <li class="right" >
           <a href="Overview.html" title="Overview"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -111,22 +113,21 @@ instanton is close to <em class="xref py py-obj">phi_absMin</em>.</li>
 <li><strong>phi_metaMin</strong> (<em>float</em>) &#8211; The field value in the metastable vacuum.</li>
 <li><strong>V</strong> (<em>callable</em>) &#8211; The potential function. It should take as its single parameter the field
 value <em class="xref py py-obj">phi</em>.</li>
-<li><strong>d2V</strong> (<em>dV,</em>) &#8211; The potential&#8217;s first and second derivatives. If not None, these
+<li><strong>d2V</strong> (<a class="reference internal" href="pathDeformation.html#cosmoTransitions.pathDeformation.SplinePath.dV" title="cosmoTransitions.pathDeformation.SplinePath.dV"><em>dV</em></a><em>,</em><em></em>) &#8211; The potential&#8217;s first and second derivatives. If not None, these
 override the methods <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.dV" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.dV"><code class="xref py py-func docutils literal"><span class="pre">dV()</span></code></a> and <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.d2V" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.d2V"><code class="xref py py-func docutils literal"><span class="pre">d2V()</span></code></a>.</li>
-<li><strong>phi_eps</strong> (<em>float, optional</em>) &#8211; A small value used to calculate derivatives (if not overriden by
+<li><strong>phi_eps</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; A small value used to calculate derivatives (if not overriden by
 the user) and in the function <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.dV_from_absMin" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.dV_from_absMin"><code class="xref py py-func docutils literal"><span class="pre">dV_from_absMin()</span></code></a>. The input should
 be unitless; it is later rescaled by <code class="docutils literal"><span class="pre">abs(phi_absMin</span> <span class="pre">-</span> <span class="pre">phi_metaMin)</span></code>.</li>
-<li><strong>alpha</strong> (<em>int or float, optional</em>) &#8211; The coefficient for the friction term in the ODE. This is also
+<li><strong>alpha</strong> (<em>int</em><em> or </em><em>float</em><em>, </em><em>optional</em>) &#8211; The coefficient for the friction term in the ODE. This is also
 the number of spacetime dimensions minus 1.</li>
-<li><strong>phi_bar</strong> (<em>float, optional</em>) &#8211; The field value at the edge of the barrier. If <em class="xref py py-obj">None</em>, it is found by
+<li><strong>phi_bar</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The field value at the edge of the barrier. If <em class="xref py py-obj">None</em>, it is found by
 <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.findBarrierLocation" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.findBarrierLocation"><code class="xref py py-func docutils literal"><span class="pre">findBarrierLocation()</span></code></a>.</li>
-<li><strong>rscale</strong> (<em>float, optional</em>) &#8211; The approximate radial scale of the instanton. If <em class="xref py py-obj">None</em> it is found by
+<li><strong>rscale</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The approximate radial scale of the instanton. If <em class="xref py py-obj">None</em> it is found by
 <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.findRScale" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.findRScale"><code class="xref py py-func docutils literal"><span class="pre">findRScale()</span></code></a>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#cosmoTransitions.tunneling1D.PotentialError" title="cosmoTransitions.tunneling1D.PotentialError"><code class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></code></a> &#8211;
-when the barrier is non-existent or when the presumably stable minimum
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#cosmoTransitions.tunneling1D.PotentialError" title="cosmoTransitions.tunneling1D.PotentialError"><code class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></code></a> &#8211; when the barrier is non-existent or when the presumably stable minimum
 has a higher energy that the metastable minimum.</p>
 </td>
 </tr>
@@ -135,23 +136,23 @@ has a higher energy that the metastable minimum.</p>
 <div class="admonition-examples admonition">
 <p class="first admonition-title">Examples</p>
 <p>Thick and thin-walled bubbles:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">cosmoTransitions.tunneling1D</span> <span class="kn">import</span> <span class="n">SingleFieldInstanton</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cosmoTransitions.tunneling1D</span> <span class="kn">import</span> <span class="n">SingleFieldInstanton</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
-<span class="c"># Thin-walled</span>
+<span class="c1"># Thin-walled</span>
 <span class="k">def</span> <span class="nf">V1</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">0.49</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">0.235</span> <span class="o">*</span> <span class="n">phi</span><span class="o">**</span><span class="mi">2</span>
 <span class="k">def</span> <span class="nf">dV1</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="n">phi</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-.</span><span class="mi">47</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">profile</span> <span class="o">=</span> <span class="n">SingleFieldInstanton</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">V1</span><span class="p">,</span> <span class="n">dV1</span><span class="p">)</span><span class="o">.</span><span class="n">findProfile</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
 
-<span class="c"># Thick-walled</span>
+<span class="c1"># Thick-walled</span>
 <span class="k">def</span> <span class="nf">V2</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">0.4</span><span class="o">*</span><span class="n">phi</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">phi</span><span class="o">**</span><span class="mi">2</span>
 <span class="k">def</span> <span class="nf">dV2</span><span class="p">(</span><span class="n">phi</span><span class="p">):</span> <span class="k">return</span> <span class="n">phi</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-.</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">profile</span> <span class="o">=</span> <span class="n">SingleFieldInstanton</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">V2</span><span class="p">,</span> <span class="n">dV2</span><span class="p">)</span><span class="o">.</span><span class="n">findProfile</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">profile</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">r&quot;Radius $r$&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">r&quot;Field $\phi$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">r&quot;Radius $r$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">r&quot;Field $\phi$&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -200,8 +201,7 @@ is calculated to fourth order.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>phi_barrier</strong> (<em>float</em>) &#8211;
-The value such that <em class="xref py py-obj">V(phi_barrier) = V(phi_metaMin)</em></td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>phi_barrier</strong> (<em>float</em>) &#8211; The value such that <em class="xref py py-obj">V(phi_barrier) = V(phi_metaMin)</em></td>
 </tr>
 </tbody>
 </table>
@@ -224,8 +224,7 @@ oscillations about this cubic maximum.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#cosmoTransitions.tunneling1D.PotentialError" title="cosmoTransitions.tunneling1D.PotentialError"><code class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></code></a> &#8211;
-when the barrier is non-existent.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#cosmoTransitions.tunneling1D.PotentialError" title="cosmoTransitions.tunneling1D.PotentialError"><code class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></code></a> &#8211; when the barrier is non-existent.</td>
 </tr>
 </tbody>
 </table>
@@ -242,12 +241,11 @@ when the barrier is non-existent.</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>r</strong> (<em>float</em>) &#8211; The radius at which the solution should be calculated.</li>
 <li><strong>phi0</strong> (<em>float</em>) &#8211; The field at <em class="xref py py-obj">r=0</em>.</li>
-<li><strong>d2V</strong> (<em>dV,</em>) &#8211; The potential&#8217;s first and second derivatives evaluated at <em class="xref py py-obj">phi0</em>.</li>
+<li><strong>d2V</strong> (<a class="reference internal" href="pathDeformation.html#cosmoTransitions.pathDeformation.SplinePath.dV" title="cosmoTransitions.pathDeformation.SplinePath.dV"><em>dV</em></a><em>,</em><em></em>) &#8211; The potential&#8217;s first and second derivatives evaluated at <em class="xref py py-obj">phi0</em>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>phi, dphi</strong> (<em>float</em>) &#8211;
-The field and its derivative evaluated at <em class="xref py py-obj">r</em>.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>phi, dphi</strong> (<em>float</em>) &#8211; The field and its derivative evaluated at <em class="xref py py-obj">r</em>.</p>
 </td>
 </tr>
 </tbody>
@@ -292,8 +290,7 @@ If there is no such value, it returns the intial conditions at <em class="xref p
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>r0, phi, dphi</strong> (<em>float</em>) &#8211;
-The initial radius and the field and its derivative at that radius.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>r0, phi, dphi</strong> (<em>float</em>) &#8211; The initial radius and the field and its derivative at that radius.</p>
 </td>
 </tr>
 </tbody>
@@ -328,7 +325,7 @@ minimum.</p>
 <li><strong>r0</strong> (<em>float</em>) &#8211; The starting radius for the integration.</li>
 <li><strong>y0</strong> (<em>array_like</em>) &#8211; The starting values [phi(r0), dphi(r0)].</li>
 <li><strong>dr0</strong> (<em>float</em>) &#8211; The starting integration stepsize.</li>
-<li><strong>epsabs</strong> (<em>epsfrac,</em>) &#8211; The error tolerances used for integration. This is fed into
+<li><strong>epsabs</strong> (<em>epsfrac</em><em>,</em><em></em>) &#8211; The error tolerances used for integration. This is fed into
 <code class="xref py py-func docutils literal"><span class="pre">helper_functions.rkqs()</span></code> and is used to test for convergence.</li>
 <li><strong>drmin</strong> (<em>float</em>) &#8211; The minimum allowed value of <em class="xref py py-obj">dr</em> before raising an error.</li>
 <li><strong>rmax</strong> (<em>float</em>) &#8211; The maximum allowed value of <em class="xref py py-obj">r-r0</em> before raising an error.</li>
@@ -338,17 +335,14 @@ subclasses.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
-<li><strong>r</strong> (<em>float</em>) &#8211;
-The final radius.</li>
-<li><strong>y</strong> (<em>array_like</em>) &#8211;
-The final field values [phi, dphi]</li>
-<li><strong>convergence_type</strong> (<em>str</em>) &#8211;
-Either &#8216;overshoot&#8217;, &#8216;undershoot&#8217;, or &#8216;converged&#8217;.</li>
+<li><strong>r</strong> (<em>float</em>) &#8211; The final radius.</li>
+<li><strong>y</strong> (<em>array_like</em>) &#8211; The final field values [phi, dphi]</li>
+<li><strong>convergence_type</strong> (<em>str</em>) &#8211; Either &#8216;overshoot&#8217;, &#8216;undershoot&#8217;, or &#8216;converged&#8217;.</li>
 </ul>
 </p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">helper_functions.IntegrationError</span></code> &#8211;</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">helper_functions.IntegrationError</span></code></p>
 </td>
 </tr>
 </tbody>
@@ -373,7 +367,7 @@ Either &#8216;overshoot&#8217;, &#8216;undershoot&#8217;, or &#8216;converged&#8
 <li><strong>R</strong> (<em>array_like</em>) &#8211; The array of points at which we want to save the profile.</li>
 <li><strong>y0</strong> (<em>float</em>) &#8211; The starting values [phi(r0), dphi(r0)].</li>
 <li><strong>dr</strong> (<em>float</em>) &#8211; Starting stepsize.</li>
-<li><strong>epsabs</strong> (<em>epsfrac,</em>) &#8211; The error tolerances used for integration. This
+<li><strong>epsabs</strong> (<em>epsfrac</em><em>,</em><em></em>) &#8211; The error tolerances used for integration. This
 is fed into <code class="xref py py-func docutils literal"><span class="pre">helper_functions.rkqs()</span></code>.</li>
 <li><strong>drmin</strong> (<em>float</em>) &#8211; The smallest allowed stepsize.</li>
 <li><strong>eqn_args</strong> (<em>tuple</em>) &#8211; Extra arguments to pass to <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.equationOfMotion" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.equationOfMotion"><code class="xref py py-func docutils literal"><span class="pre">equationOfMotion()</span></code></a>. Useful for
@@ -382,10 +376,8 @@ subclasses.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211;
-Radii and field values which make up the bubble profile.</li>
-<li><strong>Rerr</strong> (<em>float or None</em>) &#8211;
-The first value of <em class="xref py py-obj">r</em> at which <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></code>, or <em class="xref py py-obj">None</em> if
+<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211; Radii and field values which make up the bubble profile.</li>
+<li><strong>Rerr</strong> (<em>float or None</em>) &#8211; The first value of <em class="xref py py-obj">r</em> at which <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></code>, or <em class="xref py py-obj">None</em> if
 <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&gt;=</span> <span class="pre">drmin</span></code> always.</li>
 </ul>
 </p>
@@ -418,11 +410,11 @@ the profile along the length of the wall.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>xguess</strong> (<em>float, optional</em>) &#8211; The initial guess for <em class="xref py py-obj">x</em>. If <em class="xref py py-obj">None</em>, <em class="xref py py-obj">xguess</em> is set such
+<li><strong>xguess</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The initial guess for <em class="xref py py-obj">x</em>. If <em class="xref py py-obj">None</em>, <em class="xref py py-obj">xguess</em> is set such
 that <code class="docutils literal"><span class="pre">phi_guess</span> <span class="pre">=</span> <span class="pre">self.phi_bar</span></code>.</li>
-<li><strong>xtol</strong> (<em>float, optional</em>) &#8211; Target accuracy in <em class="xref py py-obj">x</em>.</li>
-<li><strong>phitol</strong> (<em>float, optional</em>) &#8211; Fractional error tolerance in integration.</li>
-<li><strong>thinCutoff</strong> (<em>float, optional</em>) &#8211; Equal to <em class="xref py py-obj">delta_phi_cutoff / (phi_metaMin - phi_absMin)</em>, where
+<li><strong>xtol</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Target accuracy in <em class="xref py py-obj">x</em>.</li>
+<li><strong>phitol</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Fractional error tolerance in integration.</li>
+<li><strong>thinCutoff</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Equal to <em class="xref py py-obj">delta_phi_cutoff / (phi_metaMin - phi_absMin)</em>, where
 <em class="xref py py-obj">delta_phi_cutoff</em> is used  in <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.initialConditions" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.initialConditions"><code class="xref py py-func docutils literal"><span class="pre">initialConditions()</span></code></a>.</li>
 <li><strong>npoints</strong> (<em>int</em>) &#8211; Number of points to return in the profile.</li>
 <li><strong>rmin</strong> (<em>float</em>) &#8211; Relative to <code class="docutils literal"><span class="pre">self.rscale</span></code>. Sets the smallest starting
@@ -437,11 +429,9 @@ points are added to the bubble interior.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211;
-Radii and field values which make up the bubble profile. Note that
+<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211; Radii and field values which make up the bubble profile. Note that
 <em class="xref py py-obj">R[0]</em> can be much bigger than zero for thin-walled bubbles.</li>
-<li><strong>Rerr</strong> (<em>float or None</em>) &#8211;
-The first value of <em class="xref py py-obj">r</em> at which <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></code>, or <em class="xref py py-obj">None</em> if
+<li><strong>Rerr</strong> (<em>float or None</em>) &#8211; The first value of <em class="xref py py-obj">r</em> at which <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></code>, or <em class="xref py py-obj">None</em> if
 <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&gt;=</span> <span class="pre">drmin</span></code> always.</li>
 </ul>
 </p>
@@ -475,8 +465,7 @@ can cause large variations in the integration. Rather than varying
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile</strong> &#8211; Output from <a class="reference internal" href="#cosmoTransitions.tunneling1D.SingleFieldInstanton.findProfile" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.findProfile"><code class="xref py py-func docutils literal"><span class="pre">findProfile()</span></code></a>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>float</em> &#8211;
-The Euclidean action.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>float</em> &#8211; The Euclidean action.</td>
 </tr>
 </tbody>
 </table>
@@ -494,7 +483,7 @@ set of arrays <em class="xref py py-obj">phi2</em> and <em class="xref py py-obj
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dphi</strong> (<em>phi,</em>) &#8211; </li>
+<li><strong>dphi</strong> (<em>phi</em><em>,</em><em></em>) &#8211; </li>
 <li><strong>npoints</strong> (<em>int</em>) &#8211; The number of points to output.</li>
 <li><strong>k</strong> (<em>int</em>) &#8211; The degree of spline fitting. <code class="docutils literal"><span class="pre">k=1</span></code> means linear interpolation.</li>
 <li><strong>fixAbs</strong> (<em>bool</em>) &#8211; If true, make phi go all the way to <em class="xref py py-obj">phi_absMin</em>.</li>
@@ -532,8 +521,7 @@ by fitting a simple quadratic to the potential.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#cosmoTransitions.tunneling1D.PotentialError" title="cosmoTransitions.tunneling1D.PotentialError"><code class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></code></a> &#8211;
-when the barrier is non-existent.</td>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#cosmoTransitions.tunneling1D.PotentialError" title="cosmoTransitions.tunneling1D.PotentialError"><code class="xref py py-exc docutils literal"><span class="pre">PotentialError</span></code></a> &#8211; when the barrier is non-existent.</td>
 </tr>
 </tbody>
 </table>
@@ -555,8 +543,7 @@ with 0.0 being at <em class="xref py py-obj">phi_absMin</em> and 1.0 being at <e
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>r0, phi, dphi</strong> (<em>float</em>) &#8211;
-The initial radius and the field and its derivative at that radius.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>r0, phi, dphi</strong> (<em>float</em>) &#8211; The initial radius and the field and its derivative at that radius.</p>
 </td>
 </tr>
 </tbody>
@@ -594,10 +581,10 @@ The initial radius and the field and its derivative at that radius.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>Fguess</strong> (<em>float, optional</em>) &#8211; The initial guess for <em class="xref py py-obj">F</em>. If <em class="xref py py-obj">None</em>, <em class="xref py py-obj">Fguess</em> is calculated from
+<li><strong>Fguess</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The initial guess for <em class="xref py py-obj">F</em>. If <em class="xref py py-obj">None</em>, <em class="xref py py-obj">Fguess</em> is calculated from
 <em class="xref py py-obj">self.rscale</em>.</li>
-<li><strong>Ftol</strong> (<em>float, optional</em>) &#8211; Target accuracy in <em class="xref py py-obj">F</em>, relative to <em class="xref py py-obj">Fguess</em>.</li>
-<li><strong>phitol</strong> (<em>float, optional</em>) &#8211; Fractional error tolerance in integration.</li>
+<li><strong>Ftol</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Target accuracy in <em class="xref py py-obj">F</em>, relative to <em class="xref py py-obj">Fguess</em>.</li>
+<li><strong>phitol</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Fractional error tolerance in integration.</li>
 <li><strong>npoints</strong> (<em>int</em>) &#8211; Number of points to return in the profile.</li>
 <li><strong>rmin</strong> (<em>float</em>) &#8211; Relative to <code class="docutils literal"><span class="pre">self.rscale</span></code>. Sets the smallest starting
 radius, the starting stepsize, and the smallest allowed stepsize
@@ -609,11 +596,9 @@ distance.</li>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211;
-Radii and field values which make up the bubble profile. Note that
+<li><strong>R, Phi, dPhi</strong> (<em>array_like</em>) &#8211; Radii and field values which make up the bubble profile. Note that
 <em class="xref py py-obj">R[0]</em> can be much bigger than zero for thin-walled bubbles.</li>
-<li><strong>Rerr</strong> (<em>float or None</em>) &#8211;
-The first value of <em class="xref py py-obj">r</em> at which <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></code>, or <em class="xref py py-obj">None</em> if
+<li><strong>Rerr</strong> (<em>float or None</em>) &#8211; The first value of <em class="xref py py-obj">r</em> at which <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&lt;</span> <span class="pre">drmin</span></code>, or <em class="xref py py-obj">None</em> if
 <code class="docutils literal"><span class="pre">dr</span> <span class="pre">&gt;=</span> <span class="pre">drmin</span></code> always.</li>
 </ul>
 </p>
@@ -659,21 +644,18 @@ The first value of <em class="xref py py-obj">r</em> at which <code class="docut
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/tunnelling1D.txt"
+      <li><a href="_sources/tunnelling1D.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -695,12 +677,12 @@ The first value of <em class="xref py py-obj">r</em> at which <code class="docut
         <li class="right" >
           <a href="Overview.html" title="Overview"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

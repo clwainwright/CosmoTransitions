@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>multi_field_plotting.py &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>multi_field_plotting.py &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,14 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="helper_functions.py" href="helper_functions.html" /> 
   </head>
   <body role="document">
@@ -40,7 +42,7 @@
         <li class="right" >
           <a href="helper_functions.html" title="helper_functions.py"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -70,14 +72,14 @@ dynamically change the offsets of the slices in the other subplots.</p>
 <li><strong>bounds</strong> (<em>array_like</em>) &#8211; A list of <code class="docutils literal"><span class="pre">(xmin,</span> <span class="pre">xmax)</span></code> tuples for each dimension.</li>
 <li><strong>f</strong> (<em>callable</em>) &#8211; The function to plot. The first argument must accept arrays of shape
 <code class="docutils literal"><span class="pre">(...,</span> <span class="pre">Ndim)</span></code>, where <em class="xref py py-obj">Ndim</em> is the number of dimensions.</li>
-<li><strong>f_args</strong> (<em>tuple, optional</em>) &#8211; Extra agruments to pass to <em class="xref py py-obj">f</em>.</li>
-<li><strong>nx</strong> (<em>int, optional</em>) &#8211; Number of data points to plot in each dimension.</li>
-<li><strong>contour_levs</strong> (<em>int or array_like, optional</em>) &#8211; If an array, a list of the contour levels to plot. If a list, the total
+<li><strong>f_args</strong> (<em>tuple</em><em>, </em><em>optional</em>) &#8211; Extra agruments to pass to <em class="xref py py-obj">f</em>.</li>
+<li><strong>nx</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; Number of data points to plot in each dimension.</li>
+<li><strong>contour_levs</strong> (<em>int</em><em> or </em><em>array_like</em><em>, </em><em>optional</em>) &#8211; If an array, a list of the contour levels to plot. If a list, the total
 number of contour levels across the bounding box (the contour levels are
 then calculated using <a class="reference internal" href="#cosmoTransitions.multi_field_plotting.MultiFieldPlotter.calcContourLevels" title="cosmoTransitions.multi_field_plotting.MultiFieldPlotter.calcContourLevels"><code class="xref py py-func docutils literal"><span class="pre">calcContourLevels()</span></code></a>).</li>
-<li><strong>plot_1d</strong> (<em>bool, optional</em>) &#8211; If True, plot one-dimensional plots along with the contours. (not yet
+<li><strong>plot_1d</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, plot one-dimensional plots along with the contours. (not yet
 implemented)</li>
-<li><strong>plot_flipped</strong> (<em>bool, optional</em>) &#8211; If True, plot the flipped contour for each field (so that the subplots
+<li><strong>plot_flipped</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, plot the flipped contour for each field (so that the subplots
 form a square grid rather than a triangle).</li>
 </ul>
 </td>
@@ -98,8 +100,8 @@ lines).</li>
 <p class="first admonition-title">Example</p>
 <p>The following example will make three contour plots whose offsets can be
 changed interactively:</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">multi_field_plotting</span> <span class="kn">import</span> <span class="n">MultiFieldPlotter</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">V</span><span class="p">(</span><span class="n">X</span><span class="p">):</span> <span class="c"># Some potential that looks vaguely interesting</span>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">multi_field_plotting</span> <span class="k">import</span> <span class="n">MultiFieldPlotter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">V</span><span class="p">(</span><span class="n">X</span><span class="p">):</span> <span class="c1"># Some potential that looks vaguely interesting</span>
 <span class="gp">... </span>    <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">y</span><span class="o">*</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z</span><span class="o">**</span><span class="mi">4</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mfp</span> <span class="o">=</span> <span class="n">MultiFieldPlotter</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]],</span> <span class="n">V</span><span class="p">)</span>
@@ -117,7 +119,7 @@ changed interactively:</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>num_levs</strong> (<em>int</em>) &#8211; Desired number of contour levels.</li>
-<li><strong>nx</strong> (<em>int, optional</em>) &#8211; The number of data points along each dimension that are used to
+<li><strong>nx</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The number of data points along each dimension that are used to
 find the minimum and maximum levels.</li>
 </ul>
 </td>
@@ -134,7 +136,7 @@ find the minimum and maximum levels.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subplot</strong> (<em>(int, int) or &#8216;all&#8217;</em>) &#8211; The subplot to redraw. If a tuple, it should be field indicies of
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subplot</strong> (<em></em><em>(</em><em>int</em><em>, </em><em>int</em><em>) or </em><em>'all'</em>) &#8211; The subplot to redraw. If a tuple, it should be field indicies of
 the x and y axes.</td>
 </tr>
 </tbody>
@@ -157,21 +159,18 @@ the x and y axes.</td>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/multi_field_plotting.txt"
+      <li><a href="_sources/multi_field_plotting.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -190,12 +189,12 @@ the x and y axes.</td>
         <li class="right" >
           <a href="helper_functions.html" title="helper_functions.py"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

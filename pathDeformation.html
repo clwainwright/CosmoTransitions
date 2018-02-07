@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pathDeformation.py &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>pathDeformation.py &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,14 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="transitionFinder.py" href="transitionFinder.html" />
     <link rel="prev" title="tunneling1D.py" href="tunnelling1D.html" /> 
   </head>
@@ -44,7 +46,7 @@
         <li class="right" >
           <a href="tunnelling1D.html" title="tunneling1D.py"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -108,14 +110,14 @@ as the path deforms. Should have shape <code class="docutils literal"><span clas
 the attribute <em class="xref py py-obj">v2</em> as <code class="docutils literal"><span class="pre">v2</span> <span class="pre">=</span> <span class="pre">dphidr[:,np.newaxis]**2</span></code>.</li>
 <li><strong>dV</strong> (<em>callable</em>) &#8211; The potential gradient as a function of phi. The output shape should be
 the same as the input shape, which will be <code class="docutils literal"><span class="pre">(...,</span> <span class="pre">n_dimensions)</span></code>.</li>
-<li><strong>nb</strong> (<em>int, optional</em>) &#8211; Number of basis splines to use.</li>
-<li><strong>kb</strong> (<em>int, optional</em>) &#8211; Order of basis splines.</li>
-<li><strong>v2min</strong> (<em>float, optional</em>) &#8211; The smallest the square of dphidr is allowed to be, relative
+<li><strong>nb</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; Number of basis splines to use.</li>
+<li><strong>kb</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; Order of basis splines.</li>
+<li><strong>v2min</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The smallest the square of dphidr is allowed to be, relative
 to the characteristic force exterted by F_ext. Note that the
 self-correcting nature of the deformation goes away when dphidr=0.</li>
-<li><strong>fix_end</strong> (<em>fix_start,</em>) &#8211; If True, the force on the first/last point along the path is set to
+<li><strong>fix_end</strong> (<em>fix_start</em><em>,</em><em></em>) &#8211; If True, the force on the first/last point along the path is set to
 zero, so the point will not change in the deformation step.</li>
-<li><strong>save_all_steps</strong> (<em>bool, optional</em>) &#8211; If True, each step gets saved into <code class="docutils literal"><span class="pre">self.phi_list</span></code> and
+<li><strong>save_all_steps</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, each step gets saved into <code class="docutils literal"><span class="pre">self.phi_list</span></code> and
 <code class="docutils literal"><span class="pre">self.F_list</span></code>.</li>
 </ul>
 </td>
@@ -159,25 +161,22 @@ the potential along the path.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>lastStep</strong> (<em>float</em>) &#8211; Size of the last step.</li>
-<li><strong>minstep</strong> (<em>maxstep,</em>) &#8211; </li>
-<li><strong>reverseCheck</strong> (<em>float, optional</em>) &#8211; Percentage of points for which the force can reverse direcitons
+<li><strong>minstep</strong> (<em>maxstep</em><em>,</em><em></em>) &#8211; </li>
+<li><strong>reverseCheck</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Percentage of points for which the force can reverse direcitons
 (relative to the last step) before the stepsize is decreased.
 If <code class="docutils literal"><span class="pre">reverseCheck</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code>, the stepsize is kept at <em class="xref py py-obj">lastStep</em>.</li>
-<li><strong>stepDecrease</strong> (<em>stepIncrease,</em>) &#8211; The amount to increase or decrease stepsize over the last step.
+<li><strong>stepDecrease</strong> (<em>stepIncrease</em><em>,</em><em></em>) &#8211; The amount to increase or decrease stepsize over the last step.
 Both should be bigger than 1.</li>
-<li><strong>checkAfterFit</strong> (<em>bool, optional</em>) &#8211; If True, the convergence test is performed after the points are fit
+<li><strong>checkAfterFit</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, the convergence test is performed after the points are fit
 to a spline. If False, it&#8217;s done beforehand.</li>
-<li><strong>verbose</strong> (<em>bool, optional</em>) &#8211; If True, output is printed at each step.</li>
+<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, output is printed at each step.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>stepsize</strong> (<em>float</em>) &#8211;
-The stepsize used for this step.</li>
-<li><strong>step_reversed</strong> (<em>bool</em>) &#8211;
-True if this step was reversed, otherwise False</li>
-<li><strong>fRatio</strong> (<em>float</em>) &#8211;
-The ratio of the maximum normal force to the maximum potential
+<li><strong>stepsize</strong> (<em>float</em>) &#8211; The stepsize used for this step.</li>
+<li><strong>step_reversed</strong> (<em>bool</em>) &#8211; True if this step was reversed, otherwise False</li>
+<li><strong>fRatio</strong> (<em>float</em>) &#8211; The ratio of the maximum normal force to the maximum potential
 gradient. When the path is a perfect fit, this should go to zero. If
 <code class="docutils literal"><span class="pre">checkAfterFit</span> <span class="pre">==</span> <span class="pre">True</span></code>, the normal force in this ratio is defined
 by the change in phi this step <em>after</em> being fit to a spline. Note
@@ -226,23 +225,22 @@ convergence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>startstep</strong> (<em>float, optional</em>) &#8211; Starting stepsize used in <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Spline.step" title="cosmoTransitions.pathDeformation.Deformation_Spline.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>.</li>
-<li><strong>fRatioConv</strong> (<em>float, optional</em>) &#8211; The routine will stop when the maximum normal force on the path
+<li><strong>startstep</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Starting stepsize used in <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Spline.step" title="cosmoTransitions.pathDeformation.Deformation_Spline.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>.</li>
+<li><strong>fRatioConv</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The routine will stop when the maximum normal force on the path
 divided by the maximum potential gradient is less than this.</li>
-<li><strong>converge_0</strong> (<em>float, optional</em>) &#8211; On the first step, use a different convergence criterion. Check if
+<li><strong>converge_0</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; On the first step, use a different convergence criterion. Check if
 <code class="docutils literal"><span class="pre">fRatio</span> <span class="pre">&lt;</span> <span class="pre">convergence_0</span> <span class="pre">*</span> <span class="pre">fRatioConv</span></code>.</li>
-<li><strong>fRatioIncrease</strong> (<em>float, optional</em>) &#8211; The maximum fractional amount that fRatio can increase before
+<li><strong>fRatioIncrease</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The maximum fractional amount that fRatio can increase before
 raising an error.</li>
-<li><strong>maxiter</strong> (<em>int, optional</em>) &#8211; Maximum number of steps to take (ignoring reversed steps).</li>
-<li><strong>verbose</strong> (<em>bool, optional</em>) &#8211; If True, print the ending condition.</li>
-<li><strong>callback</strong> (<em>callable, optional</em>) &#8211; Called after each step. Should accept an instance of this class as a
+<li><strong>maxiter</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; Maximum number of steps to take (ignoring reversed steps).</li>
+<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, print the ending condition.</li>
+<li><strong>callback</strong> (<em>callable</em><em>, </em><em>optional</em>) &#8211; Called after each step. Should accept an instance of this class as a
 parameter, and return False if deformation should stop.</li>
-<li><strong>step_params</strong> (<em>dict, optional</em>) &#8211; Parameters to pass to <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Spline.step" title="cosmoTransitions.pathDeformation.Deformation_Spline.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>.</li>
+<li><strong>step_params</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; Parameters to pass to <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Spline.step" title="cosmoTransitions.pathDeformation.Deformation_Spline.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>deformation_converged</strong> (<em>bool</em>) &#8211;
-True if the routine stopped because it converged (as determined by
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>deformation_converged</strong> (<em>bool</em>) &#8211; True if the routine stopped because it converged (as determined by
 <em class="xref py py-obj">fRatioConv</em>), False otherwise.</p>
 </td>
 </tr>
@@ -282,9 +280,9 @@ as the path deforms. Should have shape <code class="docutils literal"><span clas
 the attribute <code class="docutils literal"><span class="pre">self.v2</span></code> as <code class="docutils literal"><span class="pre">v2</span> <span class="pre">=</span> <span class="pre">dphidr[:,np.newaxis]**2</span></code>.</li>
 <li><strong>dV</strong> (<em>callable</em>) &#8211; The potential gradient as a function of phi. The output shape should be
 the same as the input shape, which will be <code class="docutils literal"><span class="pre">(...,</span> <span class="pre">n_dimensions)</span></code>.</li>
-<li><strong>fix_end</strong> (<em>fix_start,</em>) &#8211; If True, the force on the first/last point along the path is set to
+<li><strong>fix_end</strong> (<em>fix_start</em><em>,</em><em></em>) &#8211; If True, the force on the first/last point along the path is set to
 zero, so the point will not change in the deformation step.</li>
-<li><strong>save_all_steps</strong> (<em>bool, optional</em>) &#8211; If True, each step gets saved into <code class="docutils literal"><span class="pre">self.phi_list</span></code> and
+<li><strong>save_all_steps</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, each step gets saved into <code class="docutils literal"><span class="pre">self.phi_list</span></code> and
 <code class="docutils literal"><span class="pre">self.F_list</span></code>.</li>
 </ul>
 </td>
@@ -322,20 +320,18 @@ zero, so the point will not change in the deformation step.</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>stepsize</strong> (<em>float</em>) &#8211; Determines change in <em class="xref py py-obj">phi</em>: <code class="docutils literal"><span class="pre">phi</span> <span class="pre">+=</span> <span class="pre">F_norm*stepsize</span></code>.</li>
 <li><strong>minstep</strong> (<em>float</em>) &#8211; The smallest the stepsize is allowed to be.</li>
-<li><strong>diff_check</strong> (<em>float, optional</em>) &#8211; The stepsize is chosen such that difference between the forces at
+<li><strong>diff_check</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The stepsize is chosen such that difference between the forces at
 beginning of the step and halfway through the step is small
 compared to the force itself: <code class="docutils literal"><span class="pre">max(F2-F1)</span> <span class="pre">&lt;</span> <span class="pre">diff_check</span> <span class="pre">*</span> <span class="pre">max(F1)</span></code>,
 where <code class="docutils literal"><span class="pre">max</span></code> here really means the maximum absolute value of the
 force in each direction.</li>
-<li><strong>step_decrease</strong> (<em>float, optional</em>) &#8211; Amount by which to decrease the stepsize if the step is too big.</li>
+<li><strong>step_decrease</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Amount by which to decrease the stepsize if the step is too big.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>stepsize</strong> (<em>float</em>) &#8211;
-The stepsize used for this step.</li>
-<li><strong>fRatio</strong> (<em>float</em>) &#8211;
-The ratio of the maximum normal force to the maximum potential
+<li><strong>stepsize</strong> (<em>float</em>) &#8211; The stepsize used for this step.</li>
+<li><strong>fRatio</strong> (<em>float</em>) &#8211; The ratio of the maximum normal force to the maximum potential
 gradient. When the path is a perfect fit, this should go to zero.</li>
 </ul>
 </p>
@@ -357,25 +353,24 @@ convergence.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>maxstep</strong> (<em>startstep,</em>) &#8211; Starting and maximum stepsizes used in <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Points.step" title="cosmoTransitions.pathDeformation.Deformation_Points.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>, rescaled by
+<li><strong>maxstep</strong> (<em>startstep</em><em>,</em><em></em>) &#8211; Starting and maximum stepsizes used in <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Points.step" title="cosmoTransitions.pathDeformation.Deformation_Points.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>, rescaled by
 <code class="docutils literal"><span class="pre">|phi[0]-phi[1]|</span> <span class="pre">/</span> <span class="pre">(max(dV)*num_points)</span></code>.</li>
-<li><strong>fRatioConv</strong> (<em>float, optional</em>) &#8211; The routine will stop when the maximum normal force on the path
+<li><strong>fRatioConv</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The routine will stop when the maximum normal force on the path
 divided by the maximum potential gradient is less than this.</li>
-<li><strong>converge_0</strong> (<em>float, optional</em>) &#8211; On the first step, use a different convergence criterion. Check if
+<li><strong>converge_0</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; On the first step, use a different convergence criterion. Check if
 <code class="docutils literal"><span class="pre">fRatio</span> <span class="pre">&lt;</span> <span class="pre">convergence_0</span> <span class="pre">*</span> <span class="pre">fRatioConv</span></code>.</li>
-<li><strong>fRatioIncrease</strong> (<em>float, optional</em>) &#8211; The maximum fractional amount that fRatio can increase before
+<li><strong>fRatioIncrease</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The maximum fractional amount that fRatio can increase before
 raising an error.</li>
-<li><strong>maxiter</strong> (<em>int, optional</em>) &#8211; Maximum number of steps to take (ignoring reversed steps).</li>
-<li><strong>verbose</strong> (<em>int, optional</em>) &#8211; If <code class="docutils literal"><span class="pre">verbose</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code>, print the ending condition.
+<li><strong>maxiter</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; Maximum number of steps to take (ignoring reversed steps).</li>
+<li><strong>verbose</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; If <code class="docutils literal"><span class="pre">verbose</span> <span class="pre">&gt;=</span> <span class="pre">1</span></code>, print the ending condition.
 If <code class="docutils literal"><span class="pre">verbose</span> <span class="pre">&gt;=</span> <span class="pre">2</span></code>, print <em class="xref py py-obj">fRatio</em> and <em class="xref py py-obj">stepsize</em> at each step.</li>
-<li><strong>callback</strong> (<em>callable, optional</em>) &#8211; Called after each step. Should accept an instance of this class as a
+<li><strong>callback</strong> (<em>callable</em><em>, </em><em>optional</em>) &#8211; Called after each step. Should accept an instance of this class as a
 parameter, and return False if deformation should stop.</li>
-<li><strong>step_params</strong> (<em>dict, optional</em>) &#8211; Parameters to pass to <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Points.step" title="cosmoTransitions.pathDeformation.Deformation_Points.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>.</li>
+<li><strong>step_params</strong> (<em>dict</em><em>, </em><em>optional</em>) &#8211; Parameters to pass to <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Points.step" title="cosmoTransitions.pathDeformation.Deformation_Points.step"><code class="xref py py-func docutils literal"><span class="pre">step()</span></code></a>.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>deformation_converged</strong> (<em>bool</em>) &#8211;
-True if the routine stopped because it converged (as determined by
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>deformation_converged</strong> (<em>bool</em>) &#8211; True if the routine stopped because it converged (as determined by
 <em class="xref py py-obj">fRatioConv</em>), False otherwise.</p>
 </td>
 </tr>
@@ -424,18 +419,18 @@ the input potential is only evaluated during initialization.</p>
 <li><strong>pts</strong> (<em>array_like</em>) &#8211; The points that describe the path, with shape <code class="docutils literal"><span class="pre">(num_points,</span> <span class="pre">N_dim)</span></code>.</li>
 <li><strong>V</strong> (<em>callable</em>) &#8211; The potential function. Input arrays will be shape <code class="docutils literal"><span class="pre">(npts,</span> <span class="pre">N_dim)</span></code> and
 output should have shape <code class="docutils literal"><span class="pre">(npts,)</span></code>. Can be None.</li>
-<li><strong>dV</strong> (<em>callable, optional.</em>) &#8211; The gradient of the potential. Input arrays will be shape
+<li><strong>dV</strong> (<em>callable</em><em>, </em><em>optional.</em>) &#8211; The gradient of the potential. Input arrays will be shape
 <code class="docutils literal"><span class="pre">(npts,</span> <span class="pre">N_dim)</span></code> and output should have shape <code class="docutils literal"><span class="pre">(npts,</span> <span class="pre">N_dim)</span></code>. Only
 used if <code class="docutils literal"><span class="pre">V_spline_samples=None</span></code>.</li>
-<li><strong>V_spline_samples</strong> (<em>int or None, optional</em>) &#8211; Number of samples to take along the path to create the spline
+<li><strong>V_spline_samples</strong> (<em>int</em><em> or </em><em>None</em><em>, </em><em>optional</em>) &#8211; Number of samples to take along the path to create the spline
 interpolation functions. If None, the potential is evaluated directly
 from <a class="reference internal" href="#cosmoTransitions.pathDeformation.SplinePath.V" title="cosmoTransitions.pathDeformation.SplinePath.V"><code class="xref py py-obj docutils literal"><span class="pre">V</span></code></a> given in the input. If not None, <em class="xref py py-obj">V_spline_samples</em> should be
 large enough to resolve the smallest features in the potential. For
 example, the potential may have a very narrow potential barrier over
 which multiple samples should be taken.</li>
-<li><strong>extend_to_minima</strong> (<em>bool, optional</em>) &#8211; If True, the input path is extended at each end until it hits local
+<li><strong>extend_to_minima</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, the input path is extended at each end until it hits local
 minima.</li>
-<li><strong>reeval_distances</strong> (<em>bool, optional</em>) &#8211; If True, get more accurate distances to each knot by integrating along
+<li><strong>reeval_distances</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, get more accurate distances to each knot by integrating along
 the spline.</li>
 </ul>
 </td>
@@ -497,11 +492,11 @@ path. Return value is an array with shape <code class="docutils literal"><span c
 path, with shape <code class="docutils literal"><span class="pre">(num_points,</span> <span class="pre">N_dim)</span></code>. The first point should be at
 (or near) the lower minimum (the minimum to which the field is
 tunneling), and the last point should be at the metastable minimum.</li>
-<li><strong>dV</strong> (<em>V,</em>) &#8211; The potential function and its gradient. Both should accept input of
+<li><strong>dV</strong> (<a class="reference internal" href="#cosmoTransitions.pathDeformation.SplinePath.V" title="cosmoTransitions.pathDeformation.SplinePath.V"><em>V</em></a><em>,</em><em></em>) &#8211; The potential function and its gradient. Both should accept input of
 shape <code class="docutils literal"><span class="pre">(num_points,</span> <span class="pre">N_dim)</span></code> and shape <code class="docutils literal"><span class="pre">(N_dim,)</span></code>.</li>
-<li><strong>maxiter</strong> (<em>int, optional</em>) &#8211; Maximum number of allowed deformation / tunneling iterations.</li>
-<li><strong>save_all_steps</strong> (<em>bool, optional</em>) &#8211; If True, additionally output every single deformation sub-step.</li>
-<li><strong>verbose</strong> (<em>bool, optional</em>) &#8211; If True, print a message at the start of each step.</li>
+<li><strong>maxiter</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; Maximum number of allowed deformation / tunneling iterations.</li>
+<li><strong>save_all_steps</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, additionally output every single deformation sub-step.</li>
+<li><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If True, print a message at the start of each step.</li>
 <li><strong>callback</strong> (<em>callable</em>) &#8211; User supplied function that is evaluted just prior to deforming the
 path. Should return True if the path should be deformed, and False if
 the deformation should be aborted. Should accept 4 arguments: a
@@ -516,40 +511,28 @@ the callback data is the tunneling temperature.</li>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
 <tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><strong>V_spline_samples</strong> (<em>int, optional</em>) &#8211;
-Passed to <a class="reference internal" href="#cosmoTransitions.pathDeformation.SplinePath" title="cosmoTransitions.pathDeformation.SplinePath"><code class="xref py py-class docutils literal"><span class="pre">SplinePath</span></code></a>. If None, no second derivative will be
+<li><strong>V_spline_samples</strong> (<em>int, optional</em>) &#8211; Passed to <a class="reference internal" href="#cosmoTransitions.pathDeformation.SplinePath" title="cosmoTransitions.pathDeformation.SplinePath"><code class="xref py py-class docutils literal"><span class="pre">SplinePath</span></code></a>. If None, no second derivative will be
 passed to the tunneling class, and it will instead be evaluted using
 finite differences.</li>
-<li><strong>tunneling_class</strong> (<em>class, optional</em>) &#8211;
-Either <code class="xref py py-class docutils literal"><span class="pre">tunneling1D.SingleFieldInstanton</span></code> or a subclass.</li>
-<li><strong>tunneling_init_params</strong> (<em>dict, optional</em>) &#8211;
-Extra parameters to pass to the tunneling class.</li>
-<li><strong>tunneling_findProfile_params</strong> (<em>dict, optional</em>) &#8211;
-Extra parameters to pass to <code class="docutils literal"><span class="pre">tunneling_class.findProfile()</span></code>.</li>
-<li><strong>deformation_class</strong> (<em>class, optional</em>) &#8211;
-Either <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Spline" title="cosmoTransitions.pathDeformation.Deformation_Spline"><code class="xref py py-class docutils literal"><span class="pre">Deformation_Spline</span></code></a> or <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Points" title="cosmoTransitions.pathDeformation.Deformation_Points"><code class="xref py py-class docutils literal"><span class="pre">Deformation_Points</span></code></a>, or
+<li><strong>tunneling_class</strong> (<em>class, optional</em>) &#8211; Either <code class="xref py py-class docutils literal"><span class="pre">tunneling1D.SingleFieldInstanton</span></code> or a subclass.</li>
+<li><strong>tunneling_init_params</strong> (<em>dict, optional</em>) &#8211; Extra parameters to pass to the tunneling class.</li>
+<li><strong>tunneling_findProfile_params</strong> (<em>dict, optional</em>) &#8211; Extra parameters to pass to <code class="docutils literal"><span class="pre">tunneling_class.findProfile()</span></code>.</li>
+<li><strong>deformation_class</strong> (<em>class, optional</em>) &#8211; Either <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Spline" title="cosmoTransitions.pathDeformation.Deformation_Spline"><code class="xref py py-class docutils literal"><span class="pre">Deformation_Spline</span></code></a> or <a class="reference internal" href="#cosmoTransitions.pathDeformation.Deformation_Points" title="cosmoTransitions.pathDeformation.Deformation_Points"><code class="xref py py-class docutils literal"><span class="pre">Deformation_Points</span></code></a>, or
 some other object that exposes the same interface.</li>
-<li><strong>deformation_init_params</strong> (<em>dict, optional</em>) &#8211;
-Extra parameters to pass to the deformation class.</li>
-<li><strong>deformation_deform_params</strong> (<em>dict, optional</em>) &#8211;
-Extra parameters to pass to <code class="docutils literal"><span class="pre">deformation_class.deformPath()</span></code>.</li>
+<li><strong>deformation_init_params</strong> (<em>dict, optional</em>) &#8211; Extra parameters to pass to the deformation class.</li>
+<li><strong>deformation_deform_params</strong> (<em>dict, optional</em>) &#8211; Extra parameters to pass to <code class="docutils literal"><span class="pre">deformation_class.deformPath()</span></code>.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>profile1D</strong> (<em>namedtuple</em>) &#8211;
-The return value from <code class="docutils literal"><span class="pre">tunneling_class.findProfile()</span></code>.</li>
-<li><strong>Phi</strong> (<em>array_like or list</em>) &#8211;
-The points that constitute the final deformed path. They are in
+<li><strong>profile1D</strong> (<em>namedtuple</em>) &#8211; The return value from <code class="docutils literal"><span class="pre">tunneling_class.findProfile()</span></code>.</li>
+<li><strong>Phi</strong> (<em>array_like or list</em>) &#8211; The points that constitute the final deformed path. They are in
 one-to-one correspondence with the points in <em class="xref py py-obj">profile1D</em>.</li>
-<li><strong>action</strong> (<em>float</em>) &#8211;
-The Euclidean action of the instanton.</li>
-<li><strong>fRatio</strong> (<em>float</em>) &#8211;
-A ratio of the largest transverse force on the final path relative to
+<li><strong>action</strong> (<em>float</em>) &#8211; The Euclidean action of the instanton.</li>
+<li><strong>fRatio</strong> (<em>float</em>) &#8211; A ratio of the largest transverse force on the final path relative to
 the largest potential gradient. This would be zero if the solution were
 perfect.</li>
-<li><strong>saved_steps</strong> (<em>list</em>) &#8211;
-A list of lists, with each sub-list containing the saved steps for each
+<li><strong>saved_steps</strong> (<em>list</em>) &#8211; A list of lists, with each sub-list containing the saved steps for each
 deformation. Only written to if <em class="xref py py-obj">save_all_steps</em> is True.</li>
 </ul>
 </p>
@@ -562,7 +545,7 @@ deformation. Only written to if <em class="xref py py-obj">save_all_steps</em> i
 <p>The following code shows typical usage for <a class="reference internal" href="#cosmoTransitions.pathDeformation.fullTunneling" title="cosmoTransitions.pathDeformation.fullTunneling"><code class="xref py py-func docutils literal"><span class="pre">fullTunneling()</span></code></a>. Most of
 the code is in setting up the potentials and plotting; it only takes one
 line to actually calculate each instanton.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
 <span class="kn">from</span> <span class="nn">cosmoTransitions</span> <span class="kn">import</span> <span class="n">pathDeformation</span> <span class="k">as</span> <span class="n">pd</span>
@@ -625,38 +608,38 @@ line to actually calculate each instanton.</p>
 
 
 <span class="k">def</span> <span class="nf">makePlots</span><span class="p">():</span>
-    <span class="c"># Thin-walled instanton</span>
+    <span class="c1"># Thin-walled instanton</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">Potential</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fx</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">fy</span><span class="o">=</span><span class="mf">2.</span><span class="p">)</span>
     <span class="n">m</span><span class="o">.</span><span class="n">plotContour</span><span class="p">()</span>
     <span class="n">Y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">fullTunneling</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]],</span> <span class="n">m</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">dV</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">r&quot;$\phi_x$&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">r&quot;$\phi_y$&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Thin-walled&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">r&quot;$\phi_x$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">r&quot;$\phi_y$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Thin-walled&quot;</span><span class="p">)</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&quot;$r$&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">r&quot;$|\phi(r) - \phi_{\rm absMin}|$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;$r$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">r&quot;$|\phi(r) - \phi_{\rm absMin}|$&quot;</span><span class="p">)</span>
 
-    <span class="c"># Thick-walled instanton</span>
+    <span class="c1"># Thick-walled instanton</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">Potential</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fx</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">fy</span><span class="o">=</span><span class="mf">80.</span><span class="p">)</span>
     <span class="n">m</span><span class="o">.</span><span class="n">plotContour</span><span class="p">()</span>
     <span class="n">Y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">fullTunneling</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]],</span> <span class="n">m</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">dV</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">r&quot;$\phi_x$&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Thick-walled&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">Y</span><span class="o">.</span><span class="n">Phi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">r&quot;$\phi_x$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Thick-walled&quot;</span><span class="p">)</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&quot;$r$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">Y</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;$r$&quot;</span><span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>(<a class="reference external" href="./../examples/fullTunneling.py">Source code</a>)</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">makePlots</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -669,7 +652,7 @@ line to actually calculate each instanton.</p>
 to accurately calculate the tunneling path when one knows that the action is
 already below some threshold. For example, the following callback function
 will abort the deformation when <code class="docutils literal"><span class="pre">action</span> <span class="pre">/</span> <span class="pre">T</span> <span class="pre">&lt;=</span> <span class="pre">120</span></code>:</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">tobj</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+<div class="last highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">tobj</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">tobj</span><span class="o">.</span><span class="n">findAction</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">action</span> <span class="o">/</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="mi">120</span>
 </pre></div>
@@ -705,21 +688,18 @@ will abort the deformation when <code class="docutils literal"><span class="pre"
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/pathDeformation.txt"
+      <li><a href="_sources/pathDeformation.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -741,12 +721,12 @@ will abort the deformation when <code class="docutils literal"><span class="pre"
         <li class="right" >
           <a href="tunnelling1D.html" title="tunneling1D.py"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>cosmoTransitions.generic_potential &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>cosmoTransitions.generic_potential &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -17,15 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" /> 
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,8 +38,8 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,7 +49,7 @@
           <div class="body" role="main">
             
   <h1>Source code for cosmoTransitions.generic_potential</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The primary task of the generic_potential module is to define the</span>
 <span class="sd">:class:`generic_potential` class, from which realistic scalar field models can</span>
 <span class="sd">straightforwardly be constructed. The most important part of any such model is,</span>
@@ -60,21 +61,21 @@
 <span class="sd">several methods for plotting the potential and its phases.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">optimize</span>
 
-<span class="kn">from</span> <span class="nn">.finiteT</span> <span class="kn">import</span> <span class="n">Jb_spline</span> <span class="k">as</span> <span class="n">Jb</span>
-<span class="kn">from</span> <span class="nn">.finiteT</span> <span class="kn">import</span> <span class="n">Jf_spline</span> <span class="k">as</span> <span class="n">Jf</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">transitionFinder</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">helper_functions</span>
+<span class="kn">from</span> <span class="nn">.finiteT</span> <span class="k">import</span> <span class="n">Jb_spline</span> <span class="k">as</span> <span class="n">Jb</span>
+<span class="kn">from</span> <span class="nn">.finiteT</span> <span class="k">import</span> <span class="n">Jf_spline</span> <span class="k">as</span> <span class="n">Jf</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">transitionFinder</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">helper_functions</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">):</span>
-    <span class="nb">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
 
 
 <div class="viewcode-block" id="generic_potential"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential">[docs]</a><span class="k">class</span> <span class="nc">generic_potential</span><span class="p">():</span>
@@ -151,23 +152,23 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">dargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span> <span class="o">=</span> <span class="o">.</span><span class="mo">001</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">T_eps</span> <span class="o">=</span> <span class="o">.</span><span class="mo">001</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span> <span class="o">=</span> <span class="o">.</span><span class="mi">001</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T_eps</span> <span class="o">=</span> <span class="o">.</span><span class="mi">001</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span> <span class="o">=</span> <span class="mi">4</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span> <span class="o">=</span> <span class="mf">1000.</span><span class="o">**</span><span class="mi">2</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Tmax</span> <span class="o">=</span> <span class="mf">1e3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Tmax</span> <span class="o">=</span> <span class="mi">1</span><span class="n">e3</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_boson_dof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_fermion_dof</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_boson_dof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_fermion_dof</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitions</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># These get set by getPhases</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># Set by calcTcTrans()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># Set by calcFullTrans()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transitions</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># These get set by getPhases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Set by calcTcTrans()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Set by calcFullTrans()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">dargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The number of dimensions in the potential must &quot;</span>
-                             <span class="s">&quot;be at least 1.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of dimensions in the potential must &quot;</span>
+                             <span class="s2">&quot;be at least 1.&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="generic_potential.init"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">dargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -175,10 +176,10 @@
 <span class="sd">        initialization. At a bare minimum, subclasses need to specify the number</span>
 <span class="sd">        of dimensions in the potential with ``self.Ndim``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-    <span class="c"># EFFECTIVE POTENTIAL CALCULATIONS -----------------------</span>
-</div>
+    <span class="c1"># EFFECTIVE POTENTIAL CALCULATIONS -----------------------</span>
+
 <div class="viewcode-block" id="generic_potential.V0"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.V0">[docs]</a>    <span class="k">def</span> <span class="nf">V0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The tree-level potential. Should be overridden by subclasses.</span>
@@ -190,8 +191,8 @@
 <span class="sd">        input is an array of points, the output should be an array with the same</span>
 <span class="sd">        shape (except for the last axis with shape `Ndim`).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">0</span>
-</div>
+        <span class="k">return</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">0</span></div>
+
 <div class="viewcode-block" id="generic_potential.boson_massSq"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.boson_massSq">[docs]</a>    <span class="k">def</span> <span class="nf">boson_massSq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the boson particle spectrum. Should be overridden by</span>
@@ -226,24 +227,24 @@
 <span class="sd">            `c = 1/2` for gauge boson transverse modes, and `c = 3/2` for all</span>
 <span class="sd">            other bosons.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># The following is an example placeholder which has the correct output</span>
-        <span class="c"># shape. Since dof is zero, it does not contribute to the potential.</span>
+        <span class="c1"># The following is an example placeholder which has the correct output</span>
+        <span class="c1"># shape. Since dof is zero, it does not contribute to the potential.</span>
         <span class="n">Nboson</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="n">phi1</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c">#phi2 = X[...,1] # Comment out so that the placeholder doesn&#39;t</span>
-                         <span class="c"># raise an exception for Ndim &lt; 2.</span>
-        <span class="n">m1</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="o">.</span><span class="mi">2</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span>  <span class="c"># First boson mass</span>
-        <span class="n">m2</span> <span class="o">=</span> <span class="o">.</span><span class="mi">6</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span>  <span class="c"># Second boson mass, no thermal mass correction</span>
-        <span class="n">massSq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="n">Nboson</span><span class="p">,))</span>  <span class="c"># Important to make sure that</span>
-            <span class="c"># the shape comes from m1 and not m2, since the addition of the</span>
-            <span class="c"># thermal mass correction could change the output shape (if, for</span>
-            <span class="c"># example, T is an array and X is a single point).</span>
+        <span class="c1">#phi2 = X[...,1] # Comment out so that the placeholder doesn&#39;t</span>
+                         <span class="c1"># raise an exception for Ndim &lt; 2.</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="o">.</span><span class="mi">2</span> <span class="o">*</span> <span class="n">T</span><span class="o">**</span><span class="mi">2</span>  <span class="c1"># First boson mass</span>
+        <span class="n">m2</span> <span class="o">=</span> <span class="o">.</span><span class="mi">6</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span>  <span class="c1"># Second boson mass, no thermal mass correction</span>
+        <span class="n">massSq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="n">Nboson</span><span class="p">,))</span>  <span class="c1"># Important to make sure that</span>
+            <span class="c1"># the shape comes from m1 and not m2, since the addition of the</span>
+            <span class="c1"># thermal mass correction could change the output shape (if, for</span>
+            <span class="c1"># example, T is an array and X is a single point).</span>
         <span class="n">massSq</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">m1</span>
         <span class="n">massSq</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">m2</span>
         <span class="n">dof</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">])</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">massSq</span><span class="p">,</span> <span class="n">dof</span><span class="p">,</span> <span class="n">c</span>
-</div>
+        <span class="k">return</span> <span class="n">massSq</span><span class="p">,</span> <span class="n">dof</span><span class="p">,</span> <span class="n">c</span></div>
+
 <div class="viewcode-block" id="generic_potential.fermion_massSq"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.fermion_massSq">[docs]</a>    <span class="k">def</span> <span class="nf">fermion_massSq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the fermion particle spectrum. Should be overridden by</span>
@@ -273,20 +274,20 @@
 <span class="sd">        assumed to be `c = 3/2` for all fermions. Also, no thermal mass</span>
 <span class="sd">        corrections are needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># The following is an example placeholder which has the correct output</span>
-        <span class="c"># shape. Since dof is zero, it does not contribute to the potential.</span>
+        <span class="c1"># The following is an example placeholder which has the correct output</span>
+        <span class="c1"># shape. Since dof is zero, it does not contribute to the potential.</span>
         <span class="n">Nfermions</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="n">phi1</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c">#phi2 = X[...,1] # Comment out so that the placeholder doesn&#39;t</span>
-                         <span class="c"># raise an exception for Ndim &lt; 2.</span>
-        <span class="n">m1</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span>  <span class="c"># First fermion mass</span>
-        <span class="n">m2</span> <span class="o">=</span> <span class="o">.</span><span class="mi">6</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span>  <span class="c"># Second fermion mass</span>
+        <span class="c1">#phi2 = X[...,1] # Comment out so that the placeholder doesn&#39;t</span>
+                         <span class="c1"># raise an exception for Ndim &lt; 2.</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span>  <span class="c1"># First fermion mass</span>
+        <span class="n">m2</span> <span class="o">=</span> <span class="o">.</span><span class="mi">6</span> <span class="o">*</span> <span class="n">phi1</span><span class="o">**</span><span class="mi">2</span>  <span class="c1"># Second fermion mass</span>
         <span class="n">massSq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">m1</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="n">Nfermions</span><span class="p">,))</span>
         <span class="n">massSq</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">m1</span>
         <span class="n">massSq</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">m2</span>
         <span class="n">dof</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">massSq</span><span class="p">,</span> <span class="n">dof</span>
-</div>
+        <span class="k">return</span> <span class="n">massSq</span><span class="p">,</span> <span class="n">dof</span></div>
+
 <div class="viewcode-block" id="generic_potential.V1"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.V1">[docs]</a>    <span class="k">def</span> <span class="nf">V1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bosons</span><span class="p">,</span> <span class="n">fermions</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The one-loop corrections to the zero-temperature potential</span>
@@ -295,17 +296,17 @@
 <span class="sd">        This is generally not called directly, but is instead used by</span>
 <span class="sd">        :func:`Vtot`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># This does not need to be overridden.</span>
+        <span class="c1"># This does not need to be overridden.</span>
         <span class="n">m2</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">bosons</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">m2</span><span class="o">*</span><span class="n">m2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m2</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-100</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">m2</span><span class="o">*</span><span class="n">m2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m2</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">100</span><span class="p">)</span>
                               <span class="o">-</span> <span class="n">c</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">m2</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">fermions</span>
         <span class="n">c</span> <span class="o">=</span> <span class="mf">1.5</span>
-        <span class="n">y</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">m2</span><span class="o">*</span><span class="n">m2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m2</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-100</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">m2</span><span class="o">*</span><span class="n">m2</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">m2</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">100</span><span class="p">)</span>
                                <span class="o">-</span> <span class="n">c</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">y</span><span class="o">/</span><span class="p">(</span><span class="mi">64</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="generic_potential.V1T"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.V1T">[docs]</a>    <span class="k">def</span> <span class="nf">V1T</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bosons</span><span class="p">,</span> <span class="n">fermions</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">y</span><span class="o">/</span><span class="p">(</span><span class="mi">64</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="generic_potential.V1T"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.V1T">[docs]</a>    <span class="k">def</span> <span class="nf">V1T</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bosons</span><span class="p">,</span> <span class="n">fermions</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The one-loop finite-temperature potential.</span>
 
@@ -328,24 +329,24 @@
 <span class="sd">            the field-independent contribution is much larger than the</span>
 <span class="sd">            field-dependent contribution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># This does not need to be overridden.</span>
-        <span class="n">T2</span> <span class="o">=</span> <span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="n">T</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-100</span>
-             <span class="c"># the 1e-100 is to avoid divide by zero errors</span>
+        <span class="c1"># This does not need to be overridden.</span>
+        <span class="n">T2</span> <span class="o">=</span> <span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="n">T</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">100</span>
+             <span class="c1"># the 1e-100 is to avoid divide by zero errors</span>
         <span class="n">T4</span> <span class="o">=</span> <span class="n">T</span><span class="o">*</span><span class="n">T</span><span class="o">*</span><span class="n">T</span><span class="o">*</span><span class="n">T</span>
         <span class="n">m2</span><span class="p">,</span> <span class="n">nb</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">bosons</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nb</span><span class="o">*</span><span class="n">Jb</span><span class="p">(</span><span class="n">m2</span><span class="o">/</span><span class="n">T2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">m2</span><span class="p">,</span> <span class="n">nf</span> <span class="o">=</span> <span class="n">fermions</span>
         <span class="n">y</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nf</span><span class="o">*</span><span class="n">Jf</span><span class="p">(</span><span class="n">m2</span><span class="o">/</span><span class="n">T2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">include_radiation</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_boson_dof</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_boson_dof</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">nb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_boson_dof</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nb</span><span class="p">)</span>
                 <span class="n">y</span> <span class="o">-=</span> <span class="n">nb</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="mf">45.</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_fermion_dof</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_fermion_dof</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">nf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_fermion_dof</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nf</span><span class="p">)</span>
                 <span class="n">y</span> <span class="o">-=</span> <span class="n">nf</span> <span class="o">*</span> <span class="mi">7</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="mf">360.</span>
-        <span class="k">return</span> <span class="n">y</span><span class="o">*</span><span class="n">T4</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="generic_potential.V1T_from_X"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.V1T_from_X">[docs]</a>    <span class="k">def</span> <span class="nf">V1T_from_X</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">y</span><span class="o">*</span><span class="n">T4</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="generic_potential.V1T_from_X"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.V1T_from_X">[docs]</a>    <span class="k">def</span> <span class="nf">V1T_from_X</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the mass matrix and resulting one-loop finite-T potential.</span>
 
@@ -357,9 +358,9 @@
         <span class="n">bosons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boson_massSq</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
         <span class="n">fermions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fermion_massSq</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T</span><span class="p">(</span><span class="n">bosons</span><span class="p">,</span> <span class="n">fermions</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">y</span>
-</div>
-<div class="viewcode-block" id="generic_potential.Vtot"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.Vtot">[docs]</a>    <span class="k">def</span> <span class="nf">Vtot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="generic_potential.Vtot"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.Vtot">[docs]</a>    <span class="k">def</span> <span class="nf">Vtot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The total finite temperature effective potential.</span>
 
@@ -384,16 +385,16 @@
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V0</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1</span><span class="p">(</span><span class="n">bosons</span><span class="p">,</span> <span class="n">fermions</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T</span><span class="p">(</span><span class="n">bosons</span><span class="p">,</span> <span class="n">fermions</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">y</span>
-</div>
+        <span class="k">return</span> <span class="n">y</span></div>
+
 <div class="viewcode-block" id="generic_potential.DVtot"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.DVtot">[docs]</a>    <span class="k">def</span> <span class="nf">DVtot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The finite temperature effective potential, but offset</span>
 <span class="sd">        such that V(0, T) = 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X0</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X0</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="generic_potential.gradV"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.gradV">[docs]</a>    <span class="k">def</span> <span class="nf">gradV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the gradient of the full effective potential.</span>
@@ -407,15 +408,15 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradV</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="c"># Create the gradient function</span>
+            <span class="c1"># Create the gradient function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_gradV</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">gradientFunction</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span><span class="p">)</span>
             <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradV</span>
-        <span class="c"># Need to add extra axes to T since extra axes get added to X in</span>
-        <span class="c"># the helper function.</span>
+        <span class="c1"># Need to add extra axes to T since extra axes get added to X in</span>
+        <span class="c1"># the helper function.</span>
         <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">T</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="generic_potential.dgradV_dT"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.dgradV_dT">[docs]</a>    <span class="k">def</span> <span class="nf">dgradV_dT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the derivative of the gradient with respect to temperature.</span>
@@ -427,25 +428,25 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">gradVT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradVT</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="c"># Create the gradient function</span>
+            <span class="c1"># Create the gradient function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_gradVT</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">gradientFunction</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span><span class="p">)</span>
             <span class="n">gradVT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradVT</span>
-        <span class="c"># Need to add extra axes to T since extra axes get added to X in</span>
-        <span class="c"># the helper function.</span>
+        <span class="c1"># Need to add extra axes to T since extra axes get added to X in</span>
+        <span class="c1"># the helper function.</span>
         <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">T</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
         <span class="k">assert</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span> <span class="o">-</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span> <span class="o">-</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">y</span> <span class="o">*=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-            <span class="n">y</span> <span class="o">-=</span> <span class="mi">8</span><span class="o">*</span><span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-            <span class="n">y</span> <span class="o">+=</span> <span class="mi">8</span><span class="o">*</span><span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-            <span class="n">y</span> <span class="o">-=</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">-=</span> <span class="mi">8</span><span class="o">*</span><span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">-</span><span class="n">T_eps</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">+=</span> <span class="mi">8</span><span class="o">*</span><span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">-=</span> <span class="n">gradVT</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">y</span> <span class="o">*=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mi">12</span><span class="o">*</span><span class="n">T_eps</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">y</span>
-</div>
+        <span class="k">return</span> <span class="n">y</span></div>
+
 <div class="viewcode-block" id="generic_potential.massSqMatrix"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.massSqMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">massSqMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the tree-level mass matrix of the scalar field.</span>
@@ -462,12 +463,12 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_massSqMatrix</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="c"># Create the gradient function</span>
+            <span class="c1"># Create the gradient function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_massSqMatrix</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">hessianFunction</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">V0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span><span class="p">)</span>
             <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_massSqMatrix</span>
-        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="generic_potential.d2V"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.d2V">[docs]</a>    <span class="k">def</span> <span class="nf">d2V</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the Hessian (second derivative) matrix for the</span>
@@ -482,16 +483,16 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d2V</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="c"># Create the gradient function</span>
+            <span class="c1"># Create the gradient function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_d2V</span> <span class="o">=</span> <span class="n">helper_functions</span><span class="o">.</span><span class="n">hessianFunction</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span><span class="p">)</span>
             <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_d2V</span>
-        <span class="c"># Need to add extra axes to T since extra axes get added to X in</span>
-        <span class="c"># the helper function.</span>
+        <span class="c1"># Need to add extra axes to T since extra axes get added to X in</span>
+        <span class="c1"># the helper function.</span>
         <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">T</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="generic_potential.energyDensity"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.energyDensity">[docs]</a>    <span class="k">def</span> <span class="nf">energyDensity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">include_radiation</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="generic_potential.energyDensity"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.energyDensity">[docs]</a>    <span class="k">def</span> <span class="nf">energyDensity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">include_radiation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">T_eps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">T_eps</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv_order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">dVdT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
@@ -504,10 +505,10 @@
             <span class="n">dVdT</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V1T_from_X</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">T_eps</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
             <span class="n">dVdT</span> <span class="o">*=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mi">12</span><span class="o">*</span><span class="n">T_eps</span><span class="p">)</span>
         <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">,</span> <span class="n">include_radiation</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">V</span> <span class="o">-</span> <span class="n">T</span><span class="o">*</span><span class="n">dVdT</span>
+        <span class="k">return</span> <span class="n">V</span> <span class="o">-</span> <span class="n">T</span><span class="o">*</span><span class="n">dVdT</span></div>
 
-    <span class="c"># MINIMIZATION AND TRANSITION ANALYSIS --------------------------------</span>
-</div>
+    <span class="c1"># MINIMIZATION AND TRANSITION ANALYSIS --------------------------------</span>
+
 <div class="viewcode-block" id="generic_potential.approxZeroTMin"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.approxZeroTMin">[docs]</a>    <span class="k">def</span> <span class="nf">approxZeroTMin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns approximate values of the zero-temperature minima.</span>
@@ -521,18 +522,18 @@
 <span class="sd">        minima : list</span>
 <span class="sd">            A list of points of the approximate minima.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># This should be overridden.</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span><span class="o">**.</span><span class="mi">5</span><span class="p">]</span>
-</div>
-<div class="viewcode-block" id="generic_potential.findMinimum"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.findMinimum">[docs]</a>    <span class="k">def</span> <span class="nf">findMinimum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="c1"># This should be overridden.</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span><span class="o">**.</span><span class="mi">5</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="generic_potential.findMinimum"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.findMinimum">[docs]</a>    <span class="k">def</span> <span class="nf">findMinimum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience function for finding the nearest minimum to `X` at</span>
 <span class="sd">        temperature `T`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">approxZeroTMin</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">T</span><span class="p">,),</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">optimize</span><span class="o">.</span><span class="n">fmin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">T</span><span class="p">,),</span> <span class="n">disp</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="generic_potential.findT0"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.findT0">[docs]</a>    <span class="k">def</span> <span class="nf">findT0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the temperature at which the high-T minimum disappears. That is,</span>
@@ -550,12 +551,12 @@
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findMinimum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tmax</span><span class="p">)</span>
         <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">T</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvalsh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d2V</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">)))</span>
         <span class="k">if</span> <span class="n">f</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c"># barrier at T = 0</span>
+            <span class="c1"># barrier at T = 0</span>
             <span class="n">T0</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">T0</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">brentq</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Tmax</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">T0</span>
-</div>
+        <span class="k">return</span> <span class="n">T0</span></div>
+
 <div class="viewcode-block" id="generic_potential.forbidPhaseCrit"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.forbidPhaseCrit">[docs]</a>    <span class="k">def</span> <span class="nf">forbidPhaseCrit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns True if a phase at point `X` should be discarded,</span>
@@ -578,8 +579,8 @@
 <span class="sd">        I originally decided to leave off the &quot;eria&quot; in &quot;criteria&quot;, but I should</span>
 <span class="sd">        leave it as is for easier backwards compatability.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">False</span>
-</div>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
 <div class="viewcode-block" id="generic_potential.getPhases"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.getPhases">[docs]</a>    <span class="k">def</span> <span class="nf">getPhases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tracingArgs</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find different phases as functions of temperature</span>
@@ -609,10 +610,10 @@
             <span class="o">**</span><span class="n">tracingArgs_</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="o">=</span> <span class="n">phases</span>
         <span class="n">transitionFinder</span><span class="o">.</span><span class="n">removeRedundantPhases</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="o">*</span><span class="mf">1e-2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span>
-</div>
-<div class="viewcode-block" id="generic_potential.calcTcTrans"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.calcTcTrans">[docs]</a>    <span class="k">def</span> <span class="nf">calcTcTrans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startHigh</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="n">phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="o">*</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_eps</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span></div>
+
+<div class="viewcode-block" id="generic_potential.calcTcTrans"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.calcTcTrans">[docs]</a>    <span class="k">def</span> <span class="nf">calcTcTrans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startHigh</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Runs :func:`transitionFinder.findCriticalTemperatures`, storing the</span>
 <span class="sd">        result in `self.TcTrans`.</span>
@@ -628,18 +629,18 @@
 <span class="sd">        -------</span>
 <span class="sd">        self.TcTrans</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">getPhases</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span> <span class="o">=</span> <span class="n">transitionFinder</span><span class="o">.</span><span class="n">findCriticalTemperatures</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="n">startHigh</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span><span class="p">:</span>
-            <span class="n">T</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Tcrit&#39;</span><span class="p">]</span>
-            <span class="n">xlow</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span>
-            <span class="n">xhigh</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;high_vev&#39;</span><span class="p">]</span>
-            <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Delta_rho&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xhigh</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span> \
-                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xlow</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span>
-</div>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Tcrit&#39;</span><span class="p">]</span>
+            <span class="n">xlow</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;low_vev&#39;</span><span class="p">]</span>
+            <span class="n">xhigh</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;high_vev&#39;</span><span class="p">]</span>
+            <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Delta_rho&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xhigh</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span> \
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xlow</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span></div>
+
 <div class="viewcode-block" id="generic_potential.findAllTransitions"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.findAllTransitions">[docs]</a>    <span class="k">def</span> <span class="nf">findAllTransitions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tunnelFromPhase_args</span><span class="o">=</span><span class="p">{}):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all phase transitions up to `self.Tmax`, storing the transitions</span>
@@ -667,55 +668,55 @@
 <span class="sd">        -------</span>
 <span class="sd">        self.TnTrans</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">getPhases</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span> <span class="o">=</span> <span class="n">transitionFinder</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradV</span><span class="p">,</span> <span class="n">tunnelFromPhase_args</span><span class="p">)</span>
-        <span class="c"># Add in the critical temperature</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c1"># Add in the critical temperature</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">calcTcTrans</span><span class="p">()</span>
         <span class="n">transitionFinder</span><span class="o">.</span><span class="n">addCritTempsForFullTransitions</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TcTrans</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">)</span>
-        <span class="c"># Add in Delta_rho, Delta_p</span>
+        <span class="c1"># Add in Delta_rho, Delta_p</span>
         <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">:</span>
-            <span class="n">T</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]</span>
-            <span class="n">xlow</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;low_vev&#39;</span><span class="p">]</span>
-            <span class="n">xhigh</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;high_vev&#39;</span><span class="p">]</span>
-            <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Delta_rho&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xhigh</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span> \
-                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xlow</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-            <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Delta_p&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">xhigh</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span> \
-                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">xlow</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="bp">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span>
-</div>
-<div class="viewcode-block" id="generic_potential.prettyPrintTnTrans"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.prettyPrintTnTrans">[docs]</a>    <span class="k">def</span> <span class="nf">prettyPrintTnTrans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;self.TnTrans has not been set. &quot;</span>
-                <span class="s">&quot;Try running self.findAllTransitions() first.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;No transitions for this potential.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">:</span>
-            <span class="n">trantype</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;trantype&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">trantype</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">trantype</span> <span class="o">=</span> <span class="s">&#39;First&#39;</span>
-            <span class="k">elif</span> <span class="n">trantype</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">trantype</span> <span class="o">=</span> <span class="s">&#39;Second&#39;</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">-order transition at Tnuc = </span><span class="si">%0.4g</span><span class="s">&quot;</span> <span class="o">%</span>
-                  <span class="p">(</span><span class="n">trantype</span><span class="p">,</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;High-T phase:</span><span class="se">\n</span><span class="s">  key = </span><span class="si">%s</span><span class="s">; vev = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s">&#39;high_phase&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;high_vev&#39;</span><span class="p">]))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Low-T phase:</span><span class="se">\n</span><span class="s">  key = </span><span class="si">%s</span><span class="s">; vev = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s">&#39;low_phase&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;low_vev&#39;</span><span class="p">]))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Pressure difference = </span><span class="si">%0.4g</span><span class="s"> = (</span><span class="si">%0.4g</span><span class="s">)^4&quot;</span> <span class="o">%</span>
-                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s">&#39;Delta_p&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Delta_p&#39;</span><span class="p">]</span><span class="o">**.</span><span class="mi">25</span><span class="p">))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Energy difference = </span><span class="si">%0.4g</span><span class="s"> = (</span><span class="si">%0.4g</span><span class="s">)^4&quot;</span> <span class="o">%</span>
-                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s">&#39;Delta_rho&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;Delta_rho&#39;</span><span class="p">]</span><span class="o">**.</span><span class="mi">25</span><span class="p">))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Action = </span><span class="si">%0.4g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">trans</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">])</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Action / Tnuc = </span><span class="si">%0.6g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s">&#39;action&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">trans</span><span class="p">[</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">T</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Tnuc&#39;</span><span class="p">]</span>
+            <span class="n">xlow</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;low_vev&#39;</span><span class="p">]</span>
+            <span class="n">xhigh</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;high_vev&#39;</span><span class="p">]</span>
+            <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Delta_rho&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xhigh</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span> \
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energyDensity</span><span class="p">(</span><span class="n">xlow</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Delta_p&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">xhigh</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span> \
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">xlow</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span></div>
 
-    <span class="c"># PLOTTING ---------------------------------</span>
-</div>
-<div class="viewcode-block" id="generic_potential.plot2d"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.plot2d">[docs]</a>    <span class="k">def</span> <span class="nf">plot2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">treelevel</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<div class="viewcode-block" id="generic_potential.prettyPrintTnTrans"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.prettyPrintTnTrans">[docs]</a>    <span class="k">def</span> <span class="nf">prettyPrintTnTrans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;self.TnTrans has not been set. &quot;</span>
+                <span class="s2">&quot;Try running self.findAllTransitions() first.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No transitions for this potential.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">:</span>
+            <span class="n">trantype</span> <span class="o">=</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;trantype&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">trantype</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">trantype</span> <span class="o">=</span> <span class="s1">&#39;First&#39;</span>
+            <span class="k">elif</span> <span class="n">trantype</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">trantype</span> <span class="o">=</span> <span class="s1">&#39;Second&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-order transition at Tnuc = </span><span class="si">%0.4g</span><span class="s2">&quot;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">trantype</span><span class="p">,</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Tnuc&#39;</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;High-T phase:</span><span class="se">\n</span><span class="s2">  key = </span><span class="si">%s</span><span class="s2">; vev = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s1">&#39;high_phase&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;high_vev&#39;</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Low-T phase:</span><span class="se">\n</span><span class="s2">  key = </span><span class="si">%s</span><span class="s2">; vev = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s1">&#39;low_phase&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;low_vev&#39;</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pressure difference = </span><span class="si">%0.4g</span><span class="s2"> = (</span><span class="si">%0.4g</span><span class="s2">)^4&quot;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Delta_p&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Delta_p&#39;</span><span class="p">]</span><span class="o">**.</span><span class="mi">25</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Energy difference = </span><span class="si">%0.4g</span><span class="s2"> = (</span><span class="si">%0.4g</span><span class="s2">)^4&quot;</span> <span class="o">%</span>
+                  <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Delta_rho&#39;</span><span class="p">],</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Delta_rho&#39;</span><span class="p">]</span><span class="o">**.</span><span class="mi">25</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Action = </span><span class="si">%0.4g</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">trans</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Action / Tnuc = </span><span class="si">%0.6g</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">trans</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">trans</span><span class="p">[</span><span class="s1">&#39;Tnuc&#39;</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># PLOTTING ---------------------------------</span>
+
+<div class="viewcode-block" id="generic_potential.plot2d"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.plot2d">[docs]</a>    <span class="k">def</span> <span class="nf">plot2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">treelevel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                <span class="n">xaxis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yaxis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">clevs</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">cfrac</span><span class="o">=.</span><span class="mi">8</span><span class="p">,</span> <span class="o">**</span><span class="n">contourParams</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Makes a countour plot of the potential.</span>
@@ -749,7 +750,7 @@
 <span class="sd">            Add an example plot.</span>
 <span class="sd">            Make documentation for the other plotting functions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span> <span class="o">=</span> <span class="n">box</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">))</span>
         <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
@@ -761,11 +762,11 @@
         <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">minZ</span><span class="p">,</span> <span class="n">minZ</span><span class="o">+</span><span class="p">(</span><span class="n">maxZ</span><span class="o">-</span><span class="n">minZ</span><span class="p">)</span><span class="o">*</span><span class="n">cfrac</span><span class="p">,</span> <span class="n">clevs</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="o">**</span><span class="n">contourParams</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="generic_potential.plot1d"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.plot1d">[docs]</a>    <span class="k">def</span> <span class="nf">plot1d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">treelevel</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">subtract</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="generic_potential.plot1d"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.plot1d">[docs]</a>    <span class="k">def</span> <span class="nf">plot1d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">treelevel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">subtract</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
                <span class="o">**</span><span class="n">plotParams</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
             <span class="n">X</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
@@ -778,37 +779,37 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DVtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">T</span><span class="p">)</span> <span class="k">if</span> <span class="n">subtract</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">plotParams</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">R&quot;$\phi$&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">R&quot;$V(\phi)$&quot;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="generic_potential.plotPhasesV"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.plotPhasesV">[docs]</a>    <span class="k">def</span> <span class="nf">plotPhasesV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">useDV</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">plotArgs</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">R&quot;$\phi$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">R&quot;$V(\phi)$&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="generic_potential.plotPhasesV"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.plotPhasesV">[docs]</a>    <span class="k">def</span> <span class="nf">plotPhasesV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">useDV</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">plotArgs</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">getPhases</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DVtot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">X</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="k">if</span> <span class="n">useDV</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">Vtot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">X</span><span class="p">,</span><span class="n">p</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="o">**</span><span class="n">plotArgs</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">R&quot;$T$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">R&quot;$T$&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">useDV</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">R&quot;$V[\phi_{min}(T), T] - V(0, T)$&quot;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">R&quot;$V[\phi_</span><span class="si">{min}</span><span class="s2">(T), T] - V(0, T)$&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">R&quot;$V[\phi_{min}(T), T]$&quot;</span><span class="p">)</span>
-</div>
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">R&quot;$V[\phi_</span><span class="si">{min}</span><span class="s2">(T), T]$&quot;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="generic_potential.plotPhasesPhi"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.generic_potential.plotPhasesPhi">[docs]</a>    <span class="k">def</span> <span class="nf">plotPhasesPhi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">plotArgs</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">getPhases</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">phases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">phi_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">X</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">phi_mag</span><span class="p">,</span> <span class="o">**</span><span class="n">plotArgs</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">R&quot;$T$&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">R&quot;$\phi(T)$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">R&quot;$T$&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">R&quot;$\phi(T)$&quot;</span><span class="p">)</span></div></div>
 
-<span class="c"># END GENERIC_POTENTIAL CLASS ------------------</span>
+<span class="c1"># END GENERIC_POTENTIAL CLASS ------------------</span>
 
 
-<span class="c"># FUNCTIONS ON LISTS OF MODEL INSTANCES ---------------</span>
-</div></div>
+<span class="c1"># FUNCTIONS ON LISTS OF MODEL INSTANCES ---------------</span>
+
 <div class="viewcode-block" id="funcOnModels"><a class="viewcode-back" href="../../generic_potential.html#cosmoTransitions.generic_potential.funcOnModels">[docs]</a><span class="k">def</span> <span class="nf">funcOnModels</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">models</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    If you have a big array of models, this function allows you</span>
@@ -829,10 +830,10 @@
                 <span class="n">M</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">M</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">M</span><span class="p">)</span></div>
 
-</div>
-<span class="k">def</span> <span class="nf">_linkTransitions</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">critTrans</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_linkTransitions</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">critTrans</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function will take a list of models that represent the</span>
 <span class="sd">    variation of some continuous model parameter, and output several</span>
@@ -844,62 +845,62 @@
     <span class="n">allTrans</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
         <span class="n">allTrans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">TcTrans</span> <span class="k">if</span> <span class="n">critTrans</span> <span class="k">else</span> <span class="n">model</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">)</span>
-    <span class="c"># allTrans is now a list of lists of transitions.</span>
-    <span class="c"># We want to rearrange each sublist so that it matches the previous sublist.</span>
-    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allTrans</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># allTrans is now a list of lists of transitions.</span>
+    <span class="c1"># We want to rearrange each sublist so that it matches the previous sublist.</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allTrans</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">trans1</span><span class="p">,</span> <span class="n">trans2</span> <span class="o">=</span> <span class="n">allTrans</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">allTrans</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">trans1</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">trans1</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">trans2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="n">trans2</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c"># First, clear the transiction dictionaries of link information</span>
+        <span class="k">if</span> <span class="n">trans1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">trans1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">trans2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="n">trans2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># First, clear the transiction dictionaries of link information</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trans1</span><span class="o">+</span><span class="n">trans2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">t</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
-                <span class="n">t</span><span class="p">[</span><span class="s">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-        <span class="k">for</span> <span class="n">i1</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trans1</span><span class="p">)):</span>
-            <span class="n">t1</span> <span class="o">=</span> <span class="n">trans1</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span>  <span class="c"># t1 and t2 are individual transition dictionaries</span>
-            <span class="k">if</span> <span class="n">t1</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">continue</span>
-            <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trans2</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">t</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">t</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="k">for</span> <span class="n">i1</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trans1</span><span class="p">)):</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="n">trans1</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span>  <span class="c1"># t1 and t2 are individual transition dictionaries</span>
+            <span class="k">if</span> <span class="n">t1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trans2</span><span class="p">)):</span>
                 <span class="n">t2</span> <span class="o">=</span> <span class="n">trans2</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">t2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">continue</span>
-                <span class="c"># See if t1 and t2 are each other&#39;s closest match</span>
-                <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">t1</span><span class="p">[</span><span class="s">&#39;low vev&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">t2</span><span class="p">[</span><span class="s">&#39;low vev&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span> \
-                    <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">t1</span><span class="p">[</span><span class="s">&#39;high vev&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">t2</span><span class="p">[</span><span class="s">&#39;high vev&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
-                <span class="k">if</span> <span class="n">diff</span> <span class="o">&lt;</span> <span class="n">t1</span><span class="p">[</span><span class="s">&#39;diff&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">diff</span> <span class="o">&lt;</span> <span class="n">t2</span><span class="p">[</span><span class="s">&#39;diff&#39;</span><span class="p">]:</span>
-                    <span class="n">t1</span><span class="p">[</span><span class="s">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="s">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff</span>
-                    <span class="n">t1</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">],</span> <span class="n">t2</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i1</span>
-        <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trans2</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">t2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">continue</span>
+                <span class="c1"># See if t1 and t2 are each other&#39;s closest match</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">t1</span><span class="p">[</span><span class="s1">&#39;low vev&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">t2</span><span class="p">[</span><span class="s1">&#39;low vev&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span> \
+                    <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">t1</span><span class="p">[</span><span class="s1">&#39;high vev&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">t2</span><span class="p">[</span><span class="s1">&#39;high vev&#39;</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+                <span class="k">if</span> <span class="n">diff</span> <span class="o">&lt;</span> <span class="n">t1</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">diff</span> <span class="o">&lt;</span> <span class="n">t2</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]:</span>
+                    <span class="n">t1</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff</span>
+                    <span class="n">t1</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">],</span> <span class="n">t2</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i1</span>
+        <span class="k">for</span> <span class="n">i2</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trans2</span><span class="p">)):</span>
             <span class="n">t2</span> <span class="o">=</span> <span class="n">trans2</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">t2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">t2</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span>
-                    <span class="n">trans1</span><span class="p">[</span><span class="n">t2</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]][</span><span class="s">&#39;link&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">i2</span><span class="p">):</span>
-                <span class="n">t2</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c"># doesn&#39;t link back.</span>
-        <span class="c"># Now each transition in tran2 is linked to its closest match in tran1,</span>
-        <span class="c"># or None if it has no match</span>
-        <span class="n">newTrans</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">trans1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">t2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">t2</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
+                    <span class="n">trans1</span><span class="p">[</span><span class="n">t2</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]][</span><span class="s1">&#39;link&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">i2</span><span class="p">):</span>
+                <span class="n">t2</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># doesn&#39;t link back.</span>
+        <span class="c1"># Now each transition in tran2 is linked to its closest match in tran1,</span>
+        <span class="c1"># or None if it has no match</span>
+        <span class="n">newTrans</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">trans1</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">t2</span> <span class="ow">in</span> <span class="n">trans2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">t2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">t2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="k">elif</span> <span class="n">t2</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="c"># This transition doesn&#39;t match up with anything.</span>
+            <span class="k">elif</span> <span class="n">t2</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># This transition doesn&#39;t match up with anything.</span>
                 <span class="n">newTrans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">newTrans</span><span class="p">[</span><span class="n">t2</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">t2</span>
+                <span class="n">newTrans</span><span class="p">[</span><span class="n">t2</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">t2</span>
         <span class="n">allTrans</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">newTrans</span>
-    <span class="c"># Almost done. Just need to clean up the transitions and make sure that</span>
-    <span class="c"># the allTrans list is rectangular.</span>
+    <span class="c1"># Almost done. Just need to clean up the transitions and make sure that</span>
+    <span class="c1"># the allTrans list is rectangular.</span>
     <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">allTrans</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">trans</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">del</span> <span class="n">t</span><span class="p">[</span><span class="s">&#39;link&#39;</span><span class="p">]</span>
-                <span class="k">del</span> <span class="n">t</span><span class="p">[</span><span class="s">&#39;diff&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">t</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]</span>
+                <span class="k">del</span> <span class="n">t</span><span class="p">[</span><span class="s1">&#39;diff&#39;</span><span class="p">]</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">allTrans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">allTrans</span><span class="p">:</span>
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
-            <span class="n">trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-    <span class="c"># Finally, transpose allTrans:</span>
+            <span class="n">trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># Finally, transpose allTrans:</span>
     <span class="n">allTrans2</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allTrans</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allTrans</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
         <span class="n">allTrans2</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allTrans</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allTrans</span><span class="p">)):</span>
             <span class="n">allTrans2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">allTrans</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">allTrans2</span>
 </pre></div>
@@ -912,14 +913,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -935,13 +933,13 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>cosmoTransitions.helper_functions &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>cosmoTransitions.helper_functions &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -17,15 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" /> 
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,8 +38,8 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -48,20 +49,20 @@
           <div class="body" role="main">
             
   <h1>Source code for cosmoTransitions.helper_functions</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">A collection of (mostly) stand alone helper functions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">):</span>
-    <span class="nb">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -93,17 +94,17 @@
     <span class="kn">import</span> <span class="nn">inspect</span>
     <span class="n">args</span><span class="p">,</span> <span class="n">varargs</span><span class="p">,</span> <span class="n">varkwargs</span><span class="p">,</span> <span class="n">defaults</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="n">have_defaults</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">):]</span>
-    <span class="n">defaults</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>  <span class="c"># so that we can write to it</span>
+    <span class="n">defaults</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>  <span class="c1"># so that we can write to it</span>
     <span class="k">for</span> <span class="n">kwd</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">have_defaults</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">kwd</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Function &#39;</span><span class="si">%s</span><span class="s">()&#39; does not have default argument &quot;</span>
-                             <span class="s">&quot;named &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">kwd</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Function &#39;</span><span class="si">%s</span><span class="s2">()&#39; does not have default argument &quot;</span>
+                             <span class="s2">&quot;named &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">kwd</span><span class="p">))</span>
         <span class="n">defaults</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">kwd</span><span class="p">]</span>
-    <span class="n">func</span><span class="o">.</span><span class="n">__defaults__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span>
+    <span class="n">func</span><span class="o">.</span><span class="n">__defaults__</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">defaults</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="monotonicIndices"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.monotonicIndices">[docs]</a><span class="k">def</span> <span class="nf">monotonicIndices</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the indices of `x` such that `x[i]` is purely increasing.</span>
@@ -111,20 +112,20 @@
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">is_reversed</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">is_reversed</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">is_reversed</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">is_reversed</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">I</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">[</span><span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
             <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
     <span class="n">I</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">is_reversed</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">I</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="clampVal"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.clampVal">[docs]</a><span class="k">def</span> <span class="nf">clampVal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clamp the value `x` to be between `a` and `b`.</span>
@@ -138,14 +139,14 @@
 <span class="sd">    -------</span>
 <span class="sd">    array_like</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span>  <span class="c"># +1 for b &gt; a, -1 for b &lt; a</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span>  <span class="c1"># +1 for b &gt; a, -1 for b &lt; a</span>
     <span class="n">sa</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">a</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">sa</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">-</span><span class="n">sa</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>
     <span class="n">sb</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="n">s</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">sb</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">-</span><span class="n">sb</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>
-    <span class="k">return</span> <span class="n">x</span>
+    <span class="k">return</span> <span class="n">x</span></div>
 
-</div>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Numerical integration</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~</span>
@@ -156,10 +157,10 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used to indicate an integration error, primarily in :func:`rkqs`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
-<span class="n">_rkqs_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;rkqs_rval&quot;</span><span class="p">,</span> <span class="s">&quot;Delta_y Delta_t dtnxt&quot;</span><span class="p">)</span>
+
+<span class="n">_rkqs_rval</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;rkqs_rval&quot;</span><span class="p">,</span> <span class="s2">&quot;Delta_y Delta_t dtnxt&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="rkqs"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.rkqs">[docs]</a><span class="k">def</span> <span class="nf">rkqs</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span> <span class="n">dt_try</span><span class="p">,</span> <span class="n">epsfrac</span><span class="p">,</span> <span class="n">epsabs</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Take a single 5th order Runge-Kutta step with error monitoring.</span>
@@ -211,46 +212,46 @@
 <span class="sd">       Computing. Second Edition.&quot; Cambridge, 1992.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_try</span>
-    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">dy</span><span class="p">,</span><span class="n">yerr</span> <span class="o">=</span> <span class="n">_rkck</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">args</span><span class="p">)</span>
         <span class="n">errmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span>
-            <span class="nb">abs</span><span class="p">(</span><span class="n">yerr</span><span class="o">/</span><span class="n">epsabs</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">yerr</span><span class="p">)</span><span class="o">/</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">+</span><span class="mf">1e-300</span><span class="p">)</span><span class="o">*</span><span class="n">epsfrac</span><span class="p">)</span>
+            <span class="nb">abs</span><span class="p">(</span><span class="n">yerr</span><span class="o">/</span><span class="n">epsabs</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">yerr</span><span class="p">)</span><span class="o">/</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">300</span><span class="p">)</span><span class="o">*</span><span class="n">epsfrac</span><span class="p">)</span>
         <span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
         <span class="k">if</span><span class="p">(</span><span class="n">errmax</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
-            <span class="k">break</span>  <span class="c"># Step succeeded</span>
+            <span class="k">break</span>  <span class="c1"># Step succeeded</span>
         <span class="n">dttemp</span> <span class="o">=</span> <span class="mf">0.9</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">errmax</span><span class="o">**-.</span><span class="mi">25</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">t</span> <span class="o">+</span> <span class="n">dt</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s">&quot;Stepsize rounds down to zero.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s2">&quot;Stepsize rounds down to zero.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">errmax</span> <span class="o">&gt;</span> <span class="mf">1.89e-4</span><span class="p">:</span>
         <span class="n">dtnext</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">errmax</span><span class="o">**-.</span><span class="mi">2</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dtnext</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">dt</span>
-    <span class="k">return</span> <span class="n">_rkqs_rval</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dtnext</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_rkqs_rval</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dtnext</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="rkqs2"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.rkqs2">[docs]</a><span class="k">def</span> <span class="nf">rkqs2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span> <span class="n">dt_try</span><span class="p">,</span> <span class="n">inv_epsabs</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">()):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Same as :func:`rkqs`, but ``inv_epsabs = 1/epsabs`` and ``epsfrac`` is</span>
 <span class="sd">    not used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="n">dt_try</span>
-    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">dy</span><span class="p">,</span><span class="n">yerr</span> <span class="o">=</span> <span class="n">_rkck</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">args</span><span class="p">)</span>
         <span class="n">errmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yerr</span> <span class="o">*</span> <span class="n">inv_epsabs</span><span class="p">)</span>
         <span class="k">if</span><span class="p">(</span><span class="n">errmax</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">):</span>
-            <span class="k">break</span>  <span class="c"># Step succeeded</span>
+            <span class="k">break</span>  <span class="c1"># Step succeeded</span>
         <span class="n">dttemp</span> <span class="o">=</span> <span class="mf">0.9</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">errmax</span><span class="o">**-.</span><span class="mi">25</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">dt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">dttemp</span><span class="p">,</span><span class="n">dt</span><span class="o">*.</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">t</span><span class="o">+</span><span class="n">dt</span> <span class="o">==</span> <span class="n">t</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s">&quot;Stepsize rounds down to zero.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">IntegrationError</span><span class="p">(</span><span class="s2">&quot;Stepsize rounds down to zero.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">errmax</span> <span class="o">&gt;</span> <span class="mf">1.89e-4</span><span class="p">:</span>
         <span class="n">dtnext</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">errmax</span><span class="o">**-.</span><span class="mi">2</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dtnext</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">dt</span>
-    <span class="k">return</span> <span class="n">_rkqs_rval</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dtnext</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_rkqs_rval</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">dtnext</span><span class="p">)</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_rkck</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">dydt</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">dt</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">()):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Take one 5th-order Cash-Karp Runge-Kutta step.</span>
@@ -262,15 +263,15 @@
 <span class="sd">    array_like</span>
 <span class="sd">        An error estimate for `y`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">a2</span><span class="o">=</span><span class="mf">0.2</span><span class="p">;</span><span class="n">a3</span><span class="o">=</span><span class="mf">0.3</span><span class="p">;</span><span class="n">a4</span><span class="o">=</span><span class="mf">0.6</span><span class="p">;</span><span class="n">a5</span><span class="o">=</span><span class="mf">1.0</span><span class="p">;</span><span class="n">a6</span><span class="o">=</span><span class="mf">0.875</span><span class="p">;</span><span class="n">b21</span><span class="o">=</span><span class="mf">0.2</span>  <span class="c"># noqa</span>
-    <span class="n">b31</span><span class="o">=</span><span class="mf">3.0</span><span class="o">/</span><span class="mf">40.0</span><span class="p">;</span><span class="n">b32</span><span class="o">=</span><span class="mf">9.0</span><span class="o">/</span><span class="mf">40.0</span><span class="p">;</span><span class="n">b41</span><span class="o">=</span><span class="mf">0.3</span><span class="p">;</span><span class="n">b42</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.9</span><span class="p">;</span><span class="n">b43</span><span class="o">=</span><span class="mf">1.2</span><span class="p">;</span>  <span class="c"># noqa</span>
-    <span class="n">b51</span> <span class="o">=</span> <span class="o">-</span><span class="mf">11.0</span><span class="o">/</span><span class="mf">54.0</span><span class="p">;</span> <span class="n">b52</span><span class="o">=</span><span class="mf">2.5</span><span class="p">;</span><span class="n">b53</span> <span class="o">=</span> <span class="o">-</span><span class="mf">70.0</span><span class="o">/</span><span class="mf">27.0</span><span class="p">;</span><span class="n">b54</span><span class="o">=</span><span class="mf">35.0</span><span class="o">/</span><span class="mf">27.0</span><span class="p">;</span>  <span class="c"># noqa</span>
-    <span class="n">b61</span><span class="o">=</span><span class="mf">1631.0</span><span class="o">/</span><span class="mf">55296.0</span><span class="p">;</span><span class="n">b62</span><span class="o">=</span><span class="mf">175.0</span><span class="o">/</span><span class="mf">512.0</span><span class="p">;</span><span class="n">b63</span><span class="o">=</span><span class="mf">575.0</span><span class="o">/</span><span class="mf">13824.0</span><span class="p">;</span>  <span class="c"># noqa</span>
-    <span class="n">b64</span><span class="o">=</span><span class="mf">44275.0</span><span class="o">/</span><span class="mf">110592.0</span><span class="p">;</span><span class="n">b65</span><span class="o">=</span><span class="mf">253.0</span><span class="o">/</span><span class="mf">4096.0</span><span class="p">;</span><span class="n">c1</span><span class="o">=</span><span class="mf">37.0</span><span class="o">/</span><span class="mf">378.0</span><span class="p">;</span>  <span class="c"># noqa</span>
-    <span class="n">c3</span><span class="o">=</span><span class="mf">250.0</span><span class="o">/</span><span class="mf">621.0</span><span class="p">;</span><span class="n">c4</span><span class="o">=</span><span class="mf">125.0</span><span class="o">/</span><span class="mf">594.0</span><span class="p">;</span><span class="n">c6</span><span class="o">=</span><span class="mf">512.0</span><span class="o">/</span><span class="mf">1771.0</span><span class="p">;</span>  <span class="c"># noqa</span>
-    <span class="n">dc5</span> <span class="o">=</span> <span class="o">-</span><span class="mf">277.00</span><span class="o">/</span><span class="mf">14336.0</span><span class="p">;</span>  <span class="c"># noqa</span>
-    <span class="n">dc1</span><span class="o">=</span><span class="n">c1</span><span class="o">-</span><span class="mf">2825.0</span><span class="o">/</span><span class="mf">27648.0</span><span class="p">;</span><span class="n">dc3</span><span class="o">=</span><span class="n">c3</span><span class="o">-</span><span class="mf">18575.0</span><span class="o">/</span><span class="mf">48384.0</span><span class="p">;</span>  <span class="c"># noqa</span>
-    <span class="n">dc4</span><span class="o">=</span><span class="n">c4</span><span class="o">-</span><span class="mf">13525.0</span><span class="o">/</span><span class="mf">55296.0</span><span class="p">;</span><span class="n">dc6</span><span class="o">=</span><span class="n">c6</span><span class="o">-</span><span class="mf">0.25</span>  <span class="c"># noqa</span>
+    <span class="n">a2</span><span class="o">=</span><span class="mf">0.2</span><span class="p">;</span><span class="n">a3</span><span class="o">=</span><span class="mf">0.3</span><span class="p">;</span><span class="n">a4</span><span class="o">=</span><span class="mf">0.6</span><span class="p">;</span><span class="n">a5</span><span class="o">=</span><span class="mf">1.0</span><span class="p">;</span><span class="n">a6</span><span class="o">=</span><span class="mf">0.875</span><span class="p">;</span><span class="n">b21</span><span class="o">=</span><span class="mf">0.2</span>  <span class="c1"># noqa</span>
+    <span class="n">b31</span><span class="o">=</span><span class="mf">3.0</span><span class="o">/</span><span class="mf">40.0</span><span class="p">;</span><span class="n">b32</span><span class="o">=</span><span class="mf">9.0</span><span class="o">/</span><span class="mf">40.0</span><span class="p">;</span><span class="n">b41</span><span class="o">=</span><span class="mf">0.3</span><span class="p">;</span><span class="n">b42</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.9</span><span class="p">;</span><span class="n">b43</span><span class="o">=</span><span class="mf">1.2</span><span class="p">;</span>  <span class="c1"># noqa</span>
+    <span class="n">b51</span> <span class="o">=</span> <span class="o">-</span><span class="mf">11.0</span><span class="o">/</span><span class="mf">54.0</span><span class="p">;</span> <span class="n">b52</span><span class="o">=</span><span class="mf">2.5</span><span class="p">;</span><span class="n">b53</span> <span class="o">=</span> <span class="o">-</span><span class="mf">70.0</span><span class="o">/</span><span class="mf">27.0</span><span class="p">;</span><span class="n">b54</span><span class="o">=</span><span class="mf">35.0</span><span class="o">/</span><span class="mf">27.0</span><span class="p">;</span>  <span class="c1"># noqa</span>
+    <span class="n">b61</span><span class="o">=</span><span class="mf">1631.0</span><span class="o">/</span><span class="mf">55296.0</span><span class="p">;</span><span class="n">b62</span><span class="o">=</span><span class="mf">175.0</span><span class="o">/</span><span class="mf">512.0</span><span class="p">;</span><span class="n">b63</span><span class="o">=</span><span class="mf">575.0</span><span class="o">/</span><span class="mf">13824.0</span><span class="p">;</span>  <span class="c1"># noqa</span>
+    <span class="n">b64</span><span class="o">=</span><span class="mf">44275.0</span><span class="o">/</span><span class="mf">110592.0</span><span class="p">;</span><span class="n">b65</span><span class="o">=</span><span class="mf">253.0</span><span class="o">/</span><span class="mf">4096.0</span><span class="p">;</span><span class="n">c1</span><span class="o">=</span><span class="mf">37.0</span><span class="o">/</span><span class="mf">378.0</span><span class="p">;</span>  <span class="c1"># noqa</span>
+    <span class="n">c3</span><span class="o">=</span><span class="mf">250.0</span><span class="o">/</span><span class="mf">621.0</span><span class="p">;</span><span class="n">c4</span><span class="o">=</span><span class="mf">125.0</span><span class="o">/</span><span class="mf">594.0</span><span class="p">;</span><span class="n">c6</span><span class="o">=</span><span class="mf">512.0</span><span class="o">/</span><span class="mf">1771.0</span><span class="p">;</span>  <span class="c1"># noqa</span>
+    <span class="n">dc5</span> <span class="o">=</span> <span class="o">-</span><span class="mf">277.00</span><span class="o">/</span><span class="mf">14336.0</span><span class="p">;</span>  <span class="c1"># noqa</span>
+    <span class="n">dc1</span><span class="o">=</span><span class="n">c1</span><span class="o">-</span><span class="mf">2825.0</span><span class="o">/</span><span class="mf">27648.0</span><span class="p">;</span><span class="n">dc3</span><span class="o">=</span><span class="n">c3</span><span class="o">-</span><span class="mf">18575.0</span><span class="o">/</span><span class="mf">48384.0</span><span class="p">;</span>  <span class="c1"># noqa</span>
+    <span class="n">dc4</span><span class="o">=</span><span class="n">c4</span><span class="o">-</span><span class="mf">13525.0</span><span class="o">/</span><span class="mf">55296.0</span><span class="p">;</span><span class="n">dc6</span><span class="o">=</span><span class="n">c6</span><span class="o">-</span><span class="mf">0.25</span>  <span class="c1"># noqa</span>
     <span class="n">ytemp</span> <span class="o">=</span> <span class="n">y</span><span class="o">+</span><span class="n">b21</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="n">dydt</span>
     <span class="n">ak2</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">ytemp</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">a2</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="n">ytemp</span> <span class="o">=</span> <span class="n">y</span><span class="o">+</span><span class="n">dt</span><span class="o">*</span><span class="p">(</span><span class="n">b31</span><span class="o">*</span><span class="n">dydt</span><span class="o">+</span><span class="n">b32</span><span class="o">*</span><span class="n">ak2</span><span class="p">)</span>
@@ -331,9 +332,9 @@
     <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">w0</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w1</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span>
           <span class="n">w2</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w4</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">4</span><span class="p">]])</span>
 
-    <span class="k">return</span> <span class="n">dy</span>
+    <span class="k">return</span> <span class="n">dy</span></div>
 
-</div>
+
 <div class="viewcode-block" id="deriv14_const_dx"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.deriv14_const_dx">[docs]</a><span class="k">def</span> <span class="nf">deriv14_const_dx</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="sd">R&quot;&quot;&quot;</span>
 <span class="sd">    Calculates :math:`dy/dx` to fourth-order in :math:`\Delta x` using</span>
@@ -347,7 +348,7 @@
 <span class="sd">    y : array_like</span>
 <span class="sd">    dx : float, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>  <span class="c"># now the derivative is along the first dimension</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># now the derivative is along the first dimension</span>
     <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
     <span class="n">dy</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="mi">8</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">8</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
@@ -356,9 +357,9 @@
     <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">18</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
     <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">+</span><span class="mi">25</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">48</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">36</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">16</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">dy</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.0</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dy</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.0</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="deriv1n"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.deriv1n">[docs]</a><span class="k">def</span> <span class="nf">deriv1n</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates :math:`dy/dx` to nth-order in :math:`\Delta x` using</span>
@@ -377,17 +378,17 @@
 
     <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">*</span><span class="mf">1.0</span>
     <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
         <span class="n">d</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">d</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">y</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">*</span><span class="mf">1.</span>
 
-    <span class="c"># For example, when calculating w[1], we need only use</span>
-    <span class="c"># w[1]: d1 = d[0,0], d2 = d[0,1], d3 = d[0,2], ..., dn = d[0,n-1]</span>
-    <span class="c"># and for the other weights we just increment the first index:</span>
-    <span class="c"># w[2]: d2 = d[1,0], d3 = d[1,1], d4 = d[1,2], ..., dn = d[1,n-2],</span>
-    <span class="c">#       d1 = d[1,n-1]</span>
-    <span class="c"># So we should be able to calculate all of them at once like this.</span>
+    <span class="c1"># For example, when calculating w[1], we need only use</span>
+    <span class="c1"># w[1]: d1 = d[0,0], d2 = d[0,1], d3 = d[0,2], ..., dn = d[0,n-1]</span>
+    <span class="c1"># and for the other weights we just increment the first index:</span>
+    <span class="c1"># w[2]: d2 = d[1,0], d3 = d[1,1], d4 = d[1,2], ..., dn = d[1,n-2],</span>
+    <span class="c1">#       d1 = d[1,n-1]</span>
+    <span class="c1"># So we should be able to calculate all of them at once like this.</span>
     <span class="n">s</span> <span class="o">=</span> <span class="p">((</span><span class="mi">2</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
     <span class="n">s</span><span class="p">[</span><span class="n">s</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])[</span><span class="n">s</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">d</span><span class="p">[:,</span><span class="n">s</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">d</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
@@ -397,9 +398,9 @@
 
     <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">dy</span>
+    <span class="k">return</span> <span class="n">dy</span></div>
 
-</div>
+
 <div class="viewcode-block" id="deriv23"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.deriv23">[docs]</a><span class="k">def</span> <span class="nf">deriv23</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates :math:`d^2y/dx^2` to third-order in :math:`\Delta x` using</span>
@@ -434,9 +435,9 @@
 
     <span class="n">d2y</span> <span class="o">=</span> <span class="p">(</span><span class="n">w0</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w1</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span>
            <span class="n">w2</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w3</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="o">+</span> <span class="n">w4</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">[</span><span class="mi">4</span><span class="p">]])</span>
-    <span class="k">return</span> <span class="n">d2y</span>
+    <span class="k">return</span> <span class="n">d2y</span></div>
 
-</div>
+
 <div class="viewcode-block" id="deriv23_const_dx"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.deriv23_const_dx">[docs]</a><span class="k">def</span> <span class="nf">deriv23_const_dx</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates :math:`d^2y/dx^2` to third-order in :math:`\Delta x` using</span>
@@ -450,7 +451,7 @@
 <span class="sd">    y : array_like</span>
 <span class="sd">    dx : float, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>  <span class="c"># now the derivative is along the first dimension</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># now the derivative is along the first dimension</span>
     <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
     <span class="n">dy</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">y</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">30</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">16</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
@@ -459,9 +460,9 @@
     <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">20</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
     <span class="n">dy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">35</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">104</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">114</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">56</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="mi">11</span><span class="o">*</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">dy</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.0</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dy</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="p">(</span><span class="mf">12.0</span> <span class="o">*</span> <span class="n">dx</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="gradientFunction"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.gradientFunction">[docs]</a><span class="k">class</span> <span class="nc">gradientFunction</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make a function which returns the gradient of some scalar function.</span>
@@ -518,9 +519,9 @@
 <span class="sd">        Calculate the gradient. Output shape is the same as the input shape.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <div class="viewcode-block" id="hessianFunction"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.hessianFunction">[docs]</a><span class="k">class</span> <span class="nc">hessianFunction</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Make a function which returns the Hessian (second derivative) matrix of</span>
@@ -548,10 +549,10 @@
         <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">Ndim</span><span class="p">)</span> <span class="o">*</span> <span class="n">eps</span>
         <span class="n">dx</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">coef</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">Ndim</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">Ndim</span><span class="p">):</span>
             <span class="n">dx</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
             <span class="n">coef</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
                 <span class="n">dx_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">order</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">Ndim</span><span class="p">))</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">order</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
                     <span class="n">dx_</span><span class="p">[:,:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -594,16 +595,16 @@
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="n">Ndim</span><span class="p">,))</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">Ndim</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">Ndim</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
                 <span class="n">y_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">dx</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                             <span class="o">*</span> <span class="n">coef</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_</span>
             <span class="n">y</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">dx</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                                 <span class="o">*</span> <span class="n">coef</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">y</span>
+        <span class="k">return</span> <span class="n">y</span></div></div>
 
-</div></div>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Two-point interpolation</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~~~~</span>
@@ -627,9 +628,9 @@
     <span class="n">pows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">coefs</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">p</span><span class="o">=</span><span class="n">pows</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
     <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">coefs</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">pows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="n">p</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">df</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">df</span></div>
 
-</div>
+
 <div class="viewcode-block" id="cubicInterpFunction"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.cubicInterpFunction">[docs]</a><span class="k">class</span> <span class="nc">cubicInterpFunction</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create an interpolating function between two points with a cubic polynomial.</span>
@@ -637,7 +638,7 @@
 <span class="sd">    Like :func:`makeInterpFuncs`, but only uses the first derivatives.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dy0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">dy1</span><span class="p">):</span>
-        <span class="c"># Easiest to treat this as a bezier curve</span>
+        <span class="c1"># Easiest to treat this as a bezier curve</span>
         <span class="n">y3</span> <span class="o">=</span> <span class="n">y1</span>
         <span class="n">y1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dy0</span><span class="o">/</span><span class="mf">3.0</span>
         <span class="n">y2</span> <span class="o">=</span> <span class="n">y3</span> <span class="o">-</span> <span class="n">dy1</span><span class="o">/</span><span class="mf">3.0</span>
@@ -646,9 +647,9 @@
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
         <span class="n">mt</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">t</span>
         <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">y3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span>
-        <span class="k">return</span> <span class="n">y0</span><span class="o">*</span><span class="n">mt</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y1</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">t</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y2</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">t</span><span class="o">*</span><span class="n">t</span> <span class="o">+</span> <span class="n">y3</span><span class="o">*</span><span class="n">t</span><span class="o">**</span><span class="mi">3</span>
+        <span class="k">return</span> <span class="n">y0</span><span class="o">*</span><span class="n">mt</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y1</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">t</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">y2</span><span class="o">*</span><span class="n">mt</span><span class="o">*</span><span class="n">t</span><span class="o">*</span><span class="n">t</span> <span class="o">+</span> <span class="n">y3</span><span class="o">*</span><span class="n">t</span><span class="o">**</span><span class="mi">3</span></div>
 
-</div>
+
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Spline interpolation</span>
 <span class="sd">~~~~~~~~~~~~~~~~~~~~</span>
@@ -700,48 +701,48 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">kmax</span> <span class="o">=</span> <span class="n">k</span>
     <span class="k">if</span> <span class="n">kmax</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
     <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="p">:]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="p">]</span>
         <span class="n">_dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">_dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">N</span> <span class="o">=</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="k">return</span> <span class="n">N</span>
+    <span class="k">return</span> <span class="n">N</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Nbspld1"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.Nbspld1">[docs]</a><span class="k">def</span> <span class="nf">Nbspld1</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Same as :func:`Nbspl`, but returns the first derivative too.&quot;&quot;&quot;</span>
     <span class="n">kmax</span> <span class="o">=</span> <span class="n">k</span>
     <span class="k">if</span> <span class="n">kmax</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
     <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
     <span class="n">dN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="p">:]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="p">]</span>
         <span class="n">_dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">_dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">dN</span> <span class="o">=</span> <span class="n">dN</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">dN</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="n">dN</span> <span class="o">+=</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="n">N</span> <span class="o">=</span> <span class="n">N</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">N</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span><span class="o">*</span><span class="n">_dt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="k">return</span> <span class="n">N</span><span class="p">,</span> <span class="n">dN</span>
+    <span class="k">return</span> <span class="n">N</span><span class="p">,</span> <span class="n">dN</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Nbspld2"><a class="viewcode-back" href="../../helper_functions.html#cosmoTransitions.helper_functions.Nbspld2">[docs]</a><span class="k">def</span> <span class="nf">Nbspld2</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Same as :func:`Nbspl`, but returns first and second derivatives too.&quot;&quot;&quot;</span>
     <span class="n">kmax</span> <span class="o">=</span> <span class="n">k</span>
     <span class="k">if</span> <span class="n">kmax</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Input error in Nbspl: require that k &lt; len(t)-2&quot;</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
     <span class="n">N</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
     <span class="n">dN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
     <span class="n">d2N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">k</span><span class="p">:]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[:</span><span class="o">-</span><span class="n">k</span><span class="p">]</span>
         <span class="n">_dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">_dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">dt</span><span class="p">[</span><span class="n">dt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
@@ -761,14 +762,11 @@
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -784,13 +782,13 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

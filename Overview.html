@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>Overview &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,14 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="tunneling1D.py" href="tunnelling1D.html" />
     <link rel="prev" title="Welcome to CosmoTransitions’s documentation!" href="index.html" /> 
   </head>
@@ -44,7 +46,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to CosmoTransitions’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -84,6 +86,10 @@
 </div>
 <div class="section" id="change-log">
 <h2>Change log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="version-2-0-3">
+<h3>Version 2.0.3<a class="headerlink" href="#version-2-0-3" title="Permalink to this headline">¶</a></h3>
+<p>Version 2.0.3 fixes a small bug in <code class="docutils literal"><span class="pre">SingleFieldInstanton.findRScale()</span></code>. See <a class="reference external" href="https://github.com/clwainwright/CosmoTransitions/issues/6">issue #6</a>.</p>
+</div>
 <div class="section" id="version-2-0-2">
 <h3>Version 2.0.2<a class="headerlink" href="#version-2-0-2" title="Permalink to this headline">¶</a></h3>
 <p>Version 2.0.2 updates CosmoTransitions to work with Python 3. It also marks the first version that&#8217;s been uploaded to the <a class="reference external" href="https://pypi.python.org/pypi">Python Package Index</a>, so installation can now be as easy as <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cosmoTransitions</span></code>. Numerous formatting changes were made to bring the code into closer compliance with <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP 8</a> (the official python style guide), although all of the original un-pythonic naming conventions remain as they were.</p>
@@ -99,7 +105,7 @@
 <li><p class="first">More transparent return types. Unless otherwise noted, any function with multiple named return values returns a named tuple. This should make interactive use easier and scripts clearer to read. For example, the <a class="reference internal" href="tunnelling1D.html#cosmoTransitions.tunneling1D.SingleFieldInstanton.findProfile" title="cosmoTransitions.tunneling1D.SingleFieldInstanton.findProfile"><code class="xref py py-meth docutils literal"><span class="pre">findProfile()</span></code></a> method returns a <em>Profile1D</em> named tuple, so the field values along the profile can be retrieved using <code class="docutils literal"><span class="pre">profile</span> <span class="pre">=</span> <span class="pre">instanton.findProfile();</span> <span class="pre">field_vals</span> <span class="pre">=</span> <span class="pre">profile.Phi</span></code>.</p>
 </li>
 <li><p class="first">More rational nested calling structure. Because of it&#8217;s onion-like structure, CosmoTransitions often calls functions which call functions which call functions which might have some parameter that the user wants to tweak. Previously this was handled by passing extra keyword arguments to the top level function (like this: <code class="docutils literal"><span class="pre">foo(**kwargs)</span></code>), which often meant that the top-level function needed to know about the arguments in the bottom-level function. This is now generally handled by passing in whole dictionaries to the top-level function (without the two asterisks). For example, if when calling <a class="reference internal" href="generic_potential.html#cosmoTransitions.generic_potential.generic_potential.findAllTransitions" title="cosmoTransitions.generic_potential.generic_potential.findAllTransitions"><code class="xref py py-meth docutils literal"><span class="pre">findAllTransitions()</span></code></a>, one wishes to change the accuracy in the field <em>phi</em> used to calculate the instantons, one can call</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">(</span><span class="n">tunnelFromPhase_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">(</span><span class="n">tunnelFromPhase_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
 <span class="gp">... </span>                         <span class="n">fullTunneling_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
 <span class="gp">... </span>                         <span class="n">tunneling_findProfile_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
 <span class="gp">... </span>                         <span class="n">phitol</span><span class="o">=</span><span class="n">new_phitol_value</span><span class="p">))))</span>
@@ -152,7 +158,7 @@
 </div>
 <div class="section" id="to-do-list">
 <h2>To-do list<a class="headerlink" href="#to-do-list" title="Permalink to this headline">¶</a></h2>
-<p>I still need to do a better job of testing the whole package, particularly the <a class="reference internal" href="transitionFinder.html#module-cosmoTransitions.transitionFinder" title="cosmoTransitions.transitionFinder"><code class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></code></a> code. I haven&#8217;t tested any edge cases there yet.</p>
+<p>Still need to do a better job of testing the whole package, particularly the <a class="reference internal" href="transitionFinder.html#module-cosmoTransitions.transitionFinder" title="cosmoTransitions.transitionFinder"><code class="xref py py-mod docutils literal"><span class="pre">transitionFinder</span></code></a> code. I haven&#8217;t tested any edge cases there yet.</p>
 <p>Additionally:</p>
 <div class="admonition-todo admonition">
 <p class="first admonition-title">Todo</p>
@@ -163,29 +169,29 @@ errors when taking derivatives at very high temperature, where
 the field-independent contribution is much larger than the
 field-dependent contribution.</p>
 </div>
-<p class="todo-source">(The <a class="reference internal" href="generic_potential.html#index-0"><em>original entry</em></a> is located in  /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/generic_potential.py:docstring of cosmoTransitions.generic_potential.generic_potential.V1T, line 14.)</p>
+<p class="todo-source">(The <a class="reference internal" href="generic_potential.html#index-0"><em>original entry</em></a> is located in /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/generic_potential.py:docstring of cosmoTransitions.generic_potential.generic_potential.V1T, line 14.)</p>
 <div class="admonition-todo admonition">
 <p class="first admonition-title">Todo</p>
 <p class="last">Add an example plot.
 Make documentation for the other plotting functions.</p>
 </div>
-<p class="todo-source">(The <a class="reference internal" href="generic_potential.html#index-1"><em>original entry</em></a> is located in  /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/generic_potential.py:docstring of cosmoTransitions.generic_potential.generic_potential.plot2d, line 26.)</p>
+<p class="todo-source">(The <a class="reference internal" href="generic_potential.html#index-1"><em>original entry</em></a> is located in /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/generic_potential.py:docstring of cosmoTransitions.generic_potential.generic_potential.plot2d, line 25.)</p>
 <div class="admonition-todo admonition">
 <p class="first admonition-title">Todo</p>
 <p class="last">Make sure to test removeRedundantPhases().</p>
 </div>
-<p class="todo-source">(The <a class="reference internal" href="transitionFinder.html#index-0"><em>original entry</em></a> is located in  /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/transitionFinder.py:docstring of cosmoTransitions.transitionFinder.removeRedundantPhases, line 26.)</p>
+<p class="todo-source">(The <a class="reference internal" href="transitionFinder.html#index-0"><em>original entry</em></a> is located in /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/transitionFinder.py:docstring of cosmoTransitions.transitionFinder.removeRedundantPhases, line 25.)</p>
 <div class="admonition-todo admonition">
 <p class="first admonition-title">Todo</p>
 <p class="last">Possibly add extra logic to account for phases which coinincide
 at one end but not the other.</p>
 </div>
-<p class="todo-source">(The <a class="reference internal" href="transitionFinder.html#index-1"><em>original entry</em></a> is located in  /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/transitionFinder.py:docstring of cosmoTransitions.transitionFinder.removeRedundantPhases, line 27.)</p>
+<p class="todo-source">(The <a class="reference internal" href="transitionFinder.html#index-1"><em>original entry</em></a> is located in /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/transitionFinder.py:docstring of cosmoTransitions.transitionFinder.removeRedundantPhases, line 26.)</p>
 <div class="admonition-todo admonition">
 <p class="first admonition-title">Todo</p>
 <p class="last">Create and document a <em>CDL_Instanton</em> class for tunneling with gravity.</p>
 </div>
-<p class="todo-source">(The <a class="reference internal" href="tunnelling1D.html#index-0"><em>original entry</em></a> is located in  /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/tunneling1D.py:docstring of cosmoTransitions.tunneling1D, line 11.)</p>
+<p class="todo-source">(The <a class="reference internal" href="tunnelling1D.html#index-0"><em>original entry</em></a> is located in /Users/maxwain/programming/CosmoTransitions_v2/cosmoTransitions/tunneling1D.py:docstring of cosmoTransitions.tunneling1D, line 11.)</p>
 </div>
 </div>
 
@@ -201,6 +207,7 @@ at one end but not the other.</p>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#module-overview">Module overview</a></li>
 <li><a class="reference internal" href="#change-log">Change log</a><ul>
+<li><a class="reference internal" href="#version-2-0-3">Version 2.0.3</a></li>
 <li><a class="reference internal" href="#version-2-0-2">Version 2.0.2</a></li>
 <li><a class="reference internal" href="#version-2-0">Version 2.0</a></li>
 </ul>
@@ -219,21 +226,18 @@ at one end but not the other.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/Overview.txt"
+      <li><a href="_sources/Overview.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -255,12 +259,12 @@ at one end but not the other.</p>
         <li class="right" >
           <a href="index.html" title="Welcome to CosmoTransitions’s documentation!"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>generic_potential.py &mdash; CosmoTransitions 2.0.2 documentation</title>
+    <title>generic_potential.py &#8212; CosmoTransitions 2.0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,14 +17,16 @@
         VERSION:     '2.0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="CosmoTransitions 2.0.2 documentation" href="index.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="finiteT.py" href="finiteT.html" />
     <link rel="prev" title="transitionFinder.py" href="transitionFinder.html" /> 
   </head>
@@ -44,7 +46,7 @@
         <li class="right" >
           <a href="transitionFinder.html" title="transitionFinder.py"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -117,13 +119,13 @@ defaults to 1000.0**2.</li>
 transitions are calculated above this temperature. This is also used
 as the overall temperature scale in <a class="reference internal" href="#cosmoTransitions.generic_potential.generic_potential.getPhases" title="cosmoTransitions.generic_potential.generic_potential.getPhases"><code class="xref py py-func docutils literal"><span class="pre">getPhases()</span></code></a>.
 May be overridden by subclasses; defaults to 1000.0.</li>
-<li><strong>num_boson_dof</strong> (<em>int or None</em>) &#8211; Total number of bosonic degrees of freedom, including radiation.
+<li><strong>num_boson_dof</strong> (<em>int</em><em> or </em><em>None</em>) &#8211; Total number of bosonic degrees of freedom, including radiation.
 This is used to add a field-independent but temperature-dependent
 contribution to the effective potential. It does not affect the relative
 pressure or energy density between phases, so it does not affect the
 critical or nucleation temperatures. If None, the total number of
 degrees of freedom will be taken directly from <a class="reference internal" href="#cosmoTransitions.generic_potential.generic_potential.boson_massSq" title="cosmoTransitions.generic_potential.generic_potential.boson_massSq"><code class="xref py py-meth docutils literal"><span class="pre">boson_massSq()</span></code></a>.</li>
-<li><strong>num_fermion_dof</strong> (<em>int or None</em>) &#8211; Total number of fermionic degrees of freedom, including radiation.
+<li><strong>num_fermion_dof</strong> (<em>int</em><em> or </em><em>None</em>) &#8211; Total number of fermionic degrees of freedom, including radiation.
 If None, the total number of degrees of freedom will be taken
 directly from <a class="reference internal" href="#cosmoTransitions.generic_potential.generic_potential.fermion_massSq" title="cosmoTransitions.generic_potential.generic_potential.fermion_massSq"><code class="xref py py-meth docutils literal"><span class="pre">fermion_massSq()</span></code></a>.</li>
 </ul>
@@ -163,7 +165,7 @@ subclasses.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>X</strong> (<em>array_like</em>) &#8211; Field value(s).
 Either a single point (with length <em class="xref py py-obj">Ndim</em>), or an array of points.</li>
-<li><strong>T</strong> (<em>float or array_like</em>) &#8211; The temperature at which to calculate the boson masses. Can be used
+<li><strong>T</strong> (<em>float</em><em> or </em><em>array_like</em>) &#8211; The temperature at which to calculate the boson masses. Can be used
 for including thermal mass corrrections. The shapes of <em class="xref py py-obj">X</em> and <em class="xref py py-obj">T</em>
 should be such that <code class="docutils literal"><span class="pre">X.shape[:-1]</span></code> and <code class="docutils literal"><span class="pre">T.shape</span></code> are
 broadcastable (that is, <code class="docutils literal"><span class="pre">X[...,0]*T</span></code> is a valid operation).</li>
@@ -171,18 +173,15 @@ broadcastable (that is, <code class="docutils literal"><span class="pre">X[...,0
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><strong>massSq</strong> (<em>array_like</em>) &#8211;
-A list of the boson particle masses at each input point <em class="xref py py-obj">X</em>. The
+<li><strong>massSq</strong> (<em>array_like</em>) &#8211; A list of the boson particle masses at each input point <em class="xref py py-obj">X</em>. The
 shape should be such that
 <code class="docutils literal"><span class="pre">massSq.shape</span> <span class="pre">==</span> <span class="pre">(X[...,0]*T).shape</span> <span class="pre">+</span> <span class="pre">(Nbosons,)</span></code>.
 That is, the particle index is the <em>last</em> index in the output array
 if the input array(s) are multidimensional.</li>
-<li><strong>degrees_of_freedom</strong> (<em>float or array_like</em>) &#8211;
-The number of degrees of freedom for each particle. If an array
+<li><strong>degrees_of_freedom</strong> (<em>float or array_like</em>) &#8211; The number of degrees of freedom for each particle. If an array
 (i.e., different particles have different d.o.f.), it should have
 length <em class="xref py py-obj">Ndim</em>.</li>
-<li><strong>c</strong> (<em>float or array_like</em>) &#8211;
-A constant used in the one-loop zero-temperature effective
+<li><strong>c</strong> (<em>float or array_like</em>) &#8211; A constant used in the one-loop zero-temperature effective
 potential. If an array, it should have length <em class="xref py py-obj">Ndim</em>. Generally
 <em class="xref py py-obj">c = 1/2</em> for gauge boson transverse modes, and <em class="xref py py-obj">c = 3/2</em> for all
 other bosons.</li>
@@ -207,13 +206,11 @@ subclasses.</p>
 Either a single point (with length <em class="xref py py-obj">Ndim</em>), or an array of points.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
-<li><strong>massSq</strong> (<em>array_like</em>) &#8211;
-A list of the fermion particle masses at each input point <em class="xref py py-obj">X</em>. The
+<li><strong>massSq</strong> (<em>array_like</em>) &#8211; A list of the fermion particle masses at each input point <em class="xref py py-obj">X</em>. The
 shape should be such that  <code class="docutils literal"><span class="pre">massSq.shape</span> <span class="pre">==</span> <span class="pre">(X[...,0]).shape</span></code>.
 That is, the particle index is the <em>last</em> index in the output array
 if the input array(s) are multidimensional.</li>
-<li><strong>degrees_of_freedom</strong> (<em>float or array_like</em>) &#8211;
-The number of degrees of freedom for each particle. If an array
+<li><strong>degrees_of_freedom</strong> (<em>float or array_like</em>) &#8211; The number of degrees of freedom for each particle. If an array
 (i.e., different particles have different d.o.f.), it should have
 length <em class="xref py py-obj">Ndim</em>.</li>
 </ul>
@@ -282,10 +279,10 @@ contributions don&#8217;t matter.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>X</strong> (<em>array_like</em>) &#8211; Field value(s).
 Either a single point (with length <em class="xref py py-obj">Ndim</em>), or an array of points.</li>
-<li><strong>T</strong> (<em>float or array_like</em>) &#8211; The temperature. The shapes of <em class="xref py py-obj">X</em> and <em class="xref py py-obj">T</em>
+<li><strong>T</strong> (<em>float</em><em> or </em><em>array_like</em>) &#8211; The temperature. The shapes of <em class="xref py py-obj">X</em> and <em class="xref py py-obj">T</em>
 should be such that <code class="docutils literal"><span class="pre">X.shape[:-1]</span></code> and <code class="docutils literal"><span class="pre">T.shape</span></code> are
 broadcastable (that is, <code class="docutils literal"><span class="pre">X[...,0]*T</span></code> is a valid operation).</li>
-<li><strong>include_radiation</strong> (<em>bool, optional</em>) &#8211; If False, this will drop all field-independent radiation
+<li><strong>include_radiation</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If False, this will drop all field-independent radiation
 terms from the effective potential. Useful for calculating
 differences or derivatives.</li>
 </ul>
@@ -362,8 +359,7 @@ of the minima will later be found using <code class="xref py py-func docutils li
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>minima</strong> (<em>list</em>) &#8211;
-A list of points of the approximate minima.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>minima</strong> (<em>list</em>) &#8211; A list of points of the approximate minima.</td>
 </tr>
 </tbody>
 </table>
@@ -424,8 +420,7 @@ leave it as is for easier backwards compatability.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tracingArgs</strong> (<em>dict</em>) &#8211; Parameters to pass to <code class="xref py py-func docutils literal"><span class="pre">transitionFinder.traceMultiMin()</span></code>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>dict</em> &#8211;
-Each item in the returned dictionary is an instance of
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>dict</em> &#8211; Each item in the returned dictionary is an instance of
 <code class="xref py py-class docutils literal"><span class="pre">transitionFinder.Phase</span></code>, and each phase is
 identified by a unique key. This value is also stored in
 <em class="xref py py-obj">self.phases</em>.</td>
@@ -501,10 +496,10 @@ temperature. NOT IMPLEMENTED YET.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>box</strong> (<em>tuple</em>) &#8211; The bounding box for the plot, (xlow, xhigh, ylow, yhigh).</li>
-<li><strong>T</strong> (<em>float, optional</em>) &#8211; The temperature</li>
+<li><strong>T</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; The temperature</li>
 <li><strong>offset</strong> (<em>array_like</em>) &#8211; A constant to add to all coordinates. Especially
 helpful if Ndim &gt; 2.</li>
-<li><strong>yaxis</strong> (<em>xaxis,</em>) &#8211; The integers of the axes that we want to plot.</li>
+<li><strong>yaxis</strong> (<em>xaxis</em><em>,</em><em></em>) &#8211; The integers of the axes that we want to plot.</li>
 <li><strong>n</strong> (<em>int</em>) &#8211; Number of points evaluated in each direction.</li>
 <li><strong>clevs</strong> (<em>int</em>) &#8211; Number of contour levels to draw.</li>
 <li><strong>cfrac</strong> (<em>float</em>) &#8211; The lowest contour is always at <code class="docutils literal"><span class="pre">min(V)</span></code>, while the highest is
@@ -551,7 +546,7 @@ Make documentation for the other plotting functions.</p>
 to extract big arrays of model outputs. For example, suppose
 that you have a 2x5x20 nested list of models and you want to
 find the last critical temperature of each model. Then use</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Tcrit</span> <span class="o">=</span> <span class="n">funcOnModels</span><span class="p">(</span><span class="k">lambda</span> <span class="n">A</span><span class="p">:</span> <span class="n">A</span><span class="o">.</span><span class="n">TcTrans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;Tcrit&#39;</span><span class="p">],</span> <span class="n">models</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Tcrit</span> <span class="o">=</span> <span class="n">funcOnModels</span><span class="p">(</span><span class="k">lambda</span> <span class="n">A</span><span class="p">:</span> <span class="n">A</span><span class="o">.</span><span class="n">TcTrans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Tcrit&#39;</span><span class="p">],</span> <span class="n">models</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Tcrit will be a numpy array with shape (2,5,20).</p>
@@ -560,8 +555,9 @@ find the last critical temperature of each model. Then use</p>
 <div class="section" id="example-subclass">
 <h2>Example subclass<a class="headerlink" href="#example-subclass" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows typical usage for subclassing <a class="reference internal" href="#cosmoTransitions.generic_potential.generic_potential" title="cosmoTransitions.generic_potential.generic_potential"><code class="xref py py-class docutils literal"><span class="pre">generic_potential</span></code></a>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">cosmoTransitions</span> <span class="kn">import</span> <span class="n">generic_potential</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cosmoTransitions</span> <span class="k">import</span> <span class="n">generic_potential</span>
 
 <span class="n">v2</span> <span class="o">=</span> <span class="mf">246.</span><span class="o">**</span><span class="mi">2</span>
 
@@ -586,21 +582,21 @@ find the last critical temperature of each model. Then use</p>
 <span class="sd">          Y2 - Coupling to the two scalars together: m^2 = Y2*s1*s2</span>
 <span class="sd">          n - degrees of freedom of the boson that is coupling.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># The init method is called by the generic_potential class, after it</span>
-        <span class="c"># already does some of its own initialization in the default __init__()</span>
-        <span class="c"># method. This is necessary for all subclasses to implement.</span>
+        <span class="c1"># The init method is called by the generic_potential class, after it</span>
+        <span class="c1"># already does some of its own initialization in the default __init__()</span>
+        <span class="c1"># method. This is necessary for all subclasses to implement.</span>
 
-        <span class="c"># This first line is absolutely essential in all subclasses.</span>
-        <span class="c"># It specifies the number of field-dimensions in the theory.</span>
+        <span class="c1"># This first line is absolutely essential in all subclasses.</span>
+        <span class="c1"># It specifies the number of field-dimensions in the theory.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ndim</span> <span class="o">=</span> <span class="mi">2</span>
 
-        <span class="c"># self.renormScaleSq is the renormalization scale used in the</span>
-        <span class="c"># Coleman-Weinberg potential.</span>
+        <span class="c1"># self.renormScaleSq is the renormalization scale used in the</span>
+        <span class="c1"># Coleman-Weinberg potential.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">renormScaleSq</span> <span class="o">=</span> <span class="n">v2</span>
 
-        <span class="c"># This next block sets all of the parameters that go into the potential</span>
-        <span class="c"># and the masses. This will obviously need to be changed for different</span>
-        <span class="c"># models.</span>
+        <span class="c1"># This next block sets all of the parameters that go into the potential</span>
+        <span class="c1"># and the masses. This will obviously need to be changed for different</span>
+        <span class="c1"># models.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">l1</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">m1</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">v2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">l2</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="n">m2</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">v2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mu2</span> <span class="o">=</span> <span class="n">mu</span><span class="o">**</span><span class="mi">2</span>
@@ -626,15 +622,15 @@ find the last critical temperature of each model. Then use</p>
 <span class="sd">        subclassed. (You could also subclass Vtot() directly, and put in all of</span>
 <span class="sd">        quantum corrections yourself).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># X is the input field array. It is helpful to ensure that it is a</span>
-        <span class="c"># numpy array before splitting it into its components.</span>
+        <span class="c1"># X is the input field array. It is helpful to ensure that it is a</span>
+        <span class="c1"># numpy array before splitting it into its components.</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="c"># x and y are the two fields that make up the input. The array should</span>
-        <span class="c"># always be defined such that the very last axis contains the different</span>
-        <span class="c"># fields, hence the ellipses.</span>
-        <span class="c"># (For example, X can be an array of N two dimensional points and have</span>
-        <span class="c"># shape (N,2), but it should NOT be a series of two arrays of length N</span>
-        <span class="c"># and have shape (2,N).)</span>
+        <span class="c1"># x and y are the two fields that make up the input. The array should</span>
+        <span class="c1"># always be defined such that the very last axis contains the different</span>
+        <span class="c1"># fields, hence the ellipses.</span>
+        <span class="c1"># (For example, X can be an array of N two dimensional points and have</span>
+        <span class="c1"># shape (N,2), but it should NOT be a series of two arrays of length N</span>
+        <span class="c1"># and have shape (2,N).)</span>
         <span class="n">phi1</span><span class="p">,</span><span class="n">phi2</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">r</span> <span class="o">=</span> <span class="o">.</span><span class="mi">25</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="o">*</span><span class="p">(</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi1</span><span class="o">-</span><span class="n">v2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="o">.</span><span class="mi">25</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">l2</span><span class="o">*</span><span class="p">(</span><span class="n">phi2</span><span class="o">*</span><span class="n">phi2</span><span class="o">-</span><span class="n">v2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">r</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu2</span><span class="o">*</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi2</span>
@@ -644,9 +640,9 @@ find the last critical temperature of each model. Then use</p>
         <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">phi1</span><span class="p">,</span><span class="n">phi2</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="c"># We need to define the field-dependnet boson masses. This is obviously</span>
-        <span class="c"># model-dependent.</span>
-        <span class="c"># Note that these can also include temperature-dependent corrections.</span>
+        <span class="c1"># We need to define the field-dependnet boson masses. This is obviously</span>
+        <span class="c1"># model-dependent.</span>
+        <span class="c1"># Note that these can also include temperature-dependent corrections.</span>
         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l1</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi1</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span>
         <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">phi2</span><span class="o">*</span><span class="n">phi2</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span>
         <span class="n">A</span> <span class="o">=</span> <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
@@ -654,83 +650,83 @@ find the last critical temperature of each model. Then use</p>
         <span class="n">mb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y1</span><span class="o">*</span><span class="p">(</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi1</span><span class="o">+</span><span class="n">phi2</span><span class="o">*</span><span class="n">phi2</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y2</span><span class="o">*</span><span class="n">phi1</span><span class="o">*</span><span class="n">phi2</span>
         <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">A</span><span class="o">+</span><span class="n">B</span><span class="p">,</span> <span class="n">A</span><span class="o">-</span><span class="n">B</span><span class="p">,</span> <span class="n">mb</span><span class="p">])</span>
 
-        <span class="c"># At this point, we have an array of boson masses, but each entry might</span>
-        <span class="c"># be an array itself. This happens if the input X is an array of points.</span>
-        <span class="c"># The generic_potential class requires that the output of this function</span>
-        <span class="c"># have the different masses lie along the last axis, just like the</span>
-        <span class="c"># different fields lie along the last axis of X, so we need to reorder</span>
-        <span class="c"># the axes. The next line does this, and should probably be included in</span>
-        <span class="c"># all subclasses.</span>
+        <span class="c1"># At this point, we have an array of boson masses, but each entry might</span>
+        <span class="c1"># be an array itself. This happens if the input X is an array of points.</span>
+        <span class="c1"># The generic_potential class requires that the output of this function</span>
+        <span class="c1"># have the different masses lie along the last axis, just like the</span>
+        <span class="c1"># different fields lie along the last axis of X, so we need to reorder</span>
+        <span class="c1"># the axes. The next line does this, and should probably be included in</span>
+        <span class="c1"># all subclasses.</span>
         <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rollaxis</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
 
-        <span class="c"># The number of degrees of freedom for the masses. This should be a</span>
-        <span class="c"># one-dimensional array with the same number of entries as there are</span>
-        <span class="c"># masses.</span>
+        <span class="c1"># The number of degrees of freedom for the masses. This should be a</span>
+        <span class="c1"># one-dimensional array with the same number of entries as there are</span>
+        <span class="c1"># masses.</span>
         <span class="n">dof</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">])</span>
 
-        <span class="c"># c is a constant for each particle used in the Coleman-Weinberg</span>
-        <span class="c"># potential using MS-bar renormalization. It equals 1.5 for all scalars</span>
-        <span class="c"># and the longitudinal polarizations of the gauge bosons, and 0.5 for</span>
-        <span class="c"># transverse gauge bosons.</span>
+        <span class="c1"># c is a constant for each particle used in the Coleman-Weinberg</span>
+        <span class="c1"># potential using MS-bar renormalization. It equals 1.5 for all scalars</span>
+        <span class="c1"># and the longitudinal polarizations of the gauge bosons, and 0.5 for</span>
+        <span class="c1"># transverse gauge bosons.</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">M</span><span class="p">,</span> <span class="n">dof</span><span class="p">,</span> <span class="n">c</span>
 
     <span class="k">def</span> <span class="nf">approxZeroTMin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># There are generically two minima at zero temperature in this model,</span>
-        <span class="c"># and we want to include both of them.</span>
+        <span class="c1"># There are generically two minima at zero temperature in this model,</span>
+        <span class="c1"># and we want to include both of them.</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">v2</span><span class="o">**.</span><span class="mi">5</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">,</span><span class="n">v</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">v</span><span class="p">,</span><span class="o">-</span><span class="n">v</span><span class="p">])]</span>
 
 
-<span class="k">def</span> <span class="nf">makePlots</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">makePlots</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">model1</span><span class="p">()</span>
         <span class="n">m</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">()</span>
-    <span class="c"># --</span>
+    <span class="c1"># --</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
     <span class="n">m</span><span class="o">.</span><span class="n">plotPhasesPhi</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="mi">550</span><span class="p">])</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Minima as a function of temperature&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Minima as a function of temperature&quot;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="c"># --</span>
+    <span class="c1"># --</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">131</span><span class="p">)</span>
     <span class="n">T</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">m</span><span class="o">.</span><span class="n">plot2d</span><span class="p">((</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">,</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">cfrac</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span><span class="n">clevs</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;$T = </span><span class="si">%0.2f</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">R&quot;$\phi_2$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;$T = </span><span class="si">%0.2f</span><span class="s2">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">R&quot;$\phi_2$&quot;</span><span class="p">)</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">132</span><span class="p">)</span>
-    <span class="n">T</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]</span>
-    <span class="n">instanton</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;instanton&#39;</span><span class="p">]</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Tnuc&#39;</span><span class="p">]</span>
+    <span class="n">instanton</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;instanton&#39;</span><span class="p">]</span>
     <span class="n">phi</span> <span class="o">=</span> <span class="n">instanton</span><span class="o">.</span><span class="n">Phi</span>
     <span class="n">m</span><span class="o">.</span><span class="n">plot2d</span><span class="p">((</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">,</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">cfrac</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span><span class="n">clevs</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">phi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;k&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;$T = </span><span class="si">%0.2f</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">phi</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">phi</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;$T = </span><span class="si">%0.2f</span><span class="s2">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">133</span><span class="p">)</span>
-    <span class="n">T</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;Tnuc&#39;</span><span class="p">]</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Tnuc&#39;</span><span class="p">]</span>
     <span class="n">m</span><span class="o">.</span><span class="n">plot2d</span><span class="p">((</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">,</span><span class="o">-</span><span class="mi">450</span><span class="p">,</span><span class="mi">450</span><span class="p">),</span> <span class="n">T</span><span class="o">=</span><span class="n">T</span><span class="p">,</span> <span class="n">cfrac</span><span class="o">=.</span><span class="mi">4</span><span class="p">,</span><span class="n">clevs</span><span class="o">=</span><span class="mi">65</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">lw</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s">&#39;equal&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;$T = </span><span class="si">%0.2f</span><span class="s">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;$T = </span><span class="si">%0.2f</span><span class="s2">$&quot;</span> <span class="o">%</span> <span class="n">T</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
-    <span class="c"># --</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">R&quot;$\phi_1$&quot;</span><span class="p">)</span>
+    <span class="c1"># --</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">instanton</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">instanton</span><span class="o">.</span><span class="n">profile1D</span><span class="o">.</span><span class="n">Phi</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;radius&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">R&quot;$\phi-\phi_{min}$ (along the path)&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Tunneling profile&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;radius&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">R&quot;$\phi-\phi_</span><span class="si">{min}</span><span class="s2">$ (along the path)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Tunneling profile&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Running model1 should produce following output:</p>
 <blockquote>
-<div><div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">test</span> <span class="kn">import</span> <span class="n">testModels</span>
+<div><div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">test</span> <span class="k">import</span> <span class="n">testModels</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">testModels</span><span class="o">.</span><span class="n">model1</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">findAllTransitions</span><span class="p">()</span>
 <span class="go">Tracing phase starting at x = [ 295.56323266  406.39105772] ; t = 0.0</span>
@@ -802,10 +798,10 @@ find the last critical temperature of each model. Then use</p>
 <span class="go">Path deformation converged. 11 steps. fRatio = 3.46976e-03</span>
 <span class="go">Path deformation converged. 1 steps. fRatio = 2.96662e-03</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># High-T transition (second-order):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># High-T transition (second-order):</span>
 <span class="gp">... </span><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<span class="gp">... </span>    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s">&#39;instanton&#39;</span><span class="p">:</span>
-<span class="gp">... </span>        <span class="k">print</span> <span class="n">key</span><span class="p">,</span> <span class="s">&quot;:&quot;</span><span class="p">,</span> <span class="n">val</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;instanton&#39;</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">val</span>
 <span class="go">low_vev : [ 0.0666956  -0.05057576]</span>
 <span class="go">Delta_p : 0.0</span>
 <span class="go">Delta_rho : 0.0</span>
@@ -817,10 +813,10 @@ find the last critical temperature of each model. Then use</p>
 <span class="go">trantype : 2</span>
 <span class="go">low_phase : 1</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># Low-T transition (first-order):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Low-T transition (first-order):</span>
 <span class="gp">... </span><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">TnTrans</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<span class="gp">... </span>    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s">&#39;instanton&#39;</span><span class="p">:</span>
-<span class="gp">... </span>        <span class="k">print</span> <span class="n">key</span><span class="p">,</span> <span class="s">&quot;:&quot;</span><span class="p">,</span> <span class="n">val</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;instanton&#39;</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">val</span>
 <span class="go">low_vev : [ 288.33723614  387.41713999]</span>
 <span class="go">Delta_p : 114484820.963</span>
 <span class="go">Delta_rho : 360332331.162</span>
@@ -831,6 +827,8 @@ find the last critical temperature of each model. Then use</p>
 <span class="go">action : 11197.2875098</span>
 <span class="go">trantype : 1</span>
 <span class="go">low_phase : 0</span>
+
+
 </pre></div>
 </div>
 </div></blockquote>
@@ -868,21 +866,18 @@ find the last critical temperature of each model. Then use</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/generic_potential.txt"
+      <li><a href="_sources/generic_potential.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -904,12 +899,12 @@ find the last critical temperature of each model. Then use</p>
         <li class="right" >
           <a href="transitionFinder.html" title="transitionFinder.py"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CosmoTransitions 2.0.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2014, Carroll L. Wainwright.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2014, Carroll L. Wainwright.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.1.
     </div>
   </body>
 </html>
