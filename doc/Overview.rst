@@ -43,6 +43,12 @@ In addition, there a few auxiliary modules which do not rely upon any of the cor
 Change log
 ~~~~~~~~~~~~~~~~~~~~
 
+Version 2.0.3
+=========================
+
+Version 2.0.3 fixes a small bug in ``SingleFieldInstanton.findRScale()``. See `issue #6 <https://github.com/clwainwright/CosmoTransitions/issues/6>`_.
+
+
 Version 2.0.2
 =========================
 
@@ -60,8 +66,8 @@ CosmoTransitions version 2 is a major update from version 1.0.2. The basic struc
 The overall changes are:
 
   - Much better documentation. Almost all functions now have detailed docstrings which describe their use. These can be examined interactively by running ``help(function)`` at the python prompt, or by simply looking them up on this website. This website is built using the `sphinx <http://sphinx-doc.org/>`_ documentation tool, so any future changes to the code should be automatically updated here.
-  - More transparent return types. Unless otherwise noted, any function with multiple named return values returns a named tuple. This should make interactive use easier and scripts clearer to read. For example, the :meth:`~tunneling1D.SingleFieldInstanton.findProfile` method returns a *Profile1D* named tuple, so the field values along the profile can be retrieved using ``profile = instanton.findProfile(); field_vals = profile.Phi``. 
-  - More rational nested calling structure. Because of it's onion-like structure, CosmoTransitions often calls functions which call functions which call functions which might have some parameter that the user wants to tweak. Previously this was handled by passing extra keyword arguments to the top level function (like this: ``foo(**kwargs)``), which often meant that the top-level function needed to know about the arguments in the bottom-level function. This is now generally handled by passing in whole dictionaries to the top-level function (without the two asterisks). For example, if when calling :meth:`~generic_potential.generic_potential.findAllTransitions`, one wishes to change the accuracy in the field *phi* used to calculate the instantons, one can call 
+  - More transparent return types. Unless otherwise noted, any function with multiple named return values returns a named tuple. This should make interactive use easier and scripts clearer to read. For example, the :meth:`~tunneling1D.SingleFieldInstanton.findProfile` method returns a *Profile1D* named tuple, so the field values along the profile can be retrieved using ``profile = instanton.findProfile(); field_vals = profile.Phi``.
+  - More rational nested calling structure. Because of it's onion-like structure, CosmoTransitions often calls functions which call functions which call functions which might have some parameter that the user wants to tweak. Previously this was handled by passing extra keyword arguments to the top level function (like this: ``foo(**kwargs)``), which often meant that the top-level function needed to know about the arguments in the bottom-level function. This is now generally handled by passing in whole dictionaries to the top-level function (without the two asterisks). For example, if when calling :meth:`~generic_potential.generic_potential.findAllTransitions`, one wishes to change the accuracy in the field *phi* used to calculate the instantons, one can call
 
     >>> model.findAllTransitions(tunnelFromPhase_args=dict(
     ...                          fullTunneling_params=dict(
@@ -108,7 +114,7 @@ What follows are some of the more notable specific changes, organized by module:
 To-do list
 ~~~~~~~~~~~~~~~~~~
 
-I still need to do a better job of testing the whole package, particularly the :mod:`.transitionFinder` code. I haven't tested any edge cases there yet.
+Still need to do a better job of testing the whole package, particularly the :mod:`.transitionFinder` code. I haven't tested any edge cases there yet.
 
 Additionally:
 

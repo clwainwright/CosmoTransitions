@@ -1,3 +1,4 @@
 *.pyc
 *.dat
+*.dat.txt
 doc/_build/
