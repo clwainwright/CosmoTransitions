@@ -22,7 +22,10 @@ import os
 import numpy
 from scipy import integrate, interpolate
 from scipy import special
-from scipy.misc import factorial as fac
+try:
+    from scipy.misc import factorial as fac
+except ImportError:
+    from scipy.special import factorial as fac
 
 pi = numpy.pi
 euler_gamma = 0.577215661901532
