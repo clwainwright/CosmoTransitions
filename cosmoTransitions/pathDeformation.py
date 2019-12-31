@@ -130,7 +130,7 @@ class Deformation_Spline:
         # subtract off the linear component.
         phi0, phi1 = phi[:1], phi[-1:]  # These are shape (1,N)
         phi_lin = phi0 + (phi1-phi0)*self._t
-        self._beta, residues, rank, s = np.linalg.lstsq(self._X, phi-phi_lin)
+        self._beta, residues, rank, s = np.linalg.lstsq(self._X, phi - phi_lin, rcond=-1)
 
         # save the points for future use.
         self.phi = np.asanyarray(phi)  # shape (n,N)
@@ -300,7 +300,7 @@ class Deformation_Spline:
         # fit to the spline
         phi_lin = phi[:1] + (phi[-1:]-phi[:1])*self._t
         phi -= phi_lin
-        self._beta, residues, rank, s = np.linalg.lstsq(self._X, phi)
+        self._beta, residues, rank, s = np.linalg.lstsq(self._X, phi, rcond=-1)
         phi = np.sum(self._beta[np.newaxis,:,:]*self._X[:,:,np.newaxis], axis=1)
         phi += phi_lin
         self.phi = phi
