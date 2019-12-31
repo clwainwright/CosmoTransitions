@@ -700,7 +700,7 @@ def _tunnelFromPhaseAtT(T, phases, start_phase, V, dV,
     for tdict in tunnel_list:
         x1 = tdict['low_vev']
         try:
-            print("Tunneling from phase %s to phase %s at T=%0.4g"
+            print("Tunneling from phase %s to phase %s at T=%0.7g"
                   % (tdict['high_phase'], tdict['low_phase'], T))
             print("high_vev =", tdict['high_vev'])
             print("low_vev =", tdict['low_vev'])
