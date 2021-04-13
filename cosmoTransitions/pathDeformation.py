@@ -758,7 +758,7 @@ class SplinePath:
             xmin = optimize.fmin(V_lin, 0.0, args=(pts[0], dpts[0], V),
                                  xtol=1e-6, disp=0)[0]
             if xmin > 0.0: xmin = 0.0
-            nx = np.ceil(abs(xmin)-.5) + 1
+            nx = int(np.ceil(abs(xmin)-.5)) + 1
             x = np.linspace(xmin, 0, nx)[:, np.newaxis]
             pt_ext = pts[0] + x*dpts[0]
             pts = np.append(pt_ext, pts[1:], axis=0)
@@ -766,7 +766,7 @@ class SplinePath:
             xmin = optimize.fmin(V_lin, 0.0, args=(pts[-1], dpts[-1], V),
                                  xtol=1e-6, disp=0)[0]
             if xmin < 0.0: xmin = 0.0
-            nx = np.ceil(abs(xmin)-.5) + 1
+            nx = int(np.ceil(abs(xmin)-.5)) + 1
             x = np.linspace(xmin, 0, nx)[::-1, np.newaxis]
             pt_ext = pts[-1] + x*dpts[-1]
             pts = np.append(pts[:-1], pt_ext, axis=0)
