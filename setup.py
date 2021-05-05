@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="cosmoTransitions",
-    version="2.0.5",
+    version="2.0.6",
     packages=['cosmoTransitions', 'cosmoTransitions.examples'],
     package_dir={'cosmoTransitions.examples': 'examples'},
     description=(
