@@ -730,7 +730,7 @@ class SingleFieldInstanton:
         if max_interior_pts > 0:
             dx0 = R[1]-R[0]
             if R[0] / dx0 <= max_interior_pts:
-                n = np.ceil(R[0]/dx0)
+                n = int(np.ceil(R[0]/dx0))
                 R_int = np.linspace(0, R[0], n+1)[:-1]
             else:
                 n = max_interior_pts
