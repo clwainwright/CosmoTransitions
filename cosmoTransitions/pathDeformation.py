@@ -773,8 +773,8 @@ class SplinePath:
             # Recalculate the derivative
             dpts = _pathDeriv(pts)
         # 3. Find knot positions and fit the spline.
-        pdist = integrate.cumtrapz(np.sqrt(np.sum(dpts*dpts, axis=1)),
-                                   initial=0.0)
+        pdist = integrate.cumulative_trapezoid(np.sqrt(np.sum(dpts*dpts, axis=1)),
+                                               initial=0.0)
         self.L = pdist[-1]
         k = min(len(pts)-1, 3)  # degree of the spline
         self._path_tck = interpolate.splprep(pts.T, u=pdist, s=0, k=k)[0]

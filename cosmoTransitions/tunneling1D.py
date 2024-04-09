@@ -778,7 +778,7 @@ class SingleFieldInstanton:
         # And integrate the profile
         integrand = 0.5 * dphi**2 + self.V(phi) - self.V(self.phi_metaMin)
         integrand *= area
-        S = integrate.simps(integrand, r)
+        S = integrate.simpson(integrand, x=r)
         # Find the bulk term in the bubble interior
         volume = r[0]**d * np.pi**(d*.5)/special.gamma(d*.5 + 1)
         S += volume * (self.V(phi[0]) - self.V(self.phi_metaMin))
