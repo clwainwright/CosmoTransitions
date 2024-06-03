@@ -18,8 +18,14 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from scipy import optimize, integrate, special, interpolate
+from scipy import optimize, special, interpolate
 from collections import namedtuple
+
+try:
+    from scipy.integrate import simpson
+except ImportError:
+    # scipy.version < 1.6
+    from scipy.integrate import simps as simpson
 
 from . import helper_functions
 from .helper_functions import rkqs, IntegrationError, clampVal
@@ -778,7 +784,7 @@ class SingleFieldInstanton:
         # And integrate the profile
         integrand = 0.5 * dphi**2 + self.V(phi) - self.V(self.phi_metaMin)
         integrand *= area
-        S = integrate.simps(integrand, r)
+        S = simpson(integrand, x=r)
         # Find the bulk term in the bubble interior
         volume = r[0]**d * np.pi**(d*.5)/special.gamma(d*.5 + 1)
         S += volume * (self.V(phi[0]) - self.V(self.phi_metaMin))

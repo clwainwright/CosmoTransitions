@@ -34,8 +34,15 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from scipy import optimize, interpolate, integrate
+from scipy import optimize, interpolate
 from collections import namedtuple
+
+try:
+    from scipy.integrate import cumulative_trapezoid, odeint
+except ImportError:
+    # scipy.version < 1.6
+    from scipy.integrate import cumtrapz as cumulative_trapezoid
+    from scipy.integrate import odeint
 
 from . import tunneling1D
 from . import helper_functions
@@ -773,8 +780,8 @@ class SplinePath:
             # Recalculate the derivative
             dpts = _pathDeriv(pts)
         # 3. Find knot positions and fit the spline.
-        pdist = integrate.cumtrapz(np.sqrt(np.sum(dpts*dpts, axis=1)),
-                                   initial=0.0)
+        pdist = cumulative_trapezoid(np.sqrt(np.sum(dpts*dpts, axis=1)),
+                                               initial=0.0)
         self.L = pdist[-1]
         k = min(len(pts)-1, 3)  # degree of the spline
         self._path_tck = interpolate.splprep(pts.T, u=pdist, s=0, k=k)[0]
@@ -783,7 +790,7 @@ class SplinePath:
             def dpdx(_, x):
                 dp = np.array(interpolate.splev(x, self._path_tck, der=1))
                 return np.sqrt(np.sum(dp*dp))
-            pdist = integrate.odeint(dpdx, 0., pdist,
+            pdist = odeint(dpdx, 0., pdist,
                                      rtol=0, atol=pdist[-1]*1e-8)[:,0]
             self.L = pdist[-1]
             self._path_tck = interpolate.splprep(pts.T, u=pdist, s=0, k=k)[0]
